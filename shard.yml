@@ -1,0 +1,15 @@
+name: place_calendar
+version: 0.1.0
+
+authors:
+  - Toby Carvan <toby@redant.com.au>
+
+crystal: 0.33.0
+
+dependencies:
+  office365:
+    github: PlaceOS/office365
+  google:
+    github: PlaceOS/google
+
+license: MIT
