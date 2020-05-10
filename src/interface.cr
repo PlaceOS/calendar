@@ -8,7 +8,7 @@ module PlaceCalendar
     end
 
     # do we need this 
-    def get_user(id : String, **options) : User?
+    def get_user(id : String?, **options) : User?
     end
 
     def list_calendars(mail : String, **options) : Array(Calendar)

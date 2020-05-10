@@ -9,26 +9,34 @@ require "./office365"
 module PlaceCalendar
   VERSION = "0.1.0"
 
-  enum Type
-    Google
-    Office365
-  end
-
   class Client
     getter calendar : Interface
 
     delegate list_users, get_user, list_calendars, get_calendar, list_rooms,
       list_events, get_event, create_event, update_event, delete_event, to: @calendar
 
-    def initialize(type : Type, **credentials)
-      @calendar = case type
-                  when Type::Google
-                    Google.new(**credentials)
-                  when Type::Office365
-                    Office365.new(**credentials)
-                  else
-                    raise "Unsupported calendar type"
-                  end
+    def initialize(
+      tenant : String, 
+      client_id : String, 
+      client_secret : String
+    )
+      @calendar = Office365.new(tenant, client_id, client_secret)
+    end
+
+    def initialize(
+      scopes : String | Array(String), 
+      file_path : String,
+      domain : String,
+      issuer : String? = nil,
+      signing_key : String? = nil,
+      sub : String = "",
+      user_agent : String = "Switch"
+    )
+      @calendar = Google.new(scopes: scopes, domain: domain, issuer: issuer, signing_key: signing_key, file_path: file_path, user_agent: user_agent, sub: sub)
+    end
+
+    def initialize(**ignored)
+      @calendar = Interface.new
     end
   end
 end

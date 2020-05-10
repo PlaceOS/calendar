@@ -12,6 +12,8 @@ module PlaceCalendar
     def list_users(**options)
       if users = client.list_users(**options)
         users.value.map { |u| u.to_place_calendar }
+      else
+        [] of User
       end
     end
 
@@ -24,45 +26,36 @@ module PlaceCalendar
     def list_calendars(mail : String, **options)
       if calendars = client.list_calendars(**options.merge(mailbox: mail))
         calendars.value.map { |c| c.to_place_calendar }
+      else
+        [] of Calendar
       end
     end
 
-    def list_events(user_id : String, calendar_id : String? = nil)
+    def list_events(user_id : String, calendar_id : String? = nil, **options)
       if events = client.list_events(**options.merge(mailbox: user_id, calendar_id: calendar_id))
         events.value.map { |e| e.to_place_calendar }
+      else
+        [] of Event
       end
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
-      attendees = [] of ::Office365::Attendee
+      placeholder = ::Office365::Event.from_place_calendar(event)
 
-      event.attendees.each do |a|
-        attendees << ::Office365::Attendee.new(
-          email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name]),
-          type: ::Office365::AttendeeType::Required
-        )
-      end
-
-      event.locations.each do |a|
-        attendees << ::Office365::Attendee.new(
-          email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name]),
-          type: ::Office365::AttendeeType::Resource
-        )
-      end
-
-      location = event.locations.first[:name] rescue ""
-
-      client.create_event(
+      new_event = client.create_event(
         mailbox: user_id,
         calendar_id: calendar_id,
-        starts_at: event.starts_at || Time.local,
-        ends_at: event.ends_at || Time.local + 30.minutes,
-        subject: event.subject || "",
-        description: event.description || "",
-        attendees: attendees,
-        location: location,
-        sensitivity: event.is_private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private,
+        starts_at: event.event_start || Time.local,
+        ends_at: event.event_end,
+        subject: event.title,
+        description: placeholder.description,
+        attendees: placeholder.attendees,
+        location: "",
+        all_day: placeholder.all_day?,
+        sensitivity: placeholder.sensitivity,
       )
+
+      new_event.to_place_calendar
     end
 
     def get_event(user_id : String, id : String, **options)
@@ -72,28 +65,8 @@ module PlaceCalendar
     end
 
     def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-      o365_event = ::Office365::Event.from_json(event.source || "")
-
-      o365_event.starts_at = ::Office365::DateTimeTimeZone.new(event.starts_at || Time.local)
-      o365_event.ends_at = ::Office365::DateTimeTimeZone.new(event.ends_at || Time.local + 30.minutes)
-      o365_event.subject = event.subject
-      o365_event.description = event.description
-      o365_event.sensitivity = event.is_private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
-
-      attendees = [] of ::Office365::Attendee
-      event.attendees.each do |a|
-        attendees << ::Office365::Attendee.new(
-          email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name]),
-          type: ::Office365::AttendeeType::Required
-        )
-      end
-      event.locations.each do |a|
-        attendees << ::Office365::Attendee.new(
-          email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name]),
-          type: ::Office365::AttendeeType::Resource
-        )
-      end
-      o365_event.attendees = attendees
+      o365_event = ::Office365::Event.from_place_calendar(event)
+      o365_event.populate_from_place_calendar(event)
 
       if updated_event = client.update_event(**options.merge(mailbox: user_id, calendar_id: calendar_id, event: o365_event))
         updated_event.to_place_calendar
@@ -128,14 +101,39 @@ class Office365::Event
   def to_place_calendar
     PlaceCalendar::Event.new(
       id: @id,
-      starts_at: @starts_at.try &.to_time,
-      ends_at: @ends_at.try &.to_time,
-      subject: @subject,
+      host: @organizer.try &.email_address.try &.address,
+      event_start: @starts_at.try &.to_time,
+      event_end: @ends_at.try &.to_time,
+      title: @subject,
       description: @body.try &.content,
       attendees: @attendees.map { |a| {name: a.email_address.name, email: a.email_address.address} if a.type != AttendeeType::Resource }.compact,
-      locations: @attendees.map { |a| {name: a.email_address.name, email: a.email_address.address} if a.type == AttendeeType::Resource }.compact,
-      is_private: is_private?,
+      private: is_private?,
+      all_day: all_day?,
       source: self.to_json
     )
+  end
+
+  def populate_from_place_calendar(event : PlaceCalendar::Event)
+    @starts_at = ::Office365::DateTimeTimeZone.new(event.event_start || Time.local)
+    ends_at = event.event_end
+    if !ends_at.nil?
+      @ends_at = ::Office365::DateTimeTimeZone.new(ends_at)
+    end
+    @subject = event.title
+    description = event.description
+    @all_day = event.all_day?
+    @sensitivity = event.private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
+    @attendees = event.attendees.map do |a|
+      ::Office365::Attendee.new(
+        email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name])
+      )
+    end
+  end
+
+  def self.from_place_calendar(event : PlaceCalendar::Event)
+    new_event = event.source.nil? ? new : ::Office365::Event.from_json(event.source || "")
+    new_event.populate_from_place_calendar(event)
+
+    new_event
   end
 end
