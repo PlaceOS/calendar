@@ -11,8 +11,8 @@ module PlaceCalendar
     )
     end
 
-    def auth : ::Google::FileAuth
-      @auth ||= ::Google::FileAuth.new(file_path: @file_path, scopes: @scopes, sub: @sub, user_agent: @user_agent)
+    def auth(sub = @sub) : ::Google::FileAuth
+      ::Google::FileAuth.new(file_path: @file_path, scopes: @scopes, sub: sub, user_agent: @user_agent)
     end
 
     def list_users(**options) : Array(User)
@@ -29,7 +29,7 @@ module PlaceCalendar
     end
 
     def list_calendars(mail : String, **options) : Array(Calendar)
-      if calendars = calendar.calendar_list
+      if calendars = calendar(mail).calendar_list
         calendars.map { |c| c.to_place_calendar }
       else
         return [] of Calendar
@@ -50,7 +50,7 @@ module PlaceCalendar
       # TODO: how to avoid duplicating default values from the shards
       calendar_id = "primary" if calendar_id.nil?
 
-      if events = calendar.events(calendar_id, period_start, period_end, **options)
+      if events = calendar(user_id).events(calendar_id, period_start, period_end, **options)
         events.items.map { |e| e.to_place_calendar }
       else
         return [] of Event
@@ -58,7 +58,7 @@ module PlaceCalendar
     end
 
     def get_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Event?
-      if event = calendar.event(id, calendar_id)
+      if event = calendar(user_id).event(id, calendar_id)
         event.to_place_calendar
       else
         nil
@@ -66,19 +66,19 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-      new_event = calendar.create(event_params(event, calendar_id))
+      new_event = calendar(user_id).create(event_params(event, calendar_id))
 
       new_event ? new_event.to_place_calendar : nil
     end
 
     def update_event(user_id : String, event : Event, calendar_id : String = "primary", **options) : Event?
       params = event_params(event, calendar_id).merge(event_id: event.id)
-      updated_event = calendar.update(**params)
+      updated_event = calendar(user_id).update(**params)
       updated_event ? updated_event.to_place_calendar : nil
     end
 
     def delete_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Bool
-      if calendar.delete(id, calendar_id)
+      if calendar(user_id).delete(id, calendar_id)
         true
       else
         false
@@ -89,7 +89,7 @@ module PlaceCalendar
       @directory ||= ::Google::Directory.new(auth: auth, domain: @domain)
     end
 
-    def calendar
+    def calendar(sub = @sub)
       @calendar ||= ::Google::Calendar.new(auth: auth)
     end
 
