@@ -39,25 +39,50 @@ module PlaceCalendar
     def get_calendar(id : String, **options) : Calendar
     end
 
-    def list_events(user_id : String, calendar_id : String? = nil, **options) : Array(Event)
-      if events = calendar.events
-        events.items.map { |u| u.to_place_calendar }
+    def list_events(
+      user_id : String,
+      calendar_id : String? = nil,
+      period_start : Time = Time.local,
+      period_end : Time? = nil,
+      **options
+    ) : Array(Event)
+      # user_id ignored?
+      # TODO: how to avoid duplicating default values from the shards
+      calendar_id = "primary" if calendar_id.nil?
+
+      if events = calendar.events(calendar_id, period_start, period_end, **options)
+        events.items.map { |e| e.to_place_calendar }
       else
         return [] of Event
       end
     end
 
-    def get_event(user_id : String, id : String, **options) : Event?
+    def get_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Event?
+      if event = calendar.event(id, calendar_id)
+        event.to_place_calendar
+      else
+        nil
+      end
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
+      new_event = calendar.create(event_params(event, calendar_id))
+
+      new_event ? new_event.to_place_calendar : nil
     end
 
-    def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
+    def update_event(user_id : String, event : Event, calendar_id : String = "primary", **options) : Event?
+      params = event_params(event, calendar_id).merge(event_id: event.id)
+      updated_event = calendar.update(**params)
+      updated_event ? updated_event.to_place_calendar : nil
     end
 
-    def delete_event(user_id : String, id : String, **options) : Bool
-      false
+    def delete_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Bool
+      if calendar.delete(id, calendar_id)
+        true
+      else
+        false
+      end
     end
 
     def directory : ::Google::Directory
@@ -66,6 +91,19 @@ module PlaceCalendar
 
     def calendar
       @calendar ||= ::Google::Calendar.new(auth: auth)
+    end
+
+    private def event_params(event, calendar_id)
+      {
+        event_start: event.event_start,
+        event_end:   event.event_end || Time.local + 1.hour,
+        calendar_id: calendar_id ? calendar_id : "primary",
+        attendees:   event.attendees.map {|e| e[:email] },
+        all_day:     event.all_day?,
+        visibility:  event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
+        summary:     event.title,
+        description: event.description
+      }
     end
   end
 end
@@ -114,11 +152,12 @@ class Google::Calendar::Event
       event_start: event_start,
       event_end: event_end,
       title: @summary,
-      description: "",
+      description: @description,
       attendees: attendees,
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,
       source: self.to_json
     )
   end
+
 end

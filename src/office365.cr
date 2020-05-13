@@ -32,6 +32,7 @@ module PlaceCalendar
     end
 
     def list_events(user_id : String, calendar_id : String? = nil, **options)
+      # TODO: need the period_start and period_end stuff that google has here
       if events = client.list_events(**options.merge(mailbox: user_id, calendar_id: calendar_id))
         events.value.map { |e| e.to_place_calendar }
       else
@@ -102,7 +103,7 @@ class Office365::Event
     PlaceCalendar::Event.new(
       id: @id,
       host: @organizer.try &.email_address.try &.address,
-      event_start: @starts_at.try &.to_time,
+      event_start: @starts_at.try &.to_time || Time.local,
       event_end: @ends_at.try &.to_time,
       title: @subject,
       description: @body.try &.content,

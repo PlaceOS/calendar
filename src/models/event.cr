@@ -2,7 +2,7 @@ class PlaceCalendar::Event
   include JSON::Serializable
 
   @[JSON::Field(converter: Time::EpochConverter)]
-  property event_start : Time?
+  property event_start : Time
 
   @[JSON::Field(converter: Time::EpochConverter)]
   property event_end : Time?
@@ -20,7 +20,7 @@ class PlaceCalendar::Event
   def initialize(
     @id = nil,
     @host = nil,
-    @event_start = nil,
+    @event_start = Time.local,
     @event_end = nil,
     @title = nil,
     @description = nil,
