@@ -66,7 +66,7 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-      new_event = calendar(user_id).create(event_params(event, calendar_id))
+      new_event = calendar(user_id).create(**event_params(event, calendar_id))
 
       new_event ? new_event.to_place_calendar : nil
     end
@@ -113,7 +113,7 @@ class Google::Directory::User
     PlaceCalendar::User.new(
       id: self.id,
       name: "", # TODO: Update google shard to extract name
-      email: self.primaryEmail,
+      email: self.primary_email,
       source: self.to_json
     )
   end
@@ -121,7 +121,7 @@ end
 
 class Google::Calendar::ListEntry
   def to_place_calendar
-    PlaceCalendar::Calendar.new(id: @id, name: @summaryMain, source: self.to_json)
+    PlaceCalendar::Calendar.new(id: @id, name: @summary_main, source: self.to_json)
   end
 end
 
@@ -129,15 +129,15 @@ class Google::Calendar::Event
   NOP_G_ATTEND = [] of ::Google::Calendar::Attendee
 
   def to_place_calendar
-    event_start = (@start.dateTime || @start.date).not_nil!
-    event_end = @end.try { |time| (time.dateTime || time.date) }
+    event_start = (@start.date_time || @start.date).not_nil!
+    event_end = @end.try { |time| (time.date_time || time.date) }
 
     # Grab the list of external visitors
     attendees = (@attendees || NOP_G_ATTEND).map do |attendee|
       email = attendee.email.downcase
 
       {
-        name:            attendee.displayName || email,
+        name:            attendee.display_name || email,
         email:           email,
         # TODO: Stephen includes some extra stuff here not included in our spec
         # response_status: attendee.responseStatus,
