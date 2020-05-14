@@ -12,9 +12,11 @@ class PlaceCalendar::Event
   property title : String?
   property description : String?
   property attendees : Array(NamedTuple(name: String, email: String))
-  property locations : Array(Location)
+  property location : Location?
   property? private : Bool
   property? all_day : Bool
+
+  @[JSON::Field(ignore: true)]
   property source : String?
 
   def initialize(
@@ -25,15 +27,21 @@ class PlaceCalendar::Event
     @title = nil,
     @description = nil,
     @attendees = [] of NamedTuple(name: String, email: String),
-    @locations = [] of Location,
+    @location = nil,
     @private = false,
     @all_day = false,
     @source = nil
   )
+    
   end
 
   def timezone
     @timezone ||= @event_start.zone.to_s
+  end
+
+  def location=(text : String)
+    @location ||= Location.new
+    @location.text = text
   end
 end
 

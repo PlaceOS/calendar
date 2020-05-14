@@ -41,19 +41,8 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
-      placeholder = ::Office365::Event.from_place_calendar(event)
-
       new_event = client.create_event(
-        mailbox: user_id,
-        calendar_id: calendar_id,
-        starts_at: event.event_start || Time.local,
-        ends_at: event.event_end,
-        subject: event.title,
-        description: placeholder.description,
-        attendees: placeholder.attendees,
-        location: "",
-        all_day: placeholder.all_day?,
-        sensitivity: placeholder.sensitivity,
+        **event_params(event).merge(mailbox: user_id, calendar_id: calendar_id)
       )
 
       new_event.to_place_calendar
@@ -66,8 +55,7 @@ module PlaceCalendar
     end
 
     def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-      o365_event = ::Office365::Event.from_place_calendar(event)
-      o365_event.populate_from_place_calendar(event)
+      o365_event = ::Office365::Event.new(**event_params(event))
 
       if updated_event = client.update_event(**options.merge(mailbox: user_id, calendar_id: calendar_id, event: o365_event))
         updated_event.to_place_calendar
@@ -76,6 +64,29 @@ module PlaceCalendar
 
     def delete_event(user_id : String, id : String, **options) : Bool
       client.delete_event(**options.merge(mailbox: user_id, id: id)) || false
+    end
+
+    private def event_params(event)
+      attendees = event.attendees.map do |a|
+        ::Office365::Attendee.new(
+          email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name])
+        )
+      end
+
+      sensitivity = event.private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
+
+      {
+        id:          event.id,
+        organizer:   event.host,
+        starts_at:   event.event_start || Time.local,
+        ends_at:     event.event_end,
+        subject:     event.title || "",
+        description: event.description,
+        all_day:     event.all_day?,
+        sensitivity: sensitivity,
+        attendees:   attendees,
+        location:    event.location.try(&.text),
+      }
     end
   end
 end
@@ -100,6 +111,15 @@ end
 
 class Office365::Event
   def to_place_calendar
+    attendees = @attendees
+      .select { |a| a.type != AttendeeType::Resource }
+      .map { |a| {name: a.email_address.name, email: a.email_address.address} }
+
+    source_location = @location || @locations.try &.first
+    location = if source_location
+                 PlaceCalendar::Location.new(text: source_location.display_name)
+               end
+
     PlaceCalendar::Event.new(
       id: @id,
       host: @organizer.try &.email_address.try &.address,
@@ -107,34 +127,11 @@ class Office365::Event
       event_end: @ends_at.try &.to_time,
       title: @subject,
       description: @body.try &.content,
-      attendees: @attendees.map { |a| {name: a.email_address.name, email: a.email_address.address} if a.type != AttendeeType::Resource }.compact,
+      attendees: attendees,
       private: is_private?,
       all_day: all_day?,
+      location: location,
       source: self.to_json
     )
-  end
-
-  def populate_from_place_calendar(event : PlaceCalendar::Event)
-    @starts_at = ::Office365::DateTimeTimeZone.new(event.event_start || Time.local)
-    ends_at = event.event_end
-    if !ends_at.nil?
-      @ends_at = ::Office365::DateTimeTimeZone.new(ends_at)
-    end
-    @subject = event.title
-    description = event.description
-    @all_day = event.all_day?
-    @sensitivity = event.private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
-    @attendees = event.attendees.map do |a|
-      ::Office365::Attendee.new(
-        email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name])
-      )
-    end
-  end
-
-  def self.from_place_calendar(event : PlaceCalendar::Event)
-    new_event = event.source.nil? ? new : ::Office365::Event.from_json(event.source || "")
-    new_event.populate_from_place_calendar(event)
-
-    new_event
   end
 end

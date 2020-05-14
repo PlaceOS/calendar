@@ -102,7 +102,8 @@ module PlaceCalendar
         all_day:     event.all_day?,
         visibility:  event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
         summary:     event.title,
-        description: event.description
+        description: event.description,
+        location:    event.location.try &.text
       }
     end
   end
@@ -153,6 +154,7 @@ class Google::Calendar::Event
       event_end: event_end,
       title: @summary,
       description: @description,
+      location: @location.nil? ? nil : PlaceCalendar::Location.new(text: @location),
       attendees: attendees,
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,
