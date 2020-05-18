@@ -41,9 +41,8 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
-      new_event = client.create_event(
-        **event_params(event).merge(mailbox: user_id, calendar_id: calendar_id)
-      )
+      params = event_params(event).merge(mailbox: user_id, calendar_id: calendar_id)
+      new_event = client.create_event(**params)
 
       new_event.to_place_calendar
     end
@@ -103,14 +102,22 @@ class Office365::Calendar
   end
 end
 
-class Office365::DateTimeTimeZone
-  def to_time
-    @date_time.in(Time::Location.load(@time_zone))
-  end
-end
-
 class Office365::Event
   def to_place_calendar
+    event_start = @starts_at || Time.local
+    event_end   = @ends_at
+
+    if !@timezone.nil?
+      tz_location = DateTimeTimeZone.tz_location(@timezone.not_nil!)
+
+      event_start = event_start.in(tz_location)
+
+      if !event_end.nil?
+        event_end = event_end.not_nil!.in(tz_location)
+      end
+    end
+
+
     attendees = @attendees
       .select { |a| a.type != AttendeeType::Resource }
       .map { |a| {name: a.email_address.name, email: a.email_address.address} }
@@ -123,15 +130,16 @@ class Office365::Event
     PlaceCalendar::Event.new(
       id: @id,
       host: @organizer.try &.email_address.try &.address,
-      event_start: @starts_at.try &.to_time || Time.local,
-      event_end: @ends_at.try &.to_time,
+      event_start: event_start,
+      event_end: event_end,
       title: @subject,
       description: @body.try &.content,
       attendees: attendees,
       private: is_private?,
       all_day: all_day?,
       location: location,
-      source: self.to_json
+      source: self.to_json,
+      timezone: event_start.location.to_s
     )
   end
 end

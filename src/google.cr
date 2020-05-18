@@ -26,6 +26,11 @@ module PlaceCalendar
 
     # do we need this
     def get_user(id : String?, **options) : User?
+      if user = directory.lookup(id)
+        user.to_place_calendar
+      else
+        return nil
+      end
     end
 
     def list_calendars(mail : String, **options) : Array(Calendar)
@@ -158,7 +163,8 @@ class Google::Calendar::Event
       attendees: attendees,
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,
-      source: self.to_json
+      source: self.to_json,
+      timezone: @start.time_zone
     )
   end
 

@@ -15,6 +15,7 @@ class PlaceCalendar::Event
   property location : Location?
   property? private : Bool
   property? all_day : Bool
+  property timezone : String?
 
   @[JSON::Field(ignore: true)]
   property source : String?
@@ -30,13 +31,9 @@ class PlaceCalendar::Event
     @location = nil,
     @private = false,
     @all_day = false,
-    @source = nil
+    @source = nil,
+    @timezone = nil
   )
-    
-  end
-
-  def timezone
-    @timezone ||= @event_start.zone.to_s
   end
 
   def location=(text : String)
