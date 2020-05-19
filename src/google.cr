@@ -47,7 +47,7 @@ module PlaceCalendar
     def list_events(
       user_id : String,
       calendar_id : String? = nil,
-      period_start : Time = Time.local,
+      period_start : Time = Time.local.at_beginning_of_day,
       period_end : Time? = nil,
       **options
     ) : Array(Event)
@@ -138,6 +138,14 @@ class Google::Calendar::Event
     event_start = (@start.date_time || @start.date).not_nil!
     event_end = @end.try { |time| (time.date_time || time.date) }
 
+    timezone = @start.time_zone || "UTC"
+    tz_location = Time::Location.load(timezone)
+    event_start = event_start.in(tz_location)
+
+    if !event_end.nil?
+      event_end = event_end.not_nil!.in(tz_location)
+    end
+
     # Grab the list of external visitors
     attendees = (@attendees || NOP_G_ATTEND).map do |attendee|
       email = attendee.email.downcase
@@ -164,7 +172,7 @@ class Google::Calendar::Event
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,
       source: self.to_json,
-      timezone: @start.time_zone
+      timezone: timezone
     )
   end
 

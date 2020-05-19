@@ -31,9 +31,14 @@ module PlaceCalendar
       end
     end
 
-    def list_events(user_id : String, calendar_id : String? = nil, **options)
-      # TODO: need the period_start and period_end stuff that google has here
-      if events = client.list_events(**options.merge(mailbox: user_id, calendar_id: calendar_id))
+    def list_events(
+      user_id : String, 
+      calendar_id : String? = nil, 
+      period_start : Time = Time.local.at_beginning_of_day,
+      period_end : Time? = nil,
+      **options
+    )
+      if events = client.list_events(**options.merge(mailbox: user_id, calendar_id: calendar_id, period_start: period_start, period_end: period_end))
         events.value.map { |e| e.to_place_calendar }
       else
         [] of Event
