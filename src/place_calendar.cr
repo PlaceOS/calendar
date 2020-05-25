@@ -13,7 +13,8 @@ module PlaceCalendar
     getter calendar : Interface
 
     delegate list_users, get_user, list_calendars, get_calendar, list_rooms,
-      list_events, get_event, create_event, update_event, delete_event, to: @calendar
+      list_events, get_event, create_event, update_event, delete_event,
+      list_attachments, get_attachment, create_attachment, delete_attachment, to: @calendar
 
     def initialize(
       tenant : String, 

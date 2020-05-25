@@ -1,3 +1,5 @@
+require "mime"
+
 module PlaceCalendar
   class Google < Interface
     def initialize(
@@ -95,7 +97,11 @@ module PlaceCalendar
     end
 
     def calendar(sub = @sub)
-      @calendar ||= ::Google::Calendar.new(auth: auth)
+      @calendar ||= ::Google::Calendar.new(auth: auth(sub))
+    end
+
+    private def drive_files(sub = @sub)
+      @drive_files ||= ::Google::Files.new(auth: auth(sub))
     end
 
     private def event_params(event, calendar_id)
@@ -110,6 +116,81 @@ module PlaceCalendar
         description: event.description,
         location:    event.location.try &.text
       }
+    end
+
+    def list_attachments(user_id : String, event_id : String, calendar_id : String? = "primary", **options)
+      attachments = [] of Attachment
+
+      if event = calendar(user_id).event(event_id, calendar_id)
+        attachments = event.attachments.map {|a| create_place_calendar_attachment(user_id, a) }
+      end
+
+      attachments
+    end
+
+    def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = "primary", **options)
+      if attachments = list_attachments(user_id, event_id, calendar_id)
+        return attachments.find { |a| a.id == id }
+      else
+        nil
+      end
+    end
+
+    def create_attachment(user_id : String, event_id : String, attachment : Attachment, calendar_id : String = "primary", **options)
+      file = drive_files(user_id).create(name: attachment.name, content_bytes: attachment.content_bytes, content_type: extract_mime_type(attachment.name).not_nil!)
+      
+      if !file.nil?
+        metadata = drive_files(user_id).file(file.id.not_nil!)
+        event = calendar(user_id).update(
+          event_id: event_id,
+          calendar_id: calendar_id,
+          attachments: [::Google::Calendar::Attachment.new(file_id: metadata.id, file_url: metadata.link)]
+        )
+
+        attachments = list_attachments(user_id, event_id, calendar_id)
+        return attachments.find { |a| a.id == file.id }
+      else
+        return nil
+      end
+    end
+
+    def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = "primary", **options)
+      event = calendar(user_id).event(event_id, calendar_id)
+
+      if !event.nil?
+        if calendar(user_id).update(
+          event_id: event_id,
+          calendar_id: calendar_id,
+          attachments: event.attachments.reject! { |a| a.file_id == id }
+        )
+          true
+        else
+          false
+        end
+      else
+        false
+      end
+    end
+
+
+    private def create_place_calendar_attachment(user_id : String, attachment : ::Google::Calendar::Attachment) : PlaceCalendar::Attachment
+      metadata = drive_files(user_id).file(attachment.file_id.not_nil!)
+      file = drive_files(user_id).download_file(attachment.file_id.not_nil!)
+
+      PlaceCalendar::Attachment.new(
+        id: metadata.id,
+        content_bytes: file,
+        content_type: extract_mime_type(metadata.name),
+        name: metadata.name,
+      )
+    end
+
+    private def extract_mime_type(filename : String?)
+      if match = /(.\w+)$/.match(filename)
+        MIME.from_extension?(match.not_nil![0])
+      else
+        "text/plain"
+      end
     end
   end
 end
@@ -130,6 +211,7 @@ class Google::Calendar::ListEntry
     PlaceCalendar::Calendar.new(id: @id, name: @summary_main, source: self.to_json)
   end
 end
+
 
 class Google::Calendar::Event
   NOP_G_ATTEND = [] of ::Google::Calendar::Attendee

@@ -34,5 +34,19 @@ module PlaceCalendar
     def delete_event(user_id : String, id : String, **options) : Bool
       false
     end
+
+    def list_attachments(user_id : String, event_id : String, calendar_id : String? = nil, **options) : Array(Attachment)
+      return [] of Attachment
+    end
+
+    def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options) : Attachment?
+    end
+
+    def create_attachment(user_id : String, event_id : String, attachment : Attachment, calendar_id : String? = nil, **options) : Attachment?
+    end
+
+    def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = nil, **options) : Bool
+      false
+    end
   end
 end

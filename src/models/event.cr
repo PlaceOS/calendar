@@ -17,6 +17,8 @@ class PlaceCalendar::Event
   property? all_day : Bool
   property timezone : String?
 
+  property attachments : Array(Attachment)
+
   @[JSON::Field(ignore: true)]
   property source : String?
 
@@ -32,7 +34,8 @@ class PlaceCalendar::Event
     @private = false,
     @all_day = false,
     @source = nil,
-    @timezone = nil
+    @timezone = nil,
+    @attachments = [] of Attachment
   )
   end
 

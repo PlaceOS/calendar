@@ -14,12 +14,12 @@ describe PlaceCalendar::Office365 do
 
   it "lists calendars" do
     client = PlaceCalendar::Client.new(**o365_creds)
-    calendars_spec(client)
+    calendars_spec(client, "dev@acaprojects.com")
   end
 
   it "lists, creates, updates, and deletes events" do
     client = PlaceCalendar::Client.new(**o365_creds)
-    events_spec(client)
+    events_spec(client, "dev@acaprojects.com")
   end
 
 end

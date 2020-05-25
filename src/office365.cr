@@ -92,6 +92,46 @@ module PlaceCalendar
         location:    event.location.try(&.text),
       }
     end
+
+    def list_attachments(user_id : String, event_id : String, calendar_id : String? = nil, **options)
+      if attachments = client.list_attachments(**options.merge(mailbox: user_id, event_id: event_id, calendar_id: calendar_id))
+        attachments.value.map { |a| a.to_placecalendar }
+      else
+        [] of Attachment
+      end
+    end
+
+    def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options)
+      if attachment = client.get_attachment(**options.merge(mailbox: user_id, event_id: event_id, id: id, calendar_id: calendar_id))
+        attachment.to_placecalendar
+      else
+        nil
+      end
+    end
+
+    def create_attachment(user_id : String, event_id : String, attachment : Attachment, calendar_id : String? = nil, **options) : Attachment?
+      params = options.merge(mailbox: user_id, event_id: event_id, calendar_id: calendar_id)
+      if new_attachment = client.create_attachment(**params.merge(attachment_params(attachment)))
+        new_attachment.to_placecalendar
+      else
+        nil
+      end
+    end
+
+    def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = nil, **options) : Bool
+      if client.delete_attachment(**options.merge(id: id, mailbox: user_id, event_id: event_id, calendar_id: calendar_id))
+        true
+      else
+        false
+      end
+    end
+
+    private def attachment_params(attachment)
+      {
+        name: attachment.name,
+        content_bytes: attachment.content_bytes,
+      }
+    end
   end
 end
 
@@ -145,6 +185,18 @@ class Office365::Event
       location: location,
       source: self.to_json,
       timezone: event_start.location.to_s
+    )
+  end
+end
+
+class Office365::Attachment
+  def to_placecalendar
+    PlaceCalendar::Attachment.new(
+      id: @id,
+      name: @name,
+      content_type: @content_type,
+      content_bytes: @content_bytes,
+      size: @size
     )
   end
 end
