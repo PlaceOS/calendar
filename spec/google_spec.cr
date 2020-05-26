@@ -14,12 +14,12 @@ describe PlaceCalendar::Google do
 
   it "lists calendars" do
     client = PlaceCalendar::Client.new(**google_creds)
-    calendars_spec(client)
+    calendars_spec(client, "toby@redant.com.au")
   end
 
   it "lists, creates, updates, and deletes events" do
     client = PlaceCalendar::Client.new(**google_creds)
-    events_spec(client)
+    events_spec(client, "toby@redant.com.au")
   end
 
 end
