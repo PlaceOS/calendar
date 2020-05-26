@@ -18,6 +18,7 @@ class PlaceCalendar::Event
   property timezone : String?
 
   property attachments : Array(Attachment)
+  property recurrence : Recurrence?
 
   @[JSON::Field(ignore: true)]
   property source : String?
@@ -35,7 +36,8 @@ class PlaceCalendar::Event
     @all_day = false,
     @source = nil,
     @timezone = nil,
-    @attachments = [] of Attachment
+    @attachments = [] of Attachment,
+    @recurrence = nil
   )
   end
 
