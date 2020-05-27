@@ -90,12 +90,13 @@ module PlaceCalendar
         sensitivity: sensitivity,
         attendees:   attendees,
         location:    event.location.try(&.text),
+        recurrence: nil
       }
       if event.recurrence
         e_recurrence = event.recurrence.not_nil!
         timezone_loc = event.timezone ? Time::Location.load(event.timezone.not_nil!) : Time::Location.load("UTC")
         recurrence_params = ::Office365::RecurrenceParam.new(pattern: e_recurrence.pattern,
-          range_end: Time.unix(e_recurrence.range_end).in(location: timezone_loc), # need timezone stuff
+          range_end: e_recurrence.range_end.in(location: timezone_loc),
           interval: e_recurrence.interval,
           days_of_week: e_recurrence.days_of_week)
         params = params.merge(recurrence: recurrence_params)
@@ -182,14 +183,18 @@ class Office365::Event
                end
 
     recurrence = if @recurrence
-                   recurrence_time_zone_loc = Time::Location.load(@recurrence.recurrence_time_zone)
-                   range_start = Time.parse(@recurrence.range.start_date, pattern: "%F", location: recurrence_time_zone_loc).to_unix
-                   range_end = Time.parse(@recurrence.range.end_date, pattern: "%F", location: recurrence_time_zone_loc).to_unix
+                   e_recurrence = @recurrence.not_nil!
+                   range = e_recurrence.range.not_nil!
+                   pattern = e_recurrence.pattern.not_nil!
+                   days_of_week = pattern.days_of_week ? pattern.days_of_week.not_nil!.first.to_s.downcase : nil
+                   recurrence_time_zone_loc = range.recurrence_time_zone ? Time::Location.load(range.recurrence_time_zone.not_nil!) : Time::Location.load("UTC")
+                   range_start = Time.parse(range.start_date, pattern: "%F", location: recurrence_time_zone_loc)
+                   range_end = Time.parse(range.end_date, pattern: "%F", location: recurrence_time_zone_loc)
                    PlaceCalendar::Recurrence.new(range_start: range_start,
                      range_end: range_end,
-                     interval: @recurrence.pattern.interval,
-                     pattern: @recurrence.pattern.type.to_s,
-                     days_of_week: @recurrence.pattern.days_of_week,
+                     interval: pattern.interval.not_nil!,
+                     pattern: pattern.type.to_s.downcase,
+                     days_of_week: days_of_week,
                    )
                  end
 
