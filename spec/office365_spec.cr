@@ -22,5 +22,5 @@ describe PlaceCalendar::Office365 do
     events_spec(client, "dev@acaprojects.com")
     events_recurrence_spec(client, "dev@acaprojects.com")
   end
- 
+
 end
