@@ -105,17 +105,23 @@ module PlaceCalendar
     end
 
     private def event_params(event, calendar_id)
-      {
+      params = {
         event_start: event.event_start,
         event_end:   event.event_end || Time.local + 1.hour,
         calendar_id: calendar_id ? calendar_id : "primary",
-        attendees:   event.attendees.map {|e| e[:email] },
+        attendees:   event.attendees.map { |e| e[:email] },
         all_day:     event.all_day?,
         visibility:  event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
         summary:     event.title,
         description: event.description,
-        location:    event.location.try &.text
+        location:    event.location.try &.text,
+        recurrence:  nil,
       }
+      if event.recurrence
+        e_recurrence = event.recurrence.not_nil!
+        params = params.merge(recurrence: e_recurrence.to_google_params)
+      end
+      params
     end
 
     def list_attachments(user_id : String, event_id : String, calendar_id : String? = "primary", **options)
@@ -242,6 +248,10 @@ class Google::Calendar::Event
       }
     end
 
+    recurrence = if @recurrence
+                   PlaceCalendar::Recurrence.from_google(@recurrence, self)
+                 end
+
     PlaceCalendar::Event.new(
       id: @id,
       host: @organizer.try &.email,
@@ -254,8 +264,8 @@ class Google::Calendar::Event
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,
       source: self.to_json,
-      timezone: timezone
+      timezone: timezone,
+      recurrence: recurrence
     )
   end
-
 end
