@@ -48,5 +48,9 @@ module PlaceCalendar
     def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = nil, **options) : Bool
       false
     end
+
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
+      return [] of AvailabilitySchedule
+    end
   end
 end

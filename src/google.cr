@@ -172,6 +172,13 @@ module PlaceCalendar
       end
     end
 
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time)
+      if schedule = calendar(user_id).availability(calendars, starts_at, ends_at)
+        schedule.map { |a| a.to_place_calendar }
+      else
+        return [] of AvailabilitySchedule
+      end
+    end
 
     private def create_place_calendar_attachment(user_id : String, attachment : ::Google::Calendar::Attachment) : PlaceCalendar::Attachment
       metadata = drive_files(user_id).file(attachment.file_id.not_nil!)
@@ -209,6 +216,26 @@ end
 class Google::Calendar::ListEntry
   def to_place_calendar
     PlaceCalendar::Calendar.new(id: @id, name: @summary_main, source: self.to_json)
+  end
+end
+
+class Google::Calendar::CalendarAvailability
+  def to_place_calendar
+    PlaceCalendar::AvailabilitySchedule.new(
+      @calendar,
+      @availability.map { |a| a.to_place_calendar }
+    )
+  end
+end
+
+class Google::Calendar::AvailabilityStatus
+  def to_place_calendar
+    PlaceCalendar::Availability.new(
+      @status == "free" ? PlaceCalendar::AvailabilityStatus::Free : PlaceCalendar::AvailabilityStatus::Busy,
+      @starts_at.time,
+      @ends_at.time,
+      @starts_at.time_zone || @starts_at.time.location.to_s
+    )
   end
 end
 
@@ -257,5 +284,4 @@ class Google::Calendar::Event
       timezone: timezone
     )
   end
-
 end

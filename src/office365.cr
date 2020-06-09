@@ -126,6 +126,14 @@ module PlaceCalendar
       end
     end
 
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time)
+      if availability = client.get_availability(user_id, calendars, starts_at, ends_at)
+        availability.map { |a| a.to_placecalendar }
+      else
+        return [] of AvailabilitySchedule
+      end
+    end
+
     private def attachment_params(attachment)
       {
         name: attachment.name,
@@ -197,6 +205,26 @@ class Office365::Attachment
       content_type: @content_type,
       content_bytes: @content_bytes,
       size: @size
+    )
+  end
+end
+
+class Office365::AvailabilitySchedule
+  def to_placecalendar
+    PlaceCalendar::AvailabilitySchedule.new(
+      @calendar,
+      @availability.map { |a| a.to_placecalendar }
+    )
+  end
+end
+
+class Office365::Availability
+  def to_placecalendar
+    PlaceCalendar::Availability.new(
+      @status == ::Office365::AvailabilityStatus::Free ? PlaceCalendar::AvailabilityStatus::Free : PlaceCalendar::AvailabilityStatus::Busy,
+      @starts_at,
+      @ends_at,
+      @starts_at.location.to_s
     )
   end
 end
