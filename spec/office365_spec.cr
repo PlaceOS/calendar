@@ -20,6 +20,10 @@ describe PlaceCalendar::Office365 do
   it "lists, creates, updates, and deletes events" do
     client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Office365, **o365_creds)
     events_spec(client, "dev@acaprojects.com")
+  end
+
+  it "supports recurring events" do
+    client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Office365, **o365_creds)
     events_recurrence_spec(client, "dev@acaprojects.com")
   end
 
