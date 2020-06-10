@@ -119,7 +119,7 @@ module PlaceCalendar
       }
       if event.recurrence
         e_recurrence = event.recurrence.not_nil!
-        params = params.merge(recurrence: e_recurrence.to_google_params)
+        params = params.merge(recurrence: PlaceCalendar::Google.recurrence_to_google(e_recurrence))
       end
       params
     end
@@ -205,6 +205,87 @@ module PlaceCalendar
         "text/plain"
       end
     end
+
+    def self.recurrence_to_google(recurrence)
+      interval = recurrence.interval
+      pattern = recurrence.pattern
+      days_of_week = recurrence.days_of_week
+
+      formatted_until_date = recurrence.range_end.to_rfc3339.gsub("-", "").gsub(":", "").split(".").first
+      until_date = "#{formatted_until_date}"
+      case pattern
+      when "daily"
+        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};UNTIL=#{until_date}"]
+      when "weekly"
+        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=#{days_of_week.not_nil!.upcase[0..1]};UNTIL=#{until_date}"]
+      when "monthly"
+        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=1#{days_of_week.not_nil!.upcase[0..1]};UNTIL=#{until_date}"]
+      end
+    end
+
+    def self.recurrence_from_google(recurrence_rule, event)
+      rule_parts = recurrence_rule.not_nil!.first.split(";")
+      location = event.start.time_zone ? Time::Location.load(event.start.time_zone.not_nil!) : Time::Location.load("UTC")
+      PlaceCalendar::Recurrence.new(range_start: event.start.time.at_beginning_of_day.in(location),
+        range_end: google_range_end(rule_parts, event),
+        interval: google_interval(rule_parts),
+        pattern: google_pattern(rule_parts),
+        days_of_week: google_days_of_week(rule_parts),
+      )
+    end
+
+    private def self.google_pattern(rule_parts)
+      pattern_part = rule_parts.find do |parts|
+        parts.includes?("RRULE:FREQ")
+      end.not_nil!
+
+      pattern_part.split("=").last.downcase
+    end
+
+    private def self.google_interval(rule_parts)
+      interval_part = rule_parts.find do |parts|
+        parts.includes?("INTERVAL")
+      end.not_nil!
+
+      interval_part.split("=").last.to_i
+    end
+
+    private def self.google_range_end(rule_parts, event)
+      range_end_part = rule_parts.find do |parts|
+        parts.includes?("UNTIL")
+      end.not_nil!
+      until_date = range_end_part.gsub("Z", "").split("=").last
+      location = event.start.time_zone ? Time::Location.load(event.start.time_zone.not_nil!) : Time::Location.load("UTC")
+
+      Time.parse(until_date, "%Y%m%dT%H%M%S", location)
+    end
+
+    private def self.google_days_of_week(rule_parts)
+      byday_part = rule_parts.find do |parts|
+        parts.includes?("BYDAY")
+      end
+
+      if byday_part
+        byday = byday_part.not_nil!.split("=").last
+
+        case byday
+        when "SU", "1SU"
+          "sunday"
+        when "MO", "1MO"
+          "monday"
+        when "TU", "1TU"
+          "tuesday"
+        when "WE", "1WE"
+          "wednesday"
+        when "TH", "1TH"
+          "thursday"
+        when "FR", "1FR"
+          "friday"
+        when "SA", "1SA"
+          "saturday"
+        end
+      end
+    end
   end
 end
 
@@ -276,7 +357,7 @@ class Google::Calendar::Event
     end
 
     recurrence = if @recurrence
-                   PlaceCalendar::Recurrence.from_google(@recurrence, self)
+                   PlaceCalendar::Google.recurrence_from_google(@recurrence, self)
                  end
 
     PlaceCalendar::Event.new(
