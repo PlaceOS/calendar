@@ -32,8 +32,8 @@ module PlaceCalendar
     end
 
     def list_events(
-      user_id : String, 
-      calendar_id : String? = nil, 
+      user_id : String,
+      calendar_id : String? = nil,
       period_start : Time = Time.local.at_beginning_of_day,
       period_end : Time? = nil,
       **options
@@ -79,7 +79,7 @@ module PlaceCalendar
 
       sensitivity = event.private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
 
-      {
+      params = {
         id:          event.id,
         organizer:   event.host,
         starts_at:   event.event_start || Time.local,
@@ -90,7 +90,18 @@ module PlaceCalendar
         sensitivity: sensitivity,
         attendees:   attendees,
         location:    event.location.try(&.text),
+        recurrence: nil
       }
+      if event.recurrence
+        e_recurrence = event.recurrence.not_nil!
+        timezone_loc = event.timezone ? Time::Location.load(event.timezone.not_nil!) : Time::Location.load("UTC")
+        recurrence_params = ::Office365::RecurrenceParam.new(pattern: e_recurrence.pattern,
+          range_end: e_recurrence.range_end.in(location: timezone_loc),
+          interval: e_recurrence.interval,
+          days_of_week: e_recurrence.days_of_week)
+        params = params.merge(recurrence: recurrence_params)
+      end
+      params
     end
 
     def list_attachments(user_id : String, event_id : String, calendar_id : String? = nil, **options)
@@ -136,7 +147,7 @@ module PlaceCalendar
 
     private def attachment_params(attachment)
       {
-        name: attachment.name,
+        name:          attachment.name,
         content_bytes: attachment.content_bytes,
       }
     end
@@ -158,7 +169,7 @@ end
 class Office365::Event
   def to_place_calendar
     event_start = @starts_at || Time.local
-    event_end   = @ends_at
+    event_end = @ends_at
 
     if !@timezone.nil?
       tz_location = DateTimeTimeZone.tz_location(@timezone.not_nil!)
@@ -170,7 +181,6 @@ class Office365::Event
       end
     end
 
-
     attendees = @attendees
       .select { |a| a.type != AttendeeType::Resource }
       .map { |a| {name: a.email_address.name, email: a.email_address.address} }
@@ -179,6 +189,22 @@ class Office365::Event
     location = if source_location
                  PlaceCalendar::Location.new(text: source_location.display_name)
                end
+
+    recurrence = if @recurrence
+                   e_recurrence = @recurrence.not_nil!
+                   range = e_recurrence.range.not_nil!
+                   pattern = e_recurrence.pattern.not_nil!
+                   days_of_week = pattern.days_of_week ? pattern.days_of_week.not_nil!.first.to_s.downcase : nil
+                   recurrence_time_zone_loc = range.recurrence_time_zone ? Time::Location.load(range.recurrence_time_zone.not_nil!) : Time::Location.load("UTC")
+                   range_start = Time.parse(range.start_date, pattern: "%F", location: recurrence_time_zone_loc)
+                   range_end = Time.parse(range.end_date, pattern: "%F", location: recurrence_time_zone_loc)
+                   PlaceCalendar::Recurrence.new(range_start: range_start,
+                     range_end: range_end,
+                     interval: pattern.interval.not_nil!,
+                     pattern: pattern.type.to_s.downcase,
+                     days_of_week: days_of_week,
+                   )
+                 end
 
     PlaceCalendar::Event.new(
       id: @id,
@@ -192,7 +218,8 @@ class Office365::Event
       all_day: all_day?,
       location: location,
       source: self.to_json,
-      timezone: event_start.location.to_s
+      timezone: event_start.location.to_s,
+      recurrence: recurrence
     )
   end
 end

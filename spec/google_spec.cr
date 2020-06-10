@@ -1,7 +1,6 @@
 require "./spec_helper"
 
 describe PlaceCalendar::Google do
-
   it "authenticates" do
     client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Google, **google_creds)
     authentication_spec(client)
@@ -19,7 +18,10 @@ describe PlaceCalendar::Google do
 
   it "lists, creates, updates, and deletes events" do
     client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Google, **google_creds)
-    events_spec(client, "toby@redant.com.au")
-  end
+    events_spec(client, "testing@redant.com.au")
 
+    # WARNING: ALWAYS USE TEST EMAIL ACCOUNT HERE
+    # TESTS DELETE EVENTS TO RUN THEIR ASSERTIONS
+    events_recurrence_spec(client, "testing@redant.com.au")
+  end
 end
