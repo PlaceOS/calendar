@@ -21,8 +21,10 @@ class PlaceCalendar::Recurrence
     case pattern
     when "daily"
       ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};UNTIL=#{until_date}"]
-    else
+    when "weekly"
       ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=#{days_of_week.not_nil!.upcase[0..1]};UNTIL=#{until_date}"]
+    when "monthly"
+      ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=1#{days_of_week.not_nil!.upcase[0..1]};UNTIL=#{until_date}"]
     end
   end
 
@@ -72,19 +74,19 @@ class PlaceCalendar::Recurrence
       byday = byday_part.not_nil!.split("=").last
 
       case byday
-      when "SU"
+      when "SU", "1SU"
         "sunday"
-      when "MO"
+      when "MO", "1MO"
         "monday"
-      when "TU"
+      when "TU", "1TU"
         "tuesday"
-      when "WE"
+      when "WE", "1WE"
         "wednesday"
-      when "TH"
+      when "TH", "1TH"
         "thursday"
-      when "FR"
+      when "FR", "1FR"
         "friday"
-      when "SA"
+      when "SA", "1SA"
         "saturday"
       end
     end
