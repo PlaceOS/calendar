@@ -78,14 +78,15 @@ def events_spec(client, username)
   schedule.first.availability.size.should be > 0
 
   if !new_event.nil?
-    attachment = PlaceCalendar::Attachment.new(name: "not_sure_if.jpg", content_bytes: File.read("not_sure_if.jpg"))
+    example_attachment_path = File.expand_path("./spec/fixtures/not_sure_if.jpg")
+    attachment = PlaceCalendar::Attachment.new(name: "not_sure_if.jpg", content_bytes: File.read(example_attachment_path))
     client.create_attachment(user_id: username, event_id: new_event.id.not_nil!, attachment: attachment).should be_a(PlaceCalendar::Attachment)
     attachment_list = client.list_attachments(user_id: username, event_id: new_event.id.not_nil!)
     attachment_list.size.should eq(1)
     jpg = client.get_attachment(user_id: username, event_id: new_event.id.not_nil!, id: attachment_list[0].try &.id.not_nil!)
     jpg.should be_a(PlaceCalendar::Attachment)
     File.write("not_sure_if_new.jpg", jpg.try &.content_bytes)
-    File.size("not_sure_if_new.jpg").should eq(File.size("not_sure_if.jpg"))
+    File.size("not_sure_if_new.jpg").should eq(File.size(example_attachment_path))
     File.delete("not_sure_if_new.jpg")
     if !jpg.nil?
       client.delete_attachment(user_id: username, event_id: new_event.id.not_nil!, id: jpg.id.not_nil!).should be_true
