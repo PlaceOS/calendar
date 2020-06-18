@@ -12,7 +12,7 @@ end
 def google_creds
   {
     file_path: "",
-    scopes:    "",
+    scopes:    "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/directory.user.readonly https://www.googleapis.com/auth/drive",
     domain:    "",
     sub:       "",
   }
@@ -84,7 +84,7 @@ def events_spec(client, username)
     attachment_list.size.should eq(1)
     jpg = client.get_attachment(user_id: username, event_id: new_event.id.not_nil!, id: attachment_list[0].try &.id.not_nil!)
     jpg.should be_a(PlaceCalendar::Attachment)
-    new_file = File.write("not_sure_if_new.jpg", jpg.try &.content_bytes)
+    File.write("not_sure_if_new.jpg", jpg.try &.content_bytes)
     File.size("not_sure_if_new.jpg").should eq(File.size("not_sure_if.jpg"))
     File.delete("not_sure_if_new.jpg")
     if !jpg.nil?
@@ -142,7 +142,6 @@ def events_recurrence_spec(client, username)
 
   client.list_events(username).size.should eq(8)
 
-  event = nil
   if !new_event.nil?
     # Testing the data on fetched event
     fetched_event = client.get_event(username, new_event.try &.id.not_nil!)
@@ -194,7 +193,7 @@ def events_recurrence_spec(client, username)
   # Moving start date
   new_event.not_nil!.event_start = start_time + 1.week
   new_event.not_nil!.event_end = start_time + 1.week + 30.minutes
-  new_event = client.update_event(user_id: username, event: new_event.not_nil!)
+  client.update_event(user_id: username, event: new_event.not_nil!)
 
   event_list = client.list_events(username)
   # Have 1 less event as everything moved by 1 week
@@ -227,7 +226,7 @@ def events_recurrence_spec(client, username)
   # it should start from next Tuesday
   ne_recurrence.days_of_week.should eq("tuesday")
   event_list = client.list_events(username)
-  event_list_starts = event_list.map do |recurring_event|
+  event_list.map do |recurring_event|
     recurring_event.event_start
   end
   # Google creates event for start_date + recurrence

@@ -46,4 +46,3 @@ class PlaceCalendar::Event
     @location.text = text
   end
 end
-

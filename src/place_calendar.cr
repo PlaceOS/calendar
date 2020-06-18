@@ -15,6 +15,14 @@ module PlaceCalendar
     Unknown
   end
 
+  class Exception < ::Exception
+    property http_status : HTTP::Status
+    property http_body : String
+
+    def initialize(@http_status, @http_body, @message = nil)
+    end
+  end
+
   class Client
     getter calendar : Interface
 
@@ -84,7 +92,7 @@ module PlaceCalendar
         value = value.not_nil!
       end
 
-      return value
+      value
     end
   end
 end

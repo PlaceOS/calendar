@@ -15,12 +15,16 @@ module PlaceCalendar
       else
         [] of User
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def get_user(id : String, **options)
       if user = client.get_user(**options.merge(id: id))
         user.to_place_calendar
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def list_calendars(mail : String, **options)
@@ -29,6 +33,8 @@ module PlaceCalendar
       else
         [] of Calendar
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def list_events(
@@ -43,6 +49,8 @@ module PlaceCalendar
       else
         [] of Event
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
@@ -50,12 +58,16 @@ module PlaceCalendar
       new_event = client.create_event(**params)
 
       new_event.to_place_calendar
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def get_event(user_id : String, id : String, **options)
       if event = client.get_event(**options.merge(id: id, mailbox: user_id))
         event.to_place_calendar
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
@@ -64,10 +76,14 @@ module PlaceCalendar
       if updated_event = client.update_event(**options.merge(mailbox: user_id, calendar_id: calendar_id, event: o365_event))
         updated_event.to_place_calendar
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def delete_event(user_id : String, id : String, **options) : Bool
       client.delete_event(**options.merge(mailbox: user_id, id: id)) || false
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     private def event_params(event)
@@ -110,6 +126,8 @@ module PlaceCalendar
       else
         [] of Attachment
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options)
@@ -118,6 +136,8 @@ module PlaceCalendar
       else
         nil
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def create_attachment(user_id : String, event_id : String, attachment : Attachment, calendar_id : String? = nil, **options) : Attachment?
@@ -127,6 +147,8 @@ module PlaceCalendar
       else
         nil
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = nil, **options) : Bool
@@ -135,14 +157,18 @@ module PlaceCalendar
       else
         false
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time)
       if availability = client.get_availability(user_id, calendars, starts_at, ends_at)
         availability.map { |a| a.to_placecalendar }
       else
-        return [] of AvailabilitySchedule
+        [] of AvailabilitySchedule
       end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
     end
 
     private def attachment_params(attachment)
@@ -150,6 +176,10 @@ module PlaceCalendar
         name:          attachment.name,
         content_bytes: attachment.content_bytes,
       }
+    end
+
+    private def handle_office365_exception(ex : ::Office365::Exception)
+      raise PlaceCalendar::Exception.new(ex.http_status, ex.http_body, ex.message)
     end
   end
 end
@@ -247,11 +277,17 @@ end
 
 class Office365::Availability
   def to_placecalendar
+    raise "@starts_at cannot be nil!" if @starts_at.nil?
+    raise "@ends_at cannot be nil!" if @ends_at.nil?
+
+    starts_at = @starts_at.not_nil!
+    ends_at = @ends_at.not_nil!
+
     PlaceCalendar::Availability.new(
       @status == ::Office365::AvailabilityStatus::Free ? PlaceCalendar::AvailabilityStatus::Free : PlaceCalendar::AvailabilityStatus::Busy,
-      @starts_at,
-      @ends_at,
-      @starts_at.location.to_s
+      starts_at,
+      ends_at,
+      starts_at.location.to_s
     )
   end
 end

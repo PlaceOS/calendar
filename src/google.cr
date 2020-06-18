@@ -15,6 +15,8 @@ module PlaceCalendar
 
     def auth(sub = @sub) : ::Google::FileAuth
       ::Google::FileAuth.new(file_path: @file_path, scopes: @scopes, sub: sub, user_agent: @user_agent)
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def list_users(**options) : Array(User)
@@ -22,8 +24,10 @@ module PlaceCalendar
         # TODO: Deal with pagination
         users.users.map { |u| u.to_place_calendar }
       else
-        return [] of User
+        [] of User
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     # do we need this
@@ -31,16 +35,20 @@ module PlaceCalendar
       if user = directory.lookup(id)
         user.to_place_calendar
       else
-        return nil
+        nil
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def list_calendars(mail : String, **options) : Array(Calendar)
       if calendars = calendar(mail).calendar_list
         calendars.map { |c| c.to_place_calendar }
       else
-        return [] of Calendar
+        [] of Calendar
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def get_calendar(id : String, **options) : Calendar
@@ -60,8 +68,10 @@ module PlaceCalendar
       if events = calendar(user_id).events(calendar_id, period_start, period_end, **options)
         events.items.map { |e| e.to_place_calendar }
       else
-        return [] of Event
+        [] of Event
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def get_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Event?
@@ -70,18 +80,24 @@ module PlaceCalendar
       else
         nil
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
       new_event = calendar(user_id).create(**event_params(event, calendar_id))
 
       new_event ? new_event.to_place_calendar : nil
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def update_event(user_id : String, event : Event, calendar_id : String = "primary", **options) : Event?
       params = event_params(event, calendar_id).merge(event_id: event.id)
       updated_event = calendar(user_id).update(**params)
       updated_event ? updated_event.to_place_calendar : nil
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def delete_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Bool
@@ -90,6 +106,8 @@ module PlaceCalendar
       else
         false
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def directory : ::Google::Directory
@@ -98,6 +116,10 @@ module PlaceCalendar
 
     def calendar(sub = @sub)
       @calendar ||= ::Google::Calendar.new(auth: auth(sub))
+    end
+
+    private def handle_google_exception(ex : ::Google::Exception)
+      raise PlaceCalendar::Exception.new(ex.http_status, ex.http_body, ex.message)
     end
 
     private def drive_files(sub = @sub)
@@ -132,32 +154,38 @@ module PlaceCalendar
       end
 
       attachments
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = "primary", **options)
       if attachments = list_attachments(user_id, event_id, calendar_id)
-        return attachments.find { |a| a.id == id }
+        attachments.find { |a| a.id == id }
       else
         nil
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def create_attachment(user_id : String, event_id : String, attachment : Attachment, calendar_id : String = "primary", **options)
       file = drive_files(user_id).create(name: attachment.name, content_bytes: attachment.content_bytes, content_type: extract_mime_type(attachment.name).not_nil!)
-      
+
       if !file.nil?
         metadata = drive_files(user_id).file(file.id.not_nil!)
-        event = calendar(user_id).update(
+        calendar(user_id).update(
           event_id: event_id,
           calendar_id: calendar_id,
           attachments: [::Google::Calendar::Attachment.new(file_id: metadata.id, file_url: metadata.link)]
         )
 
         attachments = list_attachments(user_id, event_id, calendar_id)
-        return attachments.find { |a| a.id == file.id }
+        attachments.find { |a| a.id == file.id }
       else
-        return nil
+        nil
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = "primary", **options)
@@ -176,14 +204,18 @@ module PlaceCalendar
       else
         false
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time)
       if schedule = calendar(user_id).availability(calendars, starts_at, ends_at)
         schedule.map { |a| a.to_place_calendar }
       else
-        return [] of AvailabilitySchedule
+        [] of AvailabilitySchedule
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
     end
 
     private def create_place_calendar_attachment(user_id : String, attachment : ::Google::Calendar::Attachment) : PlaceCalendar::Attachment
