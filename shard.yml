@@ -1,10 +1,10 @@
 name: place_calendar
-version: 0.1.0
+version: 1.0.0
 
 authors:
   - Toby Carvan <toby@redant.com.au>
 
-crystal: 0.33.0
+crystal: 0.35.0
 
 dependencies:
   office365:

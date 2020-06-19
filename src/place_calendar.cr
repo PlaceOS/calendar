@@ -7,7 +7,7 @@ require "./google"
 require "./office365"
 
 module PlaceCalendar
-  VERSION = "0.1.0"
+  VERSION = "1.0.0"
 
   enum InterfaceType
     Office365

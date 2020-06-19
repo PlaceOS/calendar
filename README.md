@@ -45,7 +45,7 @@ client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Office365, **o3
 
 ```
 google_creds = {
-  file_path: "/path/to/your/credentials.json",
+  file_path: "/path/to/your/credtions.json",
   scopes:    "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/directory.user.readonly https://www.googleapis.com/auth/drive",
   domain:    "yourdomain.com"
 }
@@ -56,7 +56,6 @@ client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Google, **googl
 ### Users
 
 ```
-# list users
 list = client.list_users
 ```
 
