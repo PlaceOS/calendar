@@ -1,4 +1,4 @@
-# place_calendar
+# calendar
 
 PlaceCalendar provides a standardised interface for cloud based calendaring solutions, with Office365 and Google currently supported.
 
