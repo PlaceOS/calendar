@@ -165,7 +165,7 @@ module PlaceCalendar
       attachments = [] of Attachment
 
       if event = calendar(user_id).event(event_id, calendar_id)
-        attachments = event.attachments.map {|a| create_place_calendar_attachment(user_id, a) }
+        attachments = event.attachments.map { |a| create_place_calendar_attachment(user_id, a) }
       end
 
       attachments
@@ -208,10 +208,10 @@ module PlaceCalendar
 
       if !event.nil?
         if calendar(user_id).update(
-          event_id: event_id,
-          calendar_id: calendar_id,
-          attachments: event.attachments.reject! { |a| a.file_id == id }
-        )
+             event_id: event_id,
+             calendar_id: calendar_id,
+             attachments: event.attachments.reject! { |a| a.file_id == id }
+           )
           true
         else
           false
@@ -373,7 +373,6 @@ class Google::Calendar::AvailabilityStatus
   end
 end
 
-
 class Google::Calendar::Event
   NOP_G_ATTEND = [] of ::Google::Calendar::Attendee
 
@@ -394,8 +393,8 @@ class Google::Calendar::Event
       email = attendee.email.downcase
 
       {
-        name:            attendee.display_name || email,
-        email:           email,
+        name:  attendee.display_name || email,
+        email: email,
         # TODO: Stephen includes some extra stuff here not included in our spec
         # response_status: attendee.responseStatus,
         # organizer:       attendee.organizer,

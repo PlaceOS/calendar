@@ -10,9 +10,9 @@ class PlaceCalendar::Attachment
   def initialize(
     @name,
     @content_bytes,
-    @id           = nil,
+    @id = nil,
     @content_type = nil,
-    @size         = nil
+    @size = nil
   )
   end
 end

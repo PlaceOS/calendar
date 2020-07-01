@@ -106,7 +106,7 @@ module PlaceCalendar
         sensitivity: sensitivity,
         attendees:   attendees,
         location:    event.location.try(&.text),
-        recurrence: nil
+        recurrence:  nil,
       }
       if event.recurrence
         e_recurrence = event.recurrence.not_nil!

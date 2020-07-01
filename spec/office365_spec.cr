@@ -1,7 +1,6 @@
 require "./spec_helper"
 
 describe PlaceCalendar::Office365 do
-
   it "authenticates" do
     client = PlaceCalendar::Client.new(**o365_creds)
     authentication_spec(client)
@@ -26,5 +25,4 @@ describe PlaceCalendar::Office365 do
     client = PlaceCalendar::Client.new(**o365_creds)
     events_recurrence_spec(client, "dev@acaprojects.com")
   end
-
 end

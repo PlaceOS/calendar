@@ -8,7 +8,7 @@ class PlaceCalendar::Location
   def initialize(
     @text = nil,
     @address = nil,
-    @coordinates = nil,
+    @coordinates = nil
   )
   end
 end
