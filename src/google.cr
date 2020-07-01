@@ -3,18 +3,33 @@ require "mime"
 module PlaceCalendar
   class Google < Interface
     def initialize(
-      @scopes : String | Array(String),
       @file_path : String,
+      @scopes : String | Array(String),
       @domain : String,
-      @issuer : String? = nil,
-      @signing_key : String? = nil,
       @sub : String = "",
       @user_agent : String = "Switch"
     )
+      @issuer = ""
+      @signing_key = ""
     end
 
-    def auth(sub = @sub) : ::Google::FileAuth
-      ::Google::FileAuth.new(file_path: @file_path, scopes: @scopes, sub: sub, user_agent: @user_agent)
+    def initialize(
+      @issuer : String,
+      @signing_key : String,
+      @scopes : String | Array(String),
+      @domain : String,
+      @sub : String = "",
+      @user_agent : String = "Switch"
+    )
+      @file_path = ""
+    end
+
+    def auth(sub = @sub) : ::Google::FileAuth | ::Google::Auth
+      if @file_path.empty?
+        ::Google::Auth.new(issuer: @issuer, signing_key: @signing_key, scopes: @scopes, sub: sub, user_agent: @user_agent)
+      else
+        ::Google::FileAuth.new(file_path: @file_path, scopes: @scopes, sub: sub, user_agent: @user_agent)
+      end
     rescue ex : ::Google::Exception
       handle_google_exception(ex)
     end
