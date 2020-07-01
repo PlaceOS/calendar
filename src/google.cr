@@ -7,7 +7,7 @@ module PlaceCalendar
       @scopes : String | Array(String),
       @domain : String,
       @sub : String = "",
-      @user_agent : String = "Switch"
+      @user_agent : String = "PlaceOS"
     )
       @issuer = ""
       @signing_key = ""
@@ -19,7 +19,7 @@ module PlaceCalendar
       @scopes : String | Array(String),
       @domain : String,
       @sub : String = "",
-      @user_agent : String = "Switch"
+      @user_agent : String = "PlaceOS"
     )
       @file_path = ""
     end
