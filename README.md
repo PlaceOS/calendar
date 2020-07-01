@@ -2,7 +2,7 @@
 
 PlaceCalendar provides a standardised interface for cloud based calendaring solutions, with Office365 and Google currently supported.
 
-Endpoints are provided for 
+Endpoints are provided for
 
 * Users (list)
 * Calendars (list, get)
@@ -38,7 +38,7 @@ o365_creds = {
   client_secret: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 }
 
-client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Office365, **o365_creds)
+client = PlaceCalendar::Client.new(**o365_creds)
 ```
 
 ### Google Configuration
@@ -46,11 +46,11 @@ client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Office365, **o3
 ```
 google_creds = {
   file_path: "/path/to/your/credtions.json",
-  scopes:    "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/directory.user.readonly https://www.googleapis.com/auth/drive",
+  scopes:    ["https://www.googleapis.com/auth/calendar", "https://www.googleapis.com/auth/directory.user.readonly", "https://www.googleapis.com/auth/drive"],
   domain:    "yourdomain.com"
 }
 
-client = PlaceCalendar::Client.new(PlaceCalendar::InterfaceType::Google, **google_creds)
+client = PlaceCalendar::Client.new(**google_creds)
 ```
 
 ### Users
@@ -127,7 +127,7 @@ client.delete_attachment(user_id: "mailbox@domain.com", event_id: my_event.id, a
 
 ```
 # get availability for multiple uers
-# this will return an array of PlaceCalendar::Availability objects, one for each of the emails in the array, for the time period specified 
+# this will return an array of PlaceCalendar::Availability objects, one for each of the emails in the array, for the time period specified
 schedule = client.get_availability("mailbox@domain.com", ["me@domain.com", "you@domain.com", "them@domain.com"], Time.local - 1.week, Time.local + 1.week)
 ```
 
