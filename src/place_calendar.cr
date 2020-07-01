@@ -7,7 +7,7 @@ require "./google"
 require "./office365"
 
 module PlaceCalendar
-  VERSION = "1.0.0"
+  VERSION = {{ `shards version "#{__DIR__}"`.chomp.stringify.downcase }}
 
   class Exception < ::Exception
     property http_status : HTTP::Status
