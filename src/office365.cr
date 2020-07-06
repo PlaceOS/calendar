@@ -9,8 +9,8 @@ module PlaceCalendar
       @client ||= ::Office365::Client.new(@tenant, @client_id, @client_secret)
     end
 
-    def list_users(**options)
-      if users = client.list_users(**options)
+    def list_users(query : String? = nil, limit : Int32? = nil, **options)
+      if users = client.list_users(query, limit)
         users.value.map { |u| u.to_place_calendar }
       else
         [] of User

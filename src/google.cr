@@ -34,8 +34,8 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def list_users(**options) : Array(User)
-      if users = directory.users
+    def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
+      if users = directory.users(query, limit || 500, **options)
         # TODO: Deal with pagination
         users.users.map { |u| u.to_place_calendar }
       else

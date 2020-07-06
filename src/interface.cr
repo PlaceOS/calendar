@@ -3,7 +3,7 @@ module PlaceCalendar
     def initialize(**credentials)
     end
 
-    def list_users(**options) : Array(User)
+    def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
       [] of User
     end
 
