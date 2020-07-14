@@ -18,7 +18,7 @@ Endpoints are provided for
    ```yaml
    dependencies:
      place_calendar:
-       github: PlaceOS/place_calendar
+       github: PlaceOS/calendar
    ```
 
 2. Run `shards install`
