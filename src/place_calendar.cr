@@ -48,7 +48,7 @@ module PlaceCalendar
       @calendar = Google.new(issuer, signing_key, domain, calendar_scope, directory_scope, sub, user_agent)
     end
 
-    def initialize(tenant : String, client_id : String, client_secret : String, _ignore : Int32 = 0)
+    def initialize(tenant : String, client_id : String, client_secret : String)
       @calendar = Office365.new(tenant, client_id, client_secret)
     end
   end
