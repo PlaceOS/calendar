@@ -4,8 +4,9 @@ module PlaceCalendar
   class Google < Interface
     def initialize(
       @file_path : String,
-      @scopes : String | Array(String),
       @domain : String,
+      @calendar_scope : String = "https://www.googleapis.com/auth/calendar",
+      @directory_scope : String = "https://www.googleapis.com/auth/admin.directory.user.readonly",
       @sub : String = "",
       @user_agent : String = "PlaceOS"
     )
@@ -16,19 +17,20 @@ module PlaceCalendar
     def initialize(
       @issuer : String,
       @signing_key : String,
-      @scopes : String | Array(String),
       @domain : String,
+      @calendar_scope : String = "https://www.googleapis.com/auth/calendar",
+      @directory_scope : String = "https://www.googleapis.com/auth/admin.directory.user.readonly",
       @sub : String = "",
       @user_agent : String = "PlaceOS"
     )
       @file_path = ""
     end
 
-    def auth(sub = @sub) : ::Google::FileAuth | ::Google::Auth
+    def auth(scope, sub = @sub) : ::Google::FileAuth | ::Google::Auth
       if @file_path.empty?
-        ::Google::Auth.new(issuer: @issuer, signing_key: @signing_key, scopes: @scopes, sub: sub, user_agent: @user_agent)
+        ::Google::Auth.new(issuer: @issuer, signing_key: @signing_key, scopes: scope, sub: sub, user_agent: @user_agent)
       else
-        ::Google::FileAuth.new(file_path: @file_path, scopes: @scopes, sub: sub, user_agent: @user_agent)
+        ::Google::FileAuth.new(file_path: @file_path, scopes: scope, sub: sub, user_agent: @user_agent)
       end
     rescue ex : ::Google::Exception
       handle_google_exception(ex)
@@ -126,11 +128,11 @@ module PlaceCalendar
     end
 
     def directory : ::Google::Directory
-      @directory ||= ::Google::Directory.new(auth: auth, domain: @domain)
+      @directory ||= ::Google::Directory.new(auth: auth(@directory_scope), domain: @domain)
     end
 
     def calendar(sub = @sub)
-      @calendar ||= ::Google::Calendar.new(auth: auth(sub))
+      @calendar ||= ::Google::Calendar.new(auth: auth(@calendar_scope, sub))
     end
 
     private def handle_google_exception(ex : ::Google::Exception)
@@ -138,7 +140,7 @@ module PlaceCalendar
     end
 
     private def drive_files(sub = @sub)
-      @drive_files ||= ::Google::Files.new(auth: auth(sub))
+      @drive_files ||= ::Google::Files.new(auth: auth("https://www.googleapis.com/auth/drive.file", sub))
     end
 
     private def event_params(event, calendar_id)
