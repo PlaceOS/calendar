@@ -25,27 +25,12 @@ module PlaceCalendar
       list_attachments, get_attachment, create_attachment, delete_attachment,
       get_availability, to: @calendar
 
-    def initialize(
-      file_path : String,
-      domain : String,
-      calendar_scope : String = "https://www.googleapis.com/auth/calendar",
-      directory_scope : String = "https://www.googleapis.com/auth/admin.directory.user.readonly",
-      sub : String = "",
-      user_agent = "PlaceOS"
-    )
-      @calendar = Google.new(file_path, domain, calendar_scope, directory_scope, sub, user_agent)
+    def initialize(file_path : String, scopes : String | Array(String), domain : String, sub : String = "", user_agent = "PlaceOS")
+      @calendar = Google.new(file_path, scopes, domain, sub, user_agent)
     end
 
-    def initialize(
-      issuer : String,
-      signing_key : String,
-      domain : String,
-      calendar_scope : String = "https://www.googleapis.com/auth/calendar",
-      directory_scope : String = "https://www.googleapis.com/auth/admin.directory.user.readonly",
-      sub : String = "",
-      user_agent = "PlaceOS"
-    )
-      @calendar = Google.new(issuer, signing_key, domain, calendar_scope, directory_scope, sub, user_agent)
+    def initialize(issuer : String, signing_key : String, scopes : String | Array(String), domain : String, sub : String = "", user_agent = "PlaceOS")
+      @calendar = Google.new(issuer, signing_key, scopes, domain, sub, user_agent)
     end
 
     def initialize(tenant : String, client_id : String, client_secret : String)

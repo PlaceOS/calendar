@@ -12,9 +12,9 @@ end
 def google_creds
   {
     file_path: "",
-    # scopes:    "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/directory.user.readonly https://www.googleapis.com/auth/drive",
-    domain: "",
-    sub:    "",
+    scopes:    "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/directory.user.readonly https://www.googleapis.com/auth/drive",
+    domain:    "",
+    sub:       "",
   }
 end
 
