@@ -130,7 +130,7 @@ module PlaceCalendar
     end
 
     def calendar(sub = @sub)
-      @calendar ||= ::Google::Calendar.new(auth: auth(sub))
+      ::Google::Calendar.new(auth: auth(sub))
     end
 
     private def handle_google_exception(ex : ::Google::Exception)
@@ -138,7 +138,7 @@ module PlaceCalendar
     end
 
     private def drive_files(sub = @sub)
-      @drive_files ||= ::Google::Files.new(auth: auth(sub))
+      ::Google::Files.new(auth: auth(sub))
     end
 
     private def event_params(event, calendar_id)
