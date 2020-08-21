@@ -58,7 +58,12 @@ module PlaceCalendar
 
     def list_calendars(mail : String, **options) : Array(Calendar)
       if calendars = calendar(mail).calendar_list
-        calendars.map { |c| c.to_place_calendar }
+        # filtering out hidden and rejected calendars as seen in google-staff-api
+        calendars.reject { |item|
+          item.hidden || item.deleted
+        }.map { |item|
+          item.to_place_calendar
+        }
       else
         [] of Calendar
       end
@@ -349,7 +354,12 @@ end
 
 class Google::Calendar::ListEntry
   def to_place_calendar
-    PlaceCalendar::Calendar.new(id: @id, name: @summary_main, source: self.to_json)
+    PlaceCalendar::Calendar.new(
+      id: @id,
+      summary: @summary_main,
+      source: self.to_json,
+      primary: !!@primary,
+    )
   end
 end
 

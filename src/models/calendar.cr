@@ -3,8 +3,10 @@ class PlaceCalendar::Calendar
 
   property source : String?
   property id : String?
-  property name : String
+  property summary : String
 
-  def initialize(@id, @name, @source)
+  property primary : Bool
+
+  def initialize(@id, @name, @source, @primary = false)
   end
 end
