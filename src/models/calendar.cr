@@ -7,6 +7,6 @@ class PlaceCalendar::Calendar
 
   property primary : Bool
 
-  def initialize(@id, @name, @source, @primary = false)
+  def initialize(@id, @summary, @source, @primary = false)
   end
 end
