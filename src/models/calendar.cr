@@ -1,7 +1,9 @@
 class PlaceCalendar::Calendar
   include JSON::Serializable
 
+  @[JSON::Field(ignore: true)]
   property source : String?
+
   property id : String?
   property summary : String
 

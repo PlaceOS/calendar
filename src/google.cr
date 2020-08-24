@@ -59,10 +59,8 @@ module PlaceCalendar
     def list_calendars(mail : String, **options) : Array(Calendar)
       if calendars = calendar(mail).calendar_list
         # filtering out hidden and rejected calendars as seen in google-staff-api
-        calendars.reject { |item|
-          item.hidden || item.deleted
-        }.map { |item|
-          item.to_place_calendar
+        calendars.compact_map { |item|
+          item.to_place_calendar unless item.hidden || item.deleted
         }
       else
         [] of Calendar
