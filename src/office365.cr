@@ -101,7 +101,7 @@ module PlaceCalendar
         starts_at:   event.event_start || Time.local,
         ends_at:     event.event_end,
         subject:     event.title || "",
-        description: event.description,
+        description: event.body,
         all_day:     event.all_day?,
         sensitivity: sensitivity,
         attendees:   attendees,
@@ -215,6 +215,34 @@ class Office365::Event
       .select { |a| a.type != AttendeeType::Resource }
       .map { |a| {name: a.email_address.name, email: a.email_address.address} }
 
+    attendees = (@attendees).map do |attendee|
+      name = attendee.email_address.name
+      email = attendee.email_address.address.downcase
+      resource  = attendee.type == AttendeeType::Resource
+
+      status = if attendee.status
+                 case attendee.status.not_nil!.response
+                 when Office365::ResponseStatus::Response::None
+                   "needsAction"
+                 when Office365::ResponseStatus::Response::Organizer
+                   "accepted"
+                 when Office365::ResponseStatus::Response::TentativelyAccepted
+                   "tentative"
+                 when Office365::ResponseStatus::Response::Accepted
+                   "accepted"
+                 when Office365::ResponseStatus::Response::Declined
+                   "declined"
+                 when Office365::ResponseStatus::Response::NotResponded
+                   "needsAction"
+                 end
+               end
+
+      PlaceCalendar::Event::Attendee.new(name: name,
+                                         email: email,
+                                         response_status: status,
+                                         resource: resource)
+    end
+
     source_location = @location || @locations.try &.first
     location = if source_location
                  PlaceCalendar::Location.new(text: source_location.display_name)
@@ -240,6 +268,8 @@ class Office365::Event
                case @response_status.not_nil!.response
                when Office365::ResponseStatus::Response::Accepted
                  "confirmed"
+               when Office365::ResponseStatus::Response::Organizer
+                 "confirmed"
                when Office365::ResponseStatus::Response::TentativelyAccepted
                  "tentative"
                when Office365::ResponseStatus::Response::Declined
@@ -253,7 +283,7 @@ class Office365::Event
       event_start: event_start,
       event_end: event_end,
       title: @subject,
-      description: @body.try &.content,
+      body: @body.try &.content,
       attendees: attendees,
       private: is_private?,
       all_day: all_day?,
@@ -261,7 +291,8 @@ class Office365::Event
       source: self.to_json,
       timezone: event_start.location.to_s,
       recurrence: recurrence,
-      status: status
+      status: status,
+      creator: @organizer.try &.email_address.try &.address
     )
   end
 end

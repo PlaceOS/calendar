@@ -10,16 +10,18 @@ class PlaceCalendar::Event
   property id : String?
   property host : String?
   property title : String?
-  property description : String?
-  property attendees : Array(NamedTuple(name: String, email: String))
+  property body : String?
+  property attendees : Array(Attendee)
   property location : Location?
   property? private : Bool
   property? all_day : Bool
   property timezone : String?
+  property recurring : Bool
 
   property attachments : Array(Attachment)
   property recurrence : Recurrence?
   property status : String?
+  property creator : String?
 
   @[JSON::Field(ignore: true)]
   property source : String?
@@ -30,8 +32,8 @@ class PlaceCalendar::Event
     @event_start = Time.local,
     @event_end = nil,
     @title = nil,
-    @description = nil,
-    @attendees = [] of NamedTuple(name: String, email: String),
+    @body = nil,
+    @attendees = [] of Attendee,
     @location = nil,
     @private = false,
     @all_day = false,
@@ -39,12 +41,27 @@ class PlaceCalendar::Event
     @timezone = nil,
     @attachments = [] of Attachment,
     @recurrence = nil,
-    @status = nil
+    @status = nil,
+    @creator = nil
   )
+    @recurring = !@recurrence.nil?
   end
 
   def location=(text : String)
     @location ||= Location.new
     @location.text = text
+  end
+
+  struct Attendee
+    include JSON::Serializable
+
+    property name : String
+    property email : String
+    property response_status : String?
+    property resource : Bool?
+    property organizer : Bool?
+
+    def initialize(@name, @email, @response_status = nil, @resource = nil, @organizer = nil)
+    end
   end
 end

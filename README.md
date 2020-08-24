@@ -83,7 +83,7 @@ event = client.get_event("mailbox@domain.com", event_id)
 # create an event
 e = PlaceCalendar::Event.new
 e.title = "My New Meeting"
-e.description = "All about my new meeting"
+e.body = "All about my new meeting"
 e.event_start = Time.local
 e.event_end = Time.local + 30.minutes
 a.attendees << {name: "John Smith", email: "john.smith@domain.com"}

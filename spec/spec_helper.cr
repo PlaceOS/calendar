@@ -65,7 +65,7 @@ end
 def events_spec(client, username)
   a = PlaceCalendar::Event.new
   a.title = "My New Meeting, Delete me"
-  a.description = "The quick brown fox jumps over the lazy dog"
+  a.body = "The quick brown fox jumps over the lazy dog"
 
   start_time = Time.local(year: 2020, month: 8, day: 31, hour: 10, minute: 0, location: Time::Location.load("Australia/Sydney"))
 
@@ -138,7 +138,7 @@ def events_recurrence_spec(client, username)
 
   a = PlaceCalendar::Event.new
   a.title = "My new recurring meeting, Delete me"
-  a.description = "The quick brown fox jumps over the lazy dog"
+  a.body = "The quick brown fox jumps over the lazy dog"
 
   start_time = Time.local(year: 2020, month: 8, day: 31, hour: 10, minute: 0, location: Time::Location.load("Australia/Sydney"))
   daily_recurrence_end = start_time + 14.days
@@ -179,7 +179,7 @@ def events_recurrence_spec(client, username)
   # Weekly recurrence tests
   a = PlaceCalendar::Event.new
   a.title = "Weekly recurring meeting, Delete me"
-  a.description = "Weekly The quick brown fox jumps over the lazy dog"
+  a.body = "Weekly The quick brown fox jumps over the lazy dog"
   weekly_recurrence_end = start_time + 4.weeks
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
@@ -227,7 +227,7 @@ def events_recurrence_spec(client, username)
   # Monthly recurrence tests
   a = PlaceCalendar::Event.new
   a.title = "Monthly recurring meeting, Delete me"
-  a.description = "Monthly The quick brown fox jumps over the lazy dog"
+  a.body = "Monthly The quick brown fox jumps over the lazy dog"
   monthly_recurrence_end = start_time + 4.months
   a.event_start = start_time
   a.event_end = start_time + 30.minutes

@@ -153,7 +153,7 @@ module PlaceCalendar
         all_day:     event.all_day?,
         visibility:  event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
         summary:     event.title,
-        description: event.description,
+        description: event.body,
         location:    event.location.try &.text,
         recurrence:  nil,
       }
@@ -400,14 +400,11 @@ class Google::Calendar::Event
     attendees = (@attendees || NOP_G_ATTEND).map do |attendee|
       email = attendee.email.downcase
 
-      {
-        name:  attendee.display_name || email,
+      PlaceCalendar::Event::Attendee.new(name: attendee.display_name || email,
         email: email,
-        # TODO: Stephen includes some extra stuff here not included in our spec
-        # response_status: attendee.responseStatus,
-        # organizer:       attendee.organizer,
-        # resource:        attendee.resource,
-      }
+        response_status: attendee.response_status,
+        resource: attendee.resource,
+        organizer: attendee.organizer)
     end
 
     recurrence = if @recurrence
@@ -420,7 +417,7 @@ class Google::Calendar::Event
       event_start: event_start,
       event_end: event_end,
       title: @summary,
-      description: @description,
+      body: @description,
       location: @location.nil? ? nil : PlaceCalendar::Location.new(text: @location),
       attendees: attendees,
       private: @visibility.in?({"private", "confidential"}),
@@ -428,7 +425,8 @@ class Google::Calendar::Event
       source: self.to_json,
       timezone: timezone,
       recurrence: recurrence,
-      status: @status
+      status: @status,
+      creator: @creator.try &.email
     )
   end
 end
