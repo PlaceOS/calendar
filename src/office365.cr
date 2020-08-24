@@ -28,10 +28,8 @@ module PlaceCalendar
     end
 
     def list_calendars(mail : String, **options)
-      primary = client.get_calendar(mail)
-
-      if calendars = client.list_calendars(**options.merge(mailbox: mail))
-        calendars.value.map { |c| c.to_place_calendar(primary_calendar_id: primary.id) }
+      if primary = client.get_calendar(mail)
+        [primary.to_place_calendar(primary_calendar_id: primary.id, mailbox: mail)]
       else
         [] of Calendar
       end
@@ -193,8 +191,8 @@ class Office365::User
 end
 
 class Office365::Calendar
-  def to_place_calendar(primary_calendar_id : String?)
-    PlaceCalendar::Calendar.new(id: @id, summary: @name, primary: (@id == primary_calendar_id), source: self.to_json)
+  def to_place_calendar(primary_calendar_id : String?, mailbox : String? = nil)
+    PlaceCalendar::Calendar.new(id: mailbox || @id, summary: @name, primary: (@id == primary_calendar_id), source: self.to_json)
   end
 end
 
