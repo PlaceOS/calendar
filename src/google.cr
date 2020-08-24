@@ -427,7 +427,8 @@ class Google::Calendar::Event
       all_day: !!@start.date,
       source: self.to_json,
       timezone: timezone,
-      recurrence: recurrence
+      recurrence: recurrence,
+      status: @status
     )
   end
 end

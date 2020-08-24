@@ -63,7 +63,7 @@ module PlaceCalendar
     end
 
     def get_event(user_id : String, id : String, **options)
-      if event = client.get_event(**options.merge(id: id, mailbox: user_id))
+      if event = client.get_event(id: id, mailbox: user_id)
         event.to_place_calendar
       end
     rescue ex : ::Office365::Exception
@@ -236,6 +236,17 @@ class Office365::Event
                    )
                  end
 
+    status = if @response_status
+               case @response_status.not_nil!.response
+               when Office365::ResponseStatus::Response::Accepted
+                 "confirmed"
+               when Office365::ResponseStatus::Response::TentativelyAccepted
+                 "tentative"
+               when Office365::ResponseStatus::Response::Declined
+                 "cancelled"
+               end
+             end
+
     PlaceCalendar::Event.new(
       id: @id,
       host: @organizer.try &.email_address.try &.address,
@@ -249,7 +260,8 @@ class Office365::Event
       location: location,
       source: self.to_json,
       timezone: event_start.location.to_s,
-      recurrence: recurrence
+      recurrence: recurrence,
+      status: status
     )
   end
 end
