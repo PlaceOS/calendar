@@ -42,9 +42,11 @@ module PlaceCalendar
       calendar_id : String? = nil,
       period_start : Time = Time.local.at_beginning_of_day,
       period_end : Time? = nil,
+      showDeleted : Bool? = nil,
       **options
     )
-      if events = client.list_events(**options.merge(mailbox: user_id, calendar_id: calendar_id, period_start: period_start, period_end: period_end))
+      # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
+      if events = client.list_events(**options.merge(mailbox: user_id, period_start: period_start, period_end: period_end))
         events.value.map { |e| e.to_place_calendar }
       else
         [] of Event
