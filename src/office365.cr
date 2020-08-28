@@ -56,7 +56,7 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
-      params = event_params(event).merge(mailbox: user_id, calendar_id: calendar_id)
+      params = event_params(event).merge(mailbox: user_id)
       new_event = client.create_event(**params)
 
       new_event.to_place_calendar
@@ -90,9 +90,29 @@ module PlaceCalendar
 
     private def event_params(event)
       attendees = event.attendees.map do |a|
-        ::Office365::Attendee.new(
-          email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name])
-        )
+        if a.response_status
+          status_type = case a.response_status
+                        when "needsAction"
+                          ::Office365::ResponseStatus::Response::NotResponded
+                        when "accepted"
+                          ::Office365::ResponseStatus::Response::Accepted
+                        when "tentative"
+                          ::Office365::ResponseStatus::Response::TentativelyAccepted
+                        when "declined"
+                          ::Office365::ResponseStatus::Response::Declined
+                        else
+                          ::Office365::ResponseStatus::Response::NotResponded
+                        end
+
+          ::Office365::Attendee.new(
+            email: ::Office365::EmailAddress.new(address: a.email, name: a.name),
+            status: ::Office365::ResponseStatus.new(response: status_type, time: Time::Format::ISO_8601_DATE_TIME.format(Time.utc))
+          )
+        else
+          ::Office365::Attendee.new(
+            email: ::Office365::EmailAddress.new(address: a.email, name: a.name)
+          )
+        end
       end
 
       sensitivity = event.private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
@@ -220,7 +240,7 @@ class Office365::Event
     attendees = (@attendees).map do |attendee|
       name = attendee.email_address.name
       email = attendee.email_address.address.downcase
-      resource  = attendee.type == AttendeeType::Resource
+      resource = attendee.type == AttendeeType::Resource
 
       status = if attendee.status
                  case attendee.status.not_nil!.response
@@ -240,9 +260,9 @@ class Office365::Event
                end
 
       PlaceCalendar::Event::Attendee.new(name: name,
-                                         email: email,
-                                         response_status: status,
-                                         resource: resource)
+        email: email,
+        response_status: status,
+        resource: resource)
     end
 
     source_location = @location || @locations.try &.first
