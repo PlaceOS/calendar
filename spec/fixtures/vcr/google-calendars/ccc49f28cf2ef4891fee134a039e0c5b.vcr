@@ -1,0 +1,213 @@
+HTTP/1.1 200 OK
+Content-Length: 5006
+Expires: Mon, 31 Aug 2020 04:24:04 GMT
+Content-Type: application/json; charset=UTF-8
+Cache-Control: private, max-age=0, must-revalidate, no-transform
+Date: Mon, 31 Aug 2020 04:24:04 GMT
+Vary: Origin
+Vary: X-Origin
+Vary: Referer
+Server: ESF
+X-XSS-Protection: 0
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+
+{
+ "kind": "calendar#calendarList",
+ "etag": "\"p33gddrfdl72em0g\"",
+ "nextSyncToken": "CODW7e2pxOsCEhJ0b2J5QHJlZGFudC5jb20uYXU=",
+ "items": [
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1590621138997000\"",
+   "id": "redant.internal@gmail.com",
+   "summary": "redant internal",
+   "description": "all Red Ant internal events (birthdays, functions), general office admin, work from home notes, meeting room bookings should be placed on this calendar",
+   "location": "Sydney",
+   "timeZone": "Australia/Sydney",
+   "colorId": "2",
+   "backgroundColor": "#d06b64",
+   "foregroundColor": "#000000",
+   "accessRole": "owner",
+   "defaultReminders": [],
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  },
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1590621138504000\"",
+   "id": "71oikrqtkk7cpoj35p5g648aec@group.calendar.google.com",
+   "summary": "redant holidays",
+   "description": "Please update this calendar with your annual leave, sick/personal leave etc to ensure the teams are updated with your whereabouts",
+   "location": "Sydney",
+   "timeZone": "Australia/Sydney",
+   "colorId": "9",
+   "backgroundColor": "#7bd148",
+   "foregroundColor": "#000000",
+   "accessRole": "owner",
+   "defaultReminders": [],
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  },
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1592919694503000\"",
+   "id": "dan@redant.com.au",
+   "summary": "dan@redant.com.au",
+   "timeZone": "Australia/Sydney",
+   "colorId": "17",
+   "backgroundColor": "#9a9cff",
+   "foregroundColor": "#000000",
+   "accessRole": "owner",
+   "defaultReminders": [],
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  },
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1592859863572000\"",
+   "id": "remko@redant.com.au",
+   "summary": "remko@redant.com.au",
+   "timeZone": "Australia/Sydney",
+   "colorId": "17",
+   "backgroundColor": "#9a9cff",
+   "foregroundColor": "#000000",
+   "accessRole": "owner",
+   "defaultReminders": [],
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  },
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1562891187639000\"",
+   "id": "toby@redant.com.au",
+   "summary": "toby@redant.com.au",
+   "timeZone": "Australia/Sydney",
+   "colorId": "2",
+   "backgroundColor": "#d06b64",
+   "foregroundColor": "#000000",
+   "selected": true,
+   "accessRole": "owner",
+   "defaultReminders": [
+    {
+     "method": "popup",
+     "minutes": 10
+    },
+    {
+     "method": "email",
+     "minutes": 10
+    }
+   ],
+   "notificationSettings": {
+    "notifications": [
+     {
+      "type": "eventCreation",
+      "method": "email"
+     },
+     {
+      "type": "eventChange",
+      "method": "email"
+     },
+     {
+      "type": "eventCancellation",
+      "method": "email"
+     },
+     {
+      "type": "eventResponse",
+      "method": "email"
+     }
+    ]
+   },
+   "primary": true,
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  },
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1592919728975000\"",
+   "id": "ben@redant.com.au",
+   "summary": "Ben - Red Ant",
+   "location": "Sydney",
+   "timeZone": "Australia/Sydney",
+   "colorId": "11",
+   "backgroundColor": "#fbe983",
+   "foregroundColor": "#000000",
+   "accessRole": "owner",
+   "defaultReminders": [],
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  },
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1592919676466000\"",
+   "id": "karim@redant.com.au",
+   "summary": "karim@redant.com.au",
+   "timeZone": "Australia/Sydney",
+   "colorId": "3",
+   "backgroundColor": "#f83a22",
+   "foregroundColor": "#000000",
+   "accessRole": "owner",
+   "defaultReminders": [],
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  },
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1595497271174000\"",
+   "id": "addressbook#contacts@group.v.calendar.google.com",
+   "summary": "Contacts",
+   "timeZone": "Australia/Sydney",
+   "colorId": "13",
+   "backgroundColor": "#92e1c0",
+   "foregroundColor": "#000000",
+   "selected": true,
+   "accessRole": "reader",
+   "defaultReminders": [],
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  },
+  {
+   "kind": "calendar#calendarListEntry",
+   "etag": "\"1553045701464000\"",
+   "id": "en.australian#holiday@group.v.calendar.google.com",
+   "summary": "Holidays in Australia",
+   "timeZone": "Australia/Sydney",
+   "colorId": "17",
+   "backgroundColor": "#9a9cff",
+   "foregroundColor": "#000000",
+   "selected": true,
+   "accessRole": "reader",
+   "defaultReminders": [],
+   "conferenceProperties": {
+    "allowedConferenceSolutionTypes": [
+     "hangoutsMeet"
+    ]
+   }
+  }
+ ]
+}

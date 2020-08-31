@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Cache-Control: private
+Content-Type: application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8
+Vary: Accept-Encoding
+request-id: 0660aeec-d8bf-4b5c-9ae4-81bc0ea388c7
+client-request-id: 0660aeec-d8bf-4b5c-9ae4-81bc0ea388c7
+x-ms-ags-diagnostic: {"ServerInfo":{"DataCenter":"Australia Southeast","Slice":"SliceC","Ring":"3","ScaleUnit":"000","RoleInstance":"AGSFE_IN_7"}}
+OData-Version: 4.0
+Strict-Transport-Security: max-age=31536000
+Date: Mon, 31 Aug 2020 04:21:00 GMT
+Content-Length: 127
+
+{"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#users('dev%40acaprojects.com')/calendar/calendarView","value":[]}

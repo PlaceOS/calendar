@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Cache-Control: private
+Content-Type: application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8
+Vary: Accept-Encoding
+request-id: 17497bbc-fde1-4d11-8fcb-b0564f5dc7e3
+client-request-id: 17497bbc-fde1-4d11-8fcb-b0564f5dc7e3
+x-ms-ags-diagnostic: {"ServerInfo":{"DataCenter":"Australia Southeast","Slice":"SliceC","Ring":"4","ScaleUnit":"002","RoleInstance":"AGSFE_IN_15"}}
+OData-Version: 4.0
+Strict-Transport-Security: max-age=31536000
+Date: Mon, 31 Aug 2020 04:20:55 GMT
+Content-Length: 363
+
+{"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#users/$entity","businessPhones":[],"displayName":"Kim Burgess","givenName":"Kim","jobTitle":null,"mail":"kim@acaprojects.com","mobilePhone":null,"officeLocation":null,"preferredLanguage":"en-AU","surname":"Burgess","userPrincipalName":"kim@acaprojects.com","id":"786aa06a-cc30-48fd-868f-99874442a840"}
