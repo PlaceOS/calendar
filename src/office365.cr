@@ -75,7 +75,7 @@ module PlaceCalendar
     def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
       o365_event = ::Office365::Event.new(**event_params(event))
 
-      if updated_event = client.update_event(**options.merge(mailbox: user_id, calendar_id: calendar_id, event: o365_event))
+      if updated_event = client.update_event(**options.merge(mailbox: user_id, event: o365_event))
         updated_event.to_place_calendar
       end
     rescue ex : ::Office365::Exception
