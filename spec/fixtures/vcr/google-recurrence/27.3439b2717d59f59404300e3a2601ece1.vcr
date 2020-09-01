@@ -1,0 +1,62 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Expires: Mon, 01 Jan 1990 00:00:00 GMT
+Date: Mon, 31 Aug 2020 04:24:49 GMT
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Length: 1206
+Pragma: no-cache
+Vary: Origin,X-Origin,Referer
+ETag: "3197695779010000"
+Server: ESF
+X-XSS-Protection: 0
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+
+{
+ "kind": "calendar#event",
+ "etag": "\"3197695779010000\"",
+ "id": "sidl8qgnr8frstj4vpnfk0dm5g",
+ "status": "confirmed",
+ "htmlLink": "https://www.google.com/calendar/event?eid=c2lkbDhxZ25yOGZyc3RqNHZwbmZrMGRtNWdfMjAyMDA5MDdUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+ "created": "2020-08-31T04:24:47.000Z",
+ "updated": "2020-08-31T04:24:49.505Z",
+ "summary": "Weekly recurring meeting, Delete me",
+ "description": "Weekly The quick brown fox jumps over the lazy dog",
+ "creator": {
+  "email": "testing@redant.com.au",
+  "self": true
+ },
+ "organizer": {
+  "email": "testing@redant.com.au",
+  "self": true
+ },
+ "start": {
+  "dateTime": "2020-09-07T10:00:00+10:00",
+  "timeZone": "Australia/Sydney"
+ },
+ "end": {
+  "dateTime": "2020-09-07T10:30:00+10:00",
+  "timeZone": "Australia/Sydney"
+ },
+ "recurrence": [
+  "RRULE:FREQ=WEEKLY;UNTIL=20200927T140000Z;INTERVAL=1;BYDAY=MO"
+ ],
+ "iCalUID": "sidl8qgnr8frstj4vpnfk0dm5g@google.com",
+ "sequence": 0,
+ "attendees": [
+  {
+   "email": "amit@redant.com.au",
+   "responseStatus": "needsAction"
+  },
+  {
+   "email": "testing@redant.com.au",
+   "organizer": true,
+   "self": true,
+   "responseStatus": "needsAction"
+  }
+ ],
+ "reminders": {
+  "useDefault": true
+ }
+}
