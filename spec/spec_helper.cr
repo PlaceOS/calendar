@@ -77,7 +77,7 @@ def events_spec(client, username)
   new_event = client.create_event(user_id: username, event: a)
   new_event.should be_a(PlaceCalendar::Event)
 
-  list = client.list_events(username)
+  list = client.list_events(username, period_start: start_time.at_beginning_of_day)
   list.should be_a(Array(PlaceCalendar::Event))
   list.size.should be > 0
 
@@ -157,7 +157,7 @@ def events_recurrence_spec(client, username)
   ne_recurrence.range_end.should eq(daily_recurrence_end.at_beginning_of_day)
   ne_recurrence.range_start.should eq(start_time.at_beginning_of_day)
 
-  client.list_events(username).size.should eq(8)
+  client.list_events(username, period_start: start_time.at_beginning_of_day).size.should eq(8)
 
   if !new_event.nil?
     # Testing the data on fetched event
@@ -172,7 +172,7 @@ def events_recurrence_spec(client, username)
     new_event.not_nil!.recurrence = nil
     client.update_event(user_id: username, event: new_event)
     # should be left with single instance
-    client.list_events(username).size.should eq(1)
+    client.list_events(username, period_start: start_time.at_beginning_of_day).size.should eq(1)
   end
 
   cleanup_events(client, username)
@@ -192,7 +192,7 @@ def events_recurrence_spec(client, username)
   ne_recurrence.interval.should eq(1)
   ne_recurrence.pattern.should eq("weekly")
   ne_recurrence.days_of_week.should eq("monday")
-  event_list = client.list_events(username)
+  event_list = client.list_events(username, period_start: start_time.at_beginning_of_day)
   # Google creates event for start_date(1) + recurrence(4) if start date is not recurrence start date
   # Microsoft only creates for recurrence(4)
   event_list.size.should be <= 5
@@ -212,7 +212,7 @@ def events_recurrence_spec(client, username)
   new_event.not_nil!.event_end = start_time + 1.week + 30.minutes
   client.update_event(user_id: username, event: new_event.not_nil!)
 
-  event_list = client.list_events(username)
+  event_list = client.list_events(username, period_start: start_time.at_beginning_of_day)
   # Have 1 less event as everything moved by 1 week
   event_list.size.should be <= 4
   event_list.size.should be >= 3
@@ -242,7 +242,7 @@ def events_recurrence_spec(client, username)
   ne_recurrence.pattern.should eq("monthly")
   # it should start from next Tuesday
   ne_recurrence.days_of_week.should eq("tuesday")
-  event_list = client.list_events(username)
+  event_list = client.list_events(username, period_start: start_time.at_beginning_of_day)
   event_list.map do |recurring_event|
     recurring_event.event_start
   end
@@ -253,7 +253,8 @@ end
 
 def cleanup_events(client, username)
   # Cleanup before we start
-  existing_events = client.list_events(username)
+  start_time = Time.local(year: 2020, month: 8, day: 31, hour: 10, minute: 0, location: Time::Location.load("Australia/Sydney"))
+  existing_events = client.list_events(username, period_start: start_time.at_beginning_of_day)
   existing_events.each do |event|
     client.delete_event(id: event.try &.id.not_nil!, user_id: username)
   end
