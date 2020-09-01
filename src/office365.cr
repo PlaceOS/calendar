@@ -83,7 +83,8 @@ module PlaceCalendar
     end
 
     def delete_event(user_id : String, id : String, **options) : Bool
-      client.delete_event(**options.merge(mailbox: user_id, id: id)) || false
+      # TODO: Silently ignoring notify and calendar_id from options. o365 doesn't offer option to notify on deletion
+      client.delete_event(mailbox: user_id, id: id) || false
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
