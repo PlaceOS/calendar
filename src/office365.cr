@@ -234,10 +234,6 @@ class Office365::Event
       end
     end
 
-    attendees = @attendees
-      .select { |a| a.type != AttendeeType::Resource }
-      .map { |a| {name: a.email_address.name, email: a.email_address.address} }
-
     attendees = (@attendees).map do |attendee|
       name = attendee.email_address.name
       email = attendee.email_address.address.downcase
@@ -256,7 +252,7 @@ class Office365::Event
                  when Office365::ResponseStatus::Response::Declined
                    "declined"
                  when Office365::ResponseStatus::Response::NotResponded
-                   "needsAction"
+                   "declined"
                  end
                end
 
