@@ -1,31 +1,16 @@
-HTTP/1.1 200 OK
-Expires: Mon, 01 Jan 1990 00:00:00 GMT
-Content-Type: application/json; charset=UTF-8
-Date: Mon, 07 Sep 2020 01:59:25 GMT
+HTTP/1.1 204 No Content
+Date: Mon, 07 Sep 2020 01:59:43 GMT
+Content-Length: 0
 Pragma: no-cache
-Content-Length: 279
+Expires: Mon, 01 Jan 1990 00:00:00 GMT
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Vary: Origin
 Vary: X-Origin
 Vary: Referer
+Content-Type: text/html
 Server: ESF
 X-XSS-Protection: 0
 X-Frame-Options: SAMEORIGIN
 X-Content-Type-Options: nosniff
 Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
 
-{
- "kind": "calendar#freeBusy",
- "timeMin": "2020-08-24T00:00:00.000Z",
- "timeMax": "2020-09-07T00:00:00.000Z",
- "calendars": {
-  "testing@redant.com.au": {
-   "busy": [
-    {
-     "start": "2020-08-31T10:00:00+10:00",
-     "end": "2020-08-31T10:30:00+10:00"
-    }
-   ]
-  }
- }
-}

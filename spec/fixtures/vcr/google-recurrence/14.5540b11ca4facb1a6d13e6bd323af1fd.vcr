@@ -1,14 +1,12 @@
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=UTF-8
-Pragma: no-cache
-Date: Mon, 07 Sep 2020 01:59:22 GMT
-ETag: "3198887925556000"
-Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Content-Length: 1080
+Vary: Origin,X-Origin,Referer
 Expires: Mon, 01 Jan 1990 00:00:00 GMT
-Vary: Origin
-Vary: X-Origin
-Vary: Referer
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Date: Mon, 07 Sep 2020 01:59:52 GMT
+ETag: "3198887984120000"
+Content-Length: 1206
+Pragma: no-cache
 Server: ESF
 X-XSS-Protection: 0
 X-Frame-Options: SAMEORIGIN
@@ -17,14 +15,14 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
 
 {
  "kind": "calendar#event",
- "etag": "\"3198887925556000\"",
- "id": "rnspsui8tqc63k75pb90ieqcb8",
+ "etag": "\"3198887984120000\"",
+ "id": "1q62a87hob8oh8c29fo5kvvkv4",
  "status": "confirmed",
- "htmlLink": "https://www.google.com/calendar/event?eid=cm5zcHN1aTh0cWM2M2s3NXBiOTBpZXFjYjggdGVzdGluZ0ByZWRhbnQuY29tLmF1",
- "created": "2020-09-07T01:59:22.000Z",
- "updated": "2020-09-07T01:59:22.778Z",
- "summary": "My New Meeting, Delete me",
- "description": "The quick brown fox jumps over the lazy dog",
+ "htmlLink": "https://www.google.com/calendar/event?eid=MXE2MmE4N2hvYjhvaDhjMjlmbzVrdnZrdjRfMjAyMDA5MDdUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+ "created": "2020-09-07T01:59:50.000Z",
+ "updated": "2020-09-07T01:59:52.060Z",
+ "summary": "Weekly recurring meeting, Delete me",
+ "description": "Weekly The quick brown fox jumps over the lazy dog",
  "creator": {
   "email": "testing@redant.com.au",
   "self": true
@@ -34,14 +32,17 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
   "self": true
  },
  "start": {
-  "dateTime": "2020-08-31T10:00:00+10:00",
+  "dateTime": "2020-09-07T10:00:00+10:00",
   "timeZone": "Australia/Sydney"
  },
  "end": {
-  "dateTime": "2020-08-31T10:30:00+10:00",
+  "dateTime": "2020-09-07T10:30:00+10:00",
   "timeZone": "Australia/Sydney"
  },
- "iCalUID": "rnspsui8tqc63k75pb90ieqcb8@google.com",
+ "recurrence": [
+  "RRULE:FREQ=WEEKLY;UNTIL=20200927T140000Z;INTERVAL=1;BYDAY=MO"
+ ],
+ "iCalUID": "1q62a87hob8oh8c29fo5kvvkv4@google.com",
  "sequence": 0,
  "attendees": [
   {

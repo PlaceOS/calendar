@@ -1,9 +1,9 @@
 HTTP/1.1 200 OK
-Content-Length: 4516
-Content-Type: application/json; charset=UTF-8
+Date: Mon, 07 Sep 2020 01:59:53 GMT
+Expires: Mon, 07 Sep 2020 01:59:53 GMT
 Cache-Control: private, max-age=0, must-revalidate, no-transform
-Expires: Mon, 07 Sep 2020 01:59:40 GMT
-Date: Mon, 07 Sep 2020 01:59:40 GMT
+Content-Type: application/json; charset=UTF-8
+Content-Length: 4510
 Vary: Origin
 Vary: X-Origin
 Vary: Referer
@@ -15,9 +15,9 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
 
 {
  "kind": "calendar#events",
- "etag": "\"p33kf9l4hv7aum0g\"",
+ "etag": "\"p33gc1s4nv7aum0g\"",
  "summary": "testing@redant.com.au",
- "updated": "2020-09-07T01:59:39.025Z",
+ "updated": "2020-09-07T01:59:52.060Z",
  "timeZone": "Australia/Sydney",
  "accessRole": "owner",
  "defaultReminders": [
@@ -26,18 +26,18 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
    "minutes": 10
   }
  ],
- "nextSyncToken": "COj01JH51esCEOj01JH51esCGAU=",
+ "nextSyncToken": "CODA8Jf51esCEODA8Jf51esCGAU=",
  "items": [
   {
    "kind": "calendar#event",
-   "etag": "\"3198887804012000\"",
-   "id": "h2pqklqnlcs6vqck419uoikv1c_20200831T000000Z",
+   "etag": "\"3198887984120000\"",
+   "id": "1q62a87hob8oh8c29fo5kvvkv4_20200907T000000Z",
    "status": "confirmed",
-   "htmlLink": "https://www.google.com/calendar/event?eid=aDJwcWtscW5sY3M2dnFjazQxOXVvaWt2MWNfMjAyMDA4MzFUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
-   "created": "2020-09-07T01:58:21.000Z",
-   "updated": "2020-09-07T01:58:22.006Z",
-   "summary": "Monthly recurring meeting, Delete me",
-   "description": "Monthly The quick brown fox jumps over the lazy dog",
+   "htmlLink": "https://www.google.com/calendar/event?eid=MXE2MmE4N2hvYjhvaDhjMjlmbzVrdnZrdjRfMjAyMDA5MDdUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:50.000Z",
+   "updated": "2020-09-07T01:59:52.060Z",
+   "summary": "Weekly recurring meeting, Delete me",
+   "description": "Weekly The quick brown fox jumps over the lazy dog",
    "creator": {
     "email": "testing@redant.com.au",
     "self": true
@@ -47,19 +47,19 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
     "self": true
    },
    "start": {
-    "dateTime": "2020-08-31T10:00:00+10:00",
+    "dateTime": "2020-09-07T10:00:00+10:00",
     "timeZone": "Australia/Sydney"
    },
    "end": {
-    "dateTime": "2020-08-31T10:30:00+10:00",
+    "dateTime": "2020-09-07T10:30:00+10:00",
     "timeZone": "Australia/Sydney"
    },
-   "recurringEventId": "h2pqklqnlcs6vqck419uoikv1c",
+   "recurringEventId": "1q62a87hob8oh8c29fo5kvvkv4",
    "originalStartTime": {
-    "dateTime": "2020-08-31T10:00:00+10:00",
+    "dateTime": "2020-09-07T10:00:00+10:00",
     "timeZone": "Australia/Sydney"
    },
-   "iCalUID": "h2pqklqnlcs6vqck419uoikv1c@google.com",
+   "iCalUID": "1q62a87hob8oh8c29fo5kvvkv4@google.com",
    "sequence": 0,
    "attendees": [
     {
@@ -79,14 +79,14 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
   },
   {
    "kind": "calendar#event",
-   "etag": "\"3198887804012000\"",
-   "id": "h2pqklqnlcs6vqck419uoikv1c_20201005T230000Z",
+   "etag": "\"3198887984120000\"",
+   "id": "1q62a87hob8oh8c29fo5kvvkv4_20200914T000000Z",
    "status": "confirmed",
-   "htmlLink": "https://www.google.com/calendar/event?eid=aDJwcWtscW5sY3M2dnFjazQxOXVvaWt2MWNfMjAyMDEwMDVUMjMwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
-   "created": "2020-09-07T01:58:21.000Z",
-   "updated": "2020-09-07T01:58:22.006Z",
-   "summary": "Monthly recurring meeting, Delete me",
-   "description": "Monthly The quick brown fox jumps over the lazy dog",
+   "htmlLink": "https://www.google.com/calendar/event?eid=MXE2MmE4N2hvYjhvaDhjMjlmbzVrdnZrdjRfMjAyMDA5MTRUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:50.000Z",
+   "updated": "2020-09-07T01:59:52.060Z",
+   "summary": "Weekly recurring meeting, Delete me",
+   "description": "Weekly The quick brown fox jumps over the lazy dog",
    "creator": {
     "email": "testing@redant.com.au",
     "self": true
@@ -96,19 +96,19 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
     "self": true
    },
    "start": {
-    "dateTime": "2020-10-06T10:00:00+11:00",
+    "dateTime": "2020-09-14T10:00:00+10:00",
     "timeZone": "Australia/Sydney"
    },
    "end": {
-    "dateTime": "2020-10-06T10:30:00+11:00",
+    "dateTime": "2020-09-14T10:30:00+10:00",
     "timeZone": "Australia/Sydney"
    },
-   "recurringEventId": "h2pqklqnlcs6vqck419uoikv1c",
+   "recurringEventId": "1q62a87hob8oh8c29fo5kvvkv4",
    "originalStartTime": {
-    "dateTime": "2020-10-06T10:00:00+11:00",
+    "dateTime": "2020-09-14T10:00:00+10:00",
     "timeZone": "Australia/Sydney"
    },
-   "iCalUID": "h2pqklqnlcs6vqck419uoikv1c@google.com",
+   "iCalUID": "1q62a87hob8oh8c29fo5kvvkv4@google.com",
    "sequence": 0,
    "attendees": [
     {
@@ -128,14 +128,14 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
   },
   {
    "kind": "calendar#event",
-   "etag": "\"3198887804012000\"",
-   "id": "h2pqklqnlcs6vqck419uoikv1c_20201130T230000Z",
+   "etag": "\"3198887984120000\"",
+   "id": "1q62a87hob8oh8c29fo5kvvkv4_20200921T000000Z",
    "status": "confirmed",
-   "htmlLink": "https://www.google.com/calendar/event?eid=aDJwcWtscW5sY3M2dnFjazQxOXVvaWt2MWNfMjAyMDExMzBUMjMwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
-   "created": "2020-09-07T01:58:21.000Z",
-   "updated": "2020-09-07T01:58:22.006Z",
-   "summary": "Monthly recurring meeting, Delete me",
-   "description": "Monthly The quick brown fox jumps over the lazy dog",
+   "htmlLink": "https://www.google.com/calendar/event?eid=MXE2MmE4N2hvYjhvaDhjMjlmbzVrdnZrdjRfMjAyMDA5MjFUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:50.000Z",
+   "updated": "2020-09-07T01:59:52.060Z",
+   "summary": "Weekly recurring meeting, Delete me",
+   "description": "Weekly The quick brown fox jumps over the lazy dog",
    "creator": {
     "email": "testing@redant.com.au",
     "self": true
@@ -145,19 +145,19 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
     "self": true
    },
    "start": {
-    "dateTime": "2020-12-01T10:00:00+11:00",
+    "dateTime": "2020-09-21T10:00:00+10:00",
     "timeZone": "Australia/Sydney"
    },
    "end": {
-    "dateTime": "2020-12-01T10:30:00+11:00",
+    "dateTime": "2020-09-21T10:30:00+10:00",
     "timeZone": "Australia/Sydney"
    },
-   "recurringEventId": "h2pqklqnlcs6vqck419uoikv1c",
+   "recurringEventId": "1q62a87hob8oh8c29fo5kvvkv4",
    "originalStartTime": {
-    "dateTime": "2020-12-01T10:00:00+11:00",
+    "dateTime": "2020-09-21T10:00:00+10:00",
     "timeZone": "Australia/Sydney"
    },
-   "iCalUID": "h2pqklqnlcs6vqck419uoikv1c@google.com",
+   "iCalUID": "1q62a87hob8oh8c29fo5kvvkv4@google.com",
    "sequence": 0,
    "attendees": [
     {

@@ -1,11 +1,10 @@
 HTTP/1.1 200 OK
+Cache-Control: private, max-age=0, must-revalidate, no-transform
 Content-Type: application/json; charset=UTF-8
-Pragma: no-cache
-Date: Mon, 07 Sep 2020 01:59:22 GMT
-ETag: "3198887925556000"
-Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Content-Length: 1080
-Expires: Mon, 01 Jan 1990 00:00:00 GMT
+Content-Length: 1295
+Expires: Mon, 07 Sep 2020 01:59:35 GMT
+ETag: "3198887936464000"
+Date: Mon, 07 Sep 2020 01:59:35 GMT
 Vary: Origin
 Vary: X-Origin
 Vary: Referer
@@ -17,12 +16,12 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
 
 {
  "kind": "calendar#event",
- "etag": "\"3198887925556000\"",
+ "etag": "\"3198887936464000\"",
  "id": "rnspsui8tqc63k75pb90ieqcb8",
  "status": "confirmed",
  "htmlLink": "https://www.google.com/calendar/event?eid=cm5zcHN1aTh0cWM2M2s3NXBiOTBpZXFjYjggdGVzdGluZ0ByZWRhbnQuY29tLmF1",
  "created": "2020-09-07T01:59:22.000Z",
- "updated": "2020-09-07T01:59:22.778Z",
+ "updated": "2020-09-07T01:59:28.232Z",
  "summary": "My New Meeting, Delete me",
  "description": "The quick brown fox jumps over the lazy dog",
  "creator": {
@@ -57,5 +56,13 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
  ],
  "reminders": {
   "useDefault": true
- }
+ },
+ "attachments": [
+  {
+   "fileUrl": "https://drive.google.com/file/d/1lstah4AlS-Y-K2508SngXVbbihxEL_Nx/view?usp=drivesdk",
+   "title": "",
+   "iconLink": "",
+   "fileId": "1lstah4AlS-Y-K2508SngXVbbihxEL_Nx"
+  }
+ ]
 }

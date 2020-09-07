@@ -1,0 +1,115 @@
+HTTP/1.1 200 OK
+Expires: Mon, 07 Sep 2020 01:59:29 GMT
+Date: Mon, 07 Sep 2020 01:59:29 GMT
+Cache-Control: private, max-age=0, must-revalidate, no-transform
+Vary: Origin
+Vary: X-Origin
+Content-Type: application/json; charset=UTF-8
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Content-Security-Policy: frame-ancestors 'self'
+X-XSS-Protection: 1; mode=block
+Server: GSE
+Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+Transfer-Encoding: chunked
+Content-Length: 2726
+
+{
+ "kind": "drive#file",
+ "id": "1lstah4AlS-Y-K2508SngXVbbihxEL_Nx",
+ "name": "not_sure_if.jpg",
+ "mimeType": "image/png",
+ "starred": false,
+ "trashed": false,
+ "explicitlyTrashed": false,
+ "parents": [
+  "0ANWXTOqt0xuDUk9PVA"
+ ],
+ "spaces": [
+  "drive"
+ ],
+ "version": "1",
+ "webContentLink": "https://drive.google.com/uc?id=1lstah4AlS-Y-K2508SngXVbbihxEL_Nx&export=download",
+ "webViewLink": "https://drive.google.com/file/d/1lstah4AlS-Y-K2508SngXVbbihxEL_Nx/view?usp=drivesdk",
+ "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/image/png",
+ "hasThumbnail": true,
+ "thumbnailLink": "https://lh3.googleusercontent.com/43pBmynmUBjaqc3zlUUoFCJAcsFALYZA0-Vzqe7VdoAA2DICsDaR7hIbW4QUObNbwx4xj_4TEfw=s220",
+ "thumbnailVersion": "1",
+ "viewedByMe": false,
+ "createdTime": "2020-09-07T01:59:26.248Z",
+ "modifiedTime": "2020-09-07T01:59:26.248Z",
+ "modifiedByMeTime": "2020-09-07T01:59:26.248Z",
+ "modifiedByMe": true,
+ "owners": [
+  {
+   "kind": "drive#user",
+   "displayName": "Test User",
+   "me": true,
+   "permissionId": "09501362633178356337",
+   "emailAddress": "testing@redant.com.au"
+  }
+ ],
+ "lastModifyingUser": {
+  "kind": "drive#user",
+  "displayName": "Test User",
+  "me": true,
+  "permissionId": "09501362633178356337",
+  "emailAddress": "testing@redant.com.au"
+ },
+ "shared": false,
+ "ownedByMe": true,
+ "capabilities": {
+  "canAddChildren": false,
+  "canAddMyDriveParent": false,
+  "canChangeCopyRequiresWriterPermission": true,
+  "canChangeViewersCanCopyContent": true,
+  "canComment": true,
+  "canCopy": true,
+  "canDelete": true,
+  "canDownload": true,
+  "canEdit": true,
+  "canListChildren": false,
+  "canModifyContent": true,
+  "canMoveChildrenWithinDrive": false,
+  "canMoveItemIntoTeamDrive": true,
+  "canMoveItemOutOfDrive": true,
+  "canMoveItemWithinDrive": true,
+  "canReadRevisions": true,
+  "canRemoveChildren": false,
+  "canRemoveMyDriveParent": true,
+  "canRename": true,
+  "canShare": true,
+  "canTrash": true,
+  "canUntrash": true
+ },
+ "viewersCanCopyContent": true,
+ "copyRequiresWriterPermission": false,
+ "writersCanShare": true,
+ "permissions": [
+  {
+   "kind": "drive#permission",
+   "id": "09501362633178356337",
+   "type": "user",
+   "emailAddress": "testing@redant.com.au",
+   "role": "owner",
+   "displayName": "Test User",
+   "deleted": false
+  }
+ ],
+ "permissionIds": [
+  "09501362633178356337"
+ ],
+ "originalFilename": "not_sure_if.jpg",
+ "fullFileExtension": "jpg",
+ "fileExtension": "jpg",
+ "md5Checksum": "6577aff84b384700606568f0bea5c4f8",
+ "size": "19690",
+ "quotaBytesUsed": "19690",
+ "headRevisionId": "0B9WXTOqt0xuDbFJLMFlXbUFabGpZc1hxYmVadWxlWElvR2FRPQ",
+ "imageMediaMetadata": {
+  "width": 292,
+  "height": 163,
+  "rotation": 0
+ },
+ "isAppAuthorized": true
+}

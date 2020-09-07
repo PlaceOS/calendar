@@ -3,7 +3,7 @@ Content-Type: application/json; charset=utf-8
 Vary: Origin
 Vary: X-Origin
 Vary: Referer
-Date: Mon, 31 Aug 2020 04:24:05 GMT
+Date: Mon, 07 Sep 2020 01:59:22 GMT
 Server: scaffolding on HTTPServer2
 Cache-Control: private
 X-XSS-Protection: 0
@@ -11,10 +11,10 @@ X-Frame-Options: SAMEORIGIN
 X-Content-Type-Options: nosniff
 Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
 Transfer-Encoding: chunked
-Content-Length: 77
+Content-Length: 291
 
 {
-  "access_token": "XXXX",
+  "access_token": "ya29.a0AfH6SMBdp_6EL1ElbgYwQq9gV0VHnWA35S-TkJcE46nRXCOurDtknVtN2wN3PBH4NFSGSr85ug3estvkNVHjMHWIxljxwG7dTKfK-_RS8jpvnqtw1QJ1q2B9P3bkxftYxpXYyyTPlBbOxkvIcv6S7q57UHUpTcobaxyDZvIb2kGW43Jud56UBw9KAYtth6P_M5w4Vqt-bPB0z-7pdfLI",
   "expires_in": 3599,
   "token_type": "Bearer"
 }

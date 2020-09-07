@@ -1,0 +1,424 @@
+HTTP/1.1 200 OK
+Content-Length: 11409
+Content-Type: application/json; charset=UTF-8
+Expires: Mon, 07 Sep 2020 01:59:44 GMT
+Cache-Control: private, max-age=0, must-revalidate, no-transform
+Date: Mon, 07 Sep 2020 01:59:44 GMT
+Vary: Origin
+Vary: X-Origin
+Vary: Referer
+Server: ESF
+X-XSS-Protection: 0
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+
+{
+ "kind": "calendar#events",
+ "etag": "\"p328911skv7aum0g\"",
+ "summary": "testing@redant.com.au",
+ "updated": "2020-09-07T01:59:44.042Z",
+ "timeZone": "Australia/Sydney",
+ "accessRole": "owner",
+ "defaultReminders": [
+  {
+   "method": "popup",
+   "minutes": 10
+  }
+ ],
+ "nextSyncToken": "CJCQh5T51esCEJCQh5T51esCGAU=",
+ "items": [
+  {
+   "kind": "calendar#event",
+   "etag": "\"3198887968084000\"",
+   "id": "mdpbo25iq4hl0rr6u3ob4s1n8g_20200831T000000Z",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA4MzFUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:43.000Z",
+   "updated": "2020-09-07T01:59:44.042Z",
+   "summary": "My new recurring meeting, Delete me",
+   "description": "The quick brown fox jumps over the lazy dog",
+   "creator": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "organizer": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-08-31T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "end": {
+    "dateTime": "2020-08-31T10:30:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "recurringEventId": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+   "originalStartTime": {
+    "dateTime": "2020-08-31T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+   "sequence": 0,
+   "attendees": [
+    {
+     "email": "amit@redant.com.au",
+     "responseStatus": "needsAction"
+    },
+    {
+     "email": "testing@redant.com.au",
+     "organizer": true,
+     "self": true,
+     "responseStatus": "needsAction"
+    }
+   ],
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3198887968084000\"",
+   "id": "mdpbo25iq4hl0rr6u3ob4s1n8g_20200902T000000Z",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA5MDJUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:43.000Z",
+   "updated": "2020-09-07T01:59:44.042Z",
+   "summary": "My new recurring meeting, Delete me",
+   "description": "The quick brown fox jumps over the lazy dog",
+   "creator": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "organizer": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-09-02T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "end": {
+    "dateTime": "2020-09-02T10:30:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "recurringEventId": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+   "originalStartTime": {
+    "dateTime": "2020-09-02T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+   "sequence": 0,
+   "attendees": [
+    {
+     "email": "amit@redant.com.au",
+     "responseStatus": "needsAction"
+    },
+    {
+     "email": "testing@redant.com.au",
+     "organizer": true,
+     "self": true,
+     "responseStatus": "needsAction"
+    }
+   ],
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3198887968084000\"",
+   "id": "mdpbo25iq4hl0rr6u3ob4s1n8g_20200904T000000Z",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA5MDRUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:43.000Z",
+   "updated": "2020-09-07T01:59:44.042Z",
+   "summary": "My new recurring meeting, Delete me",
+   "description": "The quick brown fox jumps over the lazy dog",
+   "creator": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "organizer": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-09-04T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "end": {
+    "dateTime": "2020-09-04T10:30:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "recurringEventId": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+   "originalStartTime": {
+    "dateTime": "2020-09-04T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+   "sequence": 0,
+   "attendees": [
+    {
+     "email": "amit@redant.com.au",
+     "responseStatus": "needsAction"
+    },
+    {
+     "email": "testing@redant.com.au",
+     "organizer": true,
+     "self": true,
+     "responseStatus": "needsAction"
+    }
+   ],
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3198887968084000\"",
+   "id": "mdpbo25iq4hl0rr6u3ob4s1n8g_20200906T000000Z",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA5MDZUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:43.000Z",
+   "updated": "2020-09-07T01:59:44.042Z",
+   "summary": "My new recurring meeting, Delete me",
+   "description": "The quick brown fox jumps over the lazy dog",
+   "creator": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "organizer": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-09-06T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "end": {
+    "dateTime": "2020-09-06T10:30:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "recurringEventId": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+   "originalStartTime": {
+    "dateTime": "2020-09-06T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+   "sequence": 0,
+   "attendees": [
+    {
+     "email": "amit@redant.com.au",
+     "responseStatus": "needsAction"
+    },
+    {
+     "email": "testing@redant.com.au",
+     "organizer": true,
+     "self": true,
+     "responseStatus": "needsAction"
+    }
+   ],
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3198887968084000\"",
+   "id": "mdpbo25iq4hl0rr6u3ob4s1n8g_20200908T000000Z",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA5MDhUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:43.000Z",
+   "updated": "2020-09-07T01:59:44.042Z",
+   "summary": "My new recurring meeting, Delete me",
+   "description": "The quick brown fox jumps over the lazy dog",
+   "creator": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "organizer": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-09-08T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "end": {
+    "dateTime": "2020-09-08T10:30:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "recurringEventId": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+   "originalStartTime": {
+    "dateTime": "2020-09-08T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+   "sequence": 0,
+   "attendees": [
+    {
+     "email": "amit@redant.com.au",
+     "responseStatus": "needsAction"
+    },
+    {
+     "email": "testing@redant.com.au",
+     "organizer": true,
+     "self": true,
+     "responseStatus": "needsAction"
+    }
+   ],
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3198887968084000\"",
+   "id": "mdpbo25iq4hl0rr6u3ob4s1n8g_20200910T000000Z",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA5MTBUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:43.000Z",
+   "updated": "2020-09-07T01:59:44.042Z",
+   "summary": "My new recurring meeting, Delete me",
+   "description": "The quick brown fox jumps over the lazy dog",
+   "creator": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "organizer": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-09-10T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "end": {
+    "dateTime": "2020-09-10T10:30:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "recurringEventId": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+   "originalStartTime": {
+    "dateTime": "2020-09-10T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+   "sequence": 0,
+   "attendees": [
+    {
+     "email": "amit@redant.com.au",
+     "responseStatus": "needsAction"
+    },
+    {
+     "email": "testing@redant.com.au",
+     "organizer": true,
+     "self": true,
+     "responseStatus": "needsAction"
+    }
+   ],
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3198887968084000\"",
+   "id": "mdpbo25iq4hl0rr6u3ob4s1n8g_20200912T000000Z",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA5MTJUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:43.000Z",
+   "updated": "2020-09-07T01:59:44.042Z",
+   "summary": "My new recurring meeting, Delete me",
+   "description": "The quick brown fox jumps over the lazy dog",
+   "creator": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "organizer": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-09-12T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "end": {
+    "dateTime": "2020-09-12T10:30:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "recurringEventId": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+   "originalStartTime": {
+    "dateTime": "2020-09-12T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+   "sequence": 0,
+   "attendees": [
+    {
+     "email": "amit@redant.com.au",
+     "responseStatus": "needsAction"
+    },
+    {
+     "email": "testing@redant.com.au",
+     "organizer": true,
+     "self": true,
+     "responseStatus": "needsAction"
+    }
+   ],
+   "reminders": {
+    "useDefault": true
+   }
+  },
+  {
+   "kind": "calendar#event",
+   "etag": "\"3198887968084000\"",
+   "id": "mdpbo25iq4hl0rr6u3ob4s1n8g_20200914T000000Z",
+   "status": "confirmed",
+   "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA5MTRUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+   "created": "2020-09-07T01:59:43.000Z",
+   "updated": "2020-09-07T01:59:44.042Z",
+   "summary": "My new recurring meeting, Delete me",
+   "description": "The quick brown fox jumps over the lazy dog",
+   "creator": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "organizer": {
+    "email": "testing@redant.com.au",
+    "self": true
+   },
+   "start": {
+    "dateTime": "2020-09-14T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "end": {
+    "dateTime": "2020-09-14T10:30:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "recurringEventId": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+   "originalStartTime": {
+    "dateTime": "2020-09-14T10:00:00+10:00",
+    "timeZone": "Australia/Sydney"
+   },
+   "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+   "sequence": 0,
+   "attendees": [
+    {
+     "email": "amit@redant.com.au",
+     "responseStatus": "needsAction"
+    },
+    {
+     "email": "testing@redant.com.au",
+     "organizer": true,
+     "self": true,
+     "responseStatus": "needsAction"
+    }
+   ],
+   "reminders": {
+    "useDefault": true
+   }
+  }
+ ]
+}
