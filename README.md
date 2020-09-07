@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/PlaceOS/calendar.svg?branch=master)](https://travis-ci.com/PlaceOS/calendar)
+
 # calendar
 
 PlaceCalendar provides a standardised interface for cloud based calendaring solutions, with Office365 and Google currently supported.
