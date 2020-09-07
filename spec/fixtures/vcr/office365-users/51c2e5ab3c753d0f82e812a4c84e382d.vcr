@@ -1,0 +1,43 @@
+HTTP/1.1 200 OK
+Cache-Control: private
+Content-Type: application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8
+Vary: Accept-Encoding
+request-id: 8e9362ac-b866-419d-a3c8-74ff3562e96f
+client-request-id: 8e9362ac-b866-419d-a3c8-74ff3562e96f
+x-ms-ags-diagnostic: {"ServerInfo":{"DataCenter":"Australia Southeast","Slice":"SliceC","Ring":"4","ScaleUnit":"002","RoleInstance":"AGSFE_IN_8"}}
+OData-Version: 4.0
+Strict-Transport-Security: max-age=31536000
+Date: Mon, 31 Aug 2020 04:20:55 GMT
+Content-Length: 835
+
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users",
+  "value": [
+    {
+      "businessPhones": [],
+      "displayName": "John Smith",
+      "givenName": "John",
+      "jobTitle": null,
+      "mail": "john.smith@email.com",
+      "mobilePhone": null,
+      "officeLocation": null,
+      "preferredLanguage": "en-AU",
+      "surname": "Smith",
+      "userPrincipalName": "john.smith@email.com",
+      "id": "786aa06a-cc30-48fd-868f-99874442a840"
+    },
+    {
+      "businessPhones": [],
+      "displayName": "Bar, Foo",
+      "givenName": null,
+      "jobTitle": null,
+      "mail": "foo@domain.net",
+      "mobilePhone": null,
+      "officeLocation": null,
+      "preferredLanguage": null,
+      "surname": null,
+      "userPrincipalName": "Foo Bar",
+      "id": "8896406a-d4ac-4183-9017-666f72bfbd5a"
+    }
+  ]
+}

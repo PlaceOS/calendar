@@ -1,0 +1,59 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=UTF-8
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+ETag: "3197695721292000"
+Date: Mon, 31 Aug 2020 04:24:20 GMT
+Expires: Mon, 01 Jan 1990 00:00:00 GMT
+Vary: Origin,X-Origin,Referer
+Pragma: no-cache
+Content-Length: 1080
+Server: ESF
+X-XSS-Protection: 0
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+
+{
+ "kind": "calendar#event",
+ "etag": "\"3197695721292000\"",
+ "id": "7pla1t1p9quhkevsom8vohfnfs",
+ "status": "confirmed",
+ "htmlLink": "https://www.google.com/calendar/event?eid=N3BsYTF0MXA5cXVoa2V2c29tOHZvaGZuZnMgdGVzdGluZ0ByZWRhbnQuY29tLmF1",
+ "created": "2020-08-31T04:24:05.000Z",
+ "updated": "2020-08-31T04:24:20.646Z",
+ "summary": "My New Meeting, Delete me",
+ "description": "The quick brown fox jumps over the lazy dog",
+ "creator": {
+  "email": "testing@redant.com.au",
+  "self": true
+ },
+ "organizer": {
+  "email": "testing@redant.com.au",
+  "self": true
+ },
+ "start": {
+  "dateTime": "2020-08-31T10:00:00+10:00",
+  "timeZone": "Australia/Sydney"
+ },
+ "end": {
+  "dateTime": "2020-08-31T10:30:00+10:00",
+  "timeZone": "Australia/Sydney"
+ },
+ "iCalUID": "7pla1t1p9quhkevsom8vohfnfs@google.com",
+ "sequence": 0,
+ "attendees": [
+  {
+   "email": "amit@redant.com.au",
+   "responseStatus": "needsAction"
+  },
+  {
+   "email": "testing@redant.com.au",
+   "organizer": true,
+   "self": true,
+   "responseStatus": "needsAction"
+  }
+ ],
+ "reminders": {
+  "useDefault": true
+ }
+}

@@ -1,0 +1,52 @@
+HTTP/1.1 200 OK
+ETag: "FDuRdwXxbGbScURq29SVq9L8zVCYOW0eXSDwRFLjvro/gmwcX6bXLJWXKZegOXi3nkbx59I"
+Content-Type: application/json; charset=UTF-8
+Vary: Origin
+Vary: X-Origin
+Vary: Referer
+Date: Mon, 31 Aug 2020 04:24:03 GMT
+Server: ESF
+Content-Length: 988
+X-XSS-Protection: 0
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+
+{
+  "kind": "admin#directory#user",
+  "id": "103048017111601304650",
+  "etag": "\"FDuRdwXxbGbScURq29SVq9L8zVCYOW0eXSDwRFLjvro/gmwcX6bXLJWXKZegOXi3nkbx59I\"",
+  "primaryEmail": "amit@redant.com.au",
+  "name": {
+    "givenName": "Amit",
+    "familyName": "Gaur",
+    "fullName": "Amit Gaur"
+  },
+  "isAdmin": true,
+  "isDelegatedAdmin": false,
+  "lastLoginTime": "2020-08-24T00:00:31.000Z",
+  "creationTime": "2018-08-27T00:55:45.000Z",
+  "agreedToTerms": true,
+  "suspended": false,
+  "archived": false,
+  "changePasswordAtNextLogin": false,
+  "ipWhitelisted": false,
+  "emails": [
+    {
+      "address": "amitgaur.web@gmail.com",
+      "type": "work"
+    },
+    {
+      "address": "amit@redant.com.au",
+      "primary": true
+    }
+  ],
+  "customerId": "C01ryw856",
+  "orgUnitPath": "/",
+  "isMailboxSetup": true,
+  "isEnrolledIn2Sv": false,
+  "isEnforcedIn2Sv": false,
+  "includeInGlobalAddressList": true,
+  "recoveryEmail": "amitgaur.web@gmail.com",
+  "recoveryPhone": "+61421155086"
+}

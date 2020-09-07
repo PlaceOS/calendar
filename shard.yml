@@ -11,5 +11,8 @@ dependencies:
     github: PlaceOS/office365
   google:
     github: PlaceOS/google
+development_dependencies:
+  vcr:
+    github: spoved/vcr.cr
 
 license: MIT
