@@ -7,7 +7,20 @@ class PlaceCalendar::User
   property id : String?
   property name : String?
   property email : String?
+  property phone : String?
+  property department : String?
+  property photo : String?
+  property username : String?
 
-  def initialize(@id, @name, @email, @source)
+  def initialize(
+    @id = nil,
+    @name = nil,
+    @email = nil,
+    @phone = nil,
+    @department = nil,
+    @photo = nil,
+    @username = nil,
+    @source = nil
+  )
   end
 end
