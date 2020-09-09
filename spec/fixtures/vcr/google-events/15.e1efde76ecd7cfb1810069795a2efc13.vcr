@@ -1,12 +1,13 @@
 HTTP/1.1 200 OK
+ETag: "3199243302114000"
+Cache-Control: private, max-age=0, must-revalidate, no-transform
+Expires: Wed, 09 Sep 2020 03:20:57 GMT
+Content-Length: 1295
 Content-Type: application/json; charset=UTF-8
-Vary: Origin,X-Origin,Referer
-Expires: Mon, 01 Jan 1990 00:00:00 GMT
-Date: Mon, 07 Sep 2020 01:59:46 GMT
-Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Pragma: no-cache
-ETag: "3198887973276000"
-Content-Length: 1090
+Date: Wed, 09 Sep 2020 03:20:57 GMT
+Vary: Origin
+Vary: X-Origin
+Vary: Referer
 Server: ESF
 X-XSS-Protection: 0
 X-Frame-Options: SAMEORIGIN
@@ -15,13 +16,13 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
 
 {
  "kind": "calendar#event",
- "etag": "\"3198887973276000\"",
- "id": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+ "etag": "\"3199243302114000\"",
+ "id": "bp8qmdkfnvc7j17jbfafjdk94o",
  "status": "confirmed",
- "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGcgdGVzdGluZ0ByZWRhbnQuY29tLmF1",
- "created": "2020-09-07T01:59:43.000Z",
- "updated": "2020-09-07T01:59:46.638Z",
- "summary": "My new recurring meeting, Delete me",
+ "htmlLink": "https://www.google.com/calendar/event?eid=YnA4cW1ka2ZudmM3ajE3amJmYWZqZGs5NG8gdGVzdGluZ0ByZWRhbnQuY29tLmF1",
+ "created": "2020-09-09T03:20:44.000Z",
+ "updated": "2020-09-09T03:20:51.057Z",
+ "summary": "My New Meeting, Delete me",
  "description": "The quick brown fox jumps over the lazy dog",
  "creator": {
   "email": "testing@redant.com.au",
@@ -39,8 +40,8 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
   "dateTime": "2020-08-31T10:30:00+10:00",
   "timeZone": "Australia/Sydney"
  },
- "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
- "sequence": 1,
+ "iCalUID": "bp8qmdkfnvc7j17jbfafjdk94o@google.com",
+ "sequence": 0,
  "attendees": [
   {
    "email": "amit@redant.com.au",
@@ -55,5 +56,13 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
  ],
  "reminders": {
   "useDefault": true
- }
+ },
+ "attachments": [
+  {
+   "fileUrl": "https://drive.google.com/file/d/1qj8YvnyuR8HWI2g-tngPed7jRmQvAD8o/view?usp=drivesdk",
+   "title": "",
+   "iconLink": "",
+   "fileId": "1qj8YvnyuR8HWI2g-tngPed7jRmQvAD8o"
+  }
+ ]
 }

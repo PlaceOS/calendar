@@ -7,7 +7,6 @@ module PlaceCalendar
       [] of User
     end
 
-    # do we need this
     def get_user(id : String?, **options) : User?
     end
 

@@ -1,13 +1,12 @@
 HTTP/1.1 200 OK
-Content-Length: 1189
-ETag: "3198887968084000"
-Date: Mon, 07 Sep 2020 01:59:45 GMT
 Content-Type: application/json; charset=UTF-8
-Cache-Control: private, max-age=0, must-revalidate, no-transform
-Expires: Mon, 07 Sep 2020 01:59:45 GMT
-Vary: Origin
-Vary: X-Origin
-Vary: Referer
+Content-Length: 1080
+Pragma: no-cache
+Vary: Origin,X-Origin,Referer
+Expires: Mon, 01 Jan 1990 00:00:00 GMT
+Date: Wed, 09 Sep 2020 03:21:00 GMT
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+ETag: "3199243320468000"
 Server: ESF
 X-XSS-Protection: 0
 X-Frame-Options: SAMEORIGIN
@@ -16,13 +15,13 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
 
 {
  "kind": "calendar#event",
- "etag": "\"3198887968084000\"",
- "id": "mdpbo25iq4hl0rr6u3ob4s1n8g",
+ "etag": "\"3199243320468000\"",
+ "id": "bp8qmdkfnvc7j17jbfafjdk94o",
  "status": "confirmed",
- "htmlLink": "https://www.google.com/calendar/event?eid=bWRwYm8yNWlxNGhsMHJyNnUzb2I0czFuOGdfMjAyMDA4MzFUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
- "created": "2020-09-07T01:59:43.000Z",
- "updated": "2020-09-07T01:59:44.042Z",
- "summary": "My new recurring meeting, Delete me",
+ "htmlLink": "https://www.google.com/calendar/event?eid=YnA4cW1ka2ZudmM3ajE3amJmYWZqZGs5NG8gdGVzdGluZ0ByZWRhbnQuY29tLmF1",
+ "created": "2020-09-09T03:20:44.000Z",
+ "updated": "2020-09-09T03:21:00.234Z",
+ "summary": "My New Meeting, Delete me",
  "description": "The quick brown fox jumps over the lazy dog",
  "creator": {
   "email": "testing@redant.com.au",
@@ -40,10 +39,7 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
   "dateTime": "2020-08-31T10:30:00+10:00",
   "timeZone": "Australia/Sydney"
  },
- "recurrence": [
-  "RRULE:FREQ=DAILY;UNTIL=20200914T000000Z;INTERVAL=2"
- ],
- "iCalUID": "mdpbo25iq4hl0rr6u3ob4s1n8g@google.com",
+ "iCalUID": "bp8qmdkfnvc7j17jbfafjdk94o@google.com",
  "sequence": 0,
  "attendees": [
   {
