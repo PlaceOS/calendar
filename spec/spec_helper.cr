@@ -71,8 +71,8 @@ def events_spec(client, username)
 
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
-  a.attendees << {name: "Toby Carvan", email: "testing@redant.com.au"}
-  a.attendees << {name: "Amit Gaur", email: "amit@redant.com.au"}
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Toby Carvan", email: "testing@redant.com.au")
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Amit Gaur", email: "amit@redant.com.au")
 
   new_event = client.create_event(user_id: username, event: a)
   new_event.should be_a(PlaceCalendar::Event)
@@ -146,8 +146,8 @@ def events_recurrence_spec(client, username)
 
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
-  a.attendees << {name: "Toby Carvan", email: "testing@redant.com.au"}
-  a.attendees << {name: "Amit Gaur", email: "amit@redant.com.au"}
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Toby Carvan", email: "testing@redant.com.au")
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Amit Gaur", email: "amit@redant.com.au")
   a.recurrence = daily_recurrence
   new_event = client.create_event(user_id: username, event: a)
   new_event.should be_a(PlaceCalendar::Event)
@@ -183,8 +183,8 @@ def events_recurrence_spec(client, username)
   weekly_recurrence_end = start_time + 4.weeks
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
-  a.attendees << {name: "Toby Carvan", email: "testing@redant.com.au"}
-  a.attendees << {name: "Amit Gaur", email: "amit@redant.com.au"}
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Toby Carvan", email: "testing@redant.com.au")
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Amit Gaur", email: "amit@redant.com.au")
   weekly_recurrence = PlaceCalendar::Recurrence.new(start_time, weekly_recurrence_end, 1, "weekly", "monday")
   a.recurrence = weekly_recurrence
   new_event = client.create_event(user_id: username, event: a)
@@ -231,8 +231,8 @@ def events_recurrence_spec(client, username)
   monthly_recurrence_end = start_time + 4.months
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
-  a.attendees << {name: "Toby Carvan", email: "testing@redant.com.au"}
-  a.attendees << {name: "Amit Gaur", email: "amit@redant.com.au"}
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Toby Carvan", email: "testing@redant.com.au")
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Amit Gaur", email: "amit@redant.com.au")
   monthly_recurrence = PlaceCalendar::Recurrence.new(start_time, monthly_recurrence_end, 2, "monthly", "tuesday")
   a.recurrence = monthly_recurrence
   new_event = client.create_event(user_id: username, event: a)

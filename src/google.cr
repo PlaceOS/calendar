@@ -119,7 +119,7 @@ module PlaceCalendar
     end
 
     def delete_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Bool
-      notify_option = options[:notify] ? ::Google::UpdateGuests::All : ::Google::UpdateGuests::None
+      notify_option = options[:notify]? ? ::Google::UpdateGuests::All : ::Google::UpdateGuests::None
       if calendar(user_id).delete(id, calendar_id, notify_option)
         true
       else
