@@ -45,8 +45,7 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    # do we need this
-    def get_user(id : String?, **options) : User?
+    def get_user(id : String, **options) : User?
       if user = directory.lookup(id)
         user.to_place_calendar
       else
@@ -227,7 +226,7 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time)
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
       if schedule = calendar(user_id).availability(calendars, starts_at, ends_at)
         schedule.map { |a| a.to_place_calendar }
       else

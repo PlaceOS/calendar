@@ -47,7 +47,7 @@ def users_spec(client)
 
   user_id = list[0].try &.id
 
-  user = client.get_user(id: user_id)
+  user = client.get_user(id: user_id.not_nil!)
   if !user.nil?
     user.should be_a(PlaceCalendar::User)
     user.id.should eq(user_id)

@@ -19,7 +19,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_user(id : String, **options)
+    def get_user(id : String, **options) : User?
       if user = client.get_user(**options.merge(id: id))
         user.to_place_calendar
       end
@@ -27,7 +27,11 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def list_calendars(mail : String, **options)
+    def get_calendar(id : String, **options) : Calendar
+      {{ raise "Uninplemented" }}
+    end
+
+    def list_calendars(mail : String, **options) : Array(Calendar)
       if primary = client.get_calendar(mail)
         [primary.to_place_calendar(primary_calendar_id: primary.id, mailbox: mail)]
       else
@@ -64,7 +68,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_event(user_id : String, id : String, **options)
+    def get_event(user_id : String, id : String, **options) : Event?
       if event = client.get_event(id: id, mailbox: user_id)
         event.to_place_calendar
       end
@@ -184,7 +188,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time)
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
       if availability = client.get_availability(user_id, calendars, starts_at, ends_at)
         availability.map { |a| a.to_placecalendar }
       else
