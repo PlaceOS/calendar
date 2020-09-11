@@ -45,8 +45,7 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    # do we need this
-    def get_user(id : String?, **options) : User?
+    def get_user(id : String, **options) : User?
       if user = directory.lookup(id)
         user.to_place_calendar
       else
@@ -119,7 +118,8 @@ module PlaceCalendar
     end
 
     def delete_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Bool
-      if calendar(user_id).delete(id, calendar_id)
+      notify_option = options[:notify]? ? ::Google::UpdateGuests::All : ::Google::UpdateGuests::None
+      if calendar(user_id).delete(id, calendar_id, notify_option)
         true
       else
         false
@@ -149,11 +149,11 @@ module PlaceCalendar
         event_start: event.event_start,
         event_end:   event.event_end || Time.local + 1.hour,
         calendar_id: calendar_id ? calendar_id : "primary",
-        attendees:   event.attendees.map { |e| e[:email] },
+        attendees:   event.attendees.map { |e| e.response_status ? {email: e.email, responseStatus: e.response_status} : {email: e.email} },
         all_day:     event.all_day?,
         visibility:  event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
         summary:     event.title,
-        description: event.description,
+        description: event.body,
         location:    event.location.try &.text,
         recurrence:  nil,
       }
@@ -226,7 +226,7 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time)
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
       if schedule = calendar(user_id).availability(calendars, starts_at, ends_at)
         schedule.map { |a| a.to_place_calendar }
       else
@@ -400,14 +400,11 @@ class Google::Calendar::Event
     attendees = (@attendees || NOP_G_ATTEND).map do |attendee|
       email = attendee.email.downcase
 
-      {
-        name:  attendee.display_name || email,
+      PlaceCalendar::Event::Attendee.new(name: attendee.display_name || email,
         email: email,
-        # TODO: Stephen includes some extra stuff here not included in our spec
-        # response_status: attendee.responseStatus,
-        # organizer:       attendee.organizer,
-        # resource:        attendee.resource,
-      }
+        response_status: attendee.response_status,
+        resource: attendee.resource,
+        organizer: attendee.organizer)
     end
 
     recurrence = if @recurrence
@@ -420,14 +417,16 @@ class Google::Calendar::Event
       event_start: event_start,
       event_end: event_end,
       title: @summary,
-      description: @description,
+      body: @description,
       location: @location.nil? ? nil : PlaceCalendar::Location.new(text: @location),
       attendees: attendees,
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,
       source: self.to_json,
       timezone: timezone,
-      recurrence: recurrence
+      recurrence: recurrence,
+      status: @status,
+      creator: @creator.try &.email
     )
   end
 end

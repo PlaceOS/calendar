@@ -47,7 +47,7 @@ def users_spec(client)
 
   user_id = list[0].try &.id
 
-  user = client.get_user(id: user_id)
+  user = client.get_user(id: user_id.not_nil!)
   if !user.nil?
     user.should be_a(PlaceCalendar::User)
     user.id.should eq(user_id)
@@ -65,14 +65,14 @@ end
 def events_spec(client, username)
   a = PlaceCalendar::Event.new
   a.title = "My New Meeting, Delete me"
-  a.description = "The quick brown fox jumps over the lazy dog"
+  a.body = "The quick brown fox jumps over the lazy dog"
 
   start_time = Time.local(year: 2020, month: 8, day: 31, hour: 10, minute: 0, location: Time::Location.load("Australia/Sydney"))
 
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
-  a.attendees << {name: "Toby Carvan", email: "testing@redant.com.au"}
-  a.attendees << {name: "Amit Gaur", email: "amit@redant.com.au"}
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Toby Carvan", email: "testing@redant.com.au")
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Amit Gaur", email: "amit@redant.com.au")
 
   new_event = client.create_event(user_id: username, event: a)
   new_event.should be_a(PlaceCalendar::Event)
@@ -138,7 +138,7 @@ def events_recurrence_spec(client, username)
 
   a = PlaceCalendar::Event.new
   a.title = "My new recurring meeting, Delete me"
-  a.description = "The quick brown fox jumps over the lazy dog"
+  a.body = "The quick brown fox jumps over the lazy dog"
 
   start_time = Time.local(year: 2020, month: 8, day: 31, hour: 10, minute: 0, location: Time::Location.load("Australia/Sydney"))
   daily_recurrence_end = start_time + 14.days
@@ -146,8 +146,8 @@ def events_recurrence_spec(client, username)
 
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
-  a.attendees << {name: "Toby Carvan", email: "testing@redant.com.au"}
-  a.attendees << {name: "Amit Gaur", email: "amit@redant.com.au"}
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Toby Carvan", email: "testing@redant.com.au")
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Amit Gaur", email: "amit@redant.com.au")
   a.recurrence = daily_recurrence
   new_event = client.create_event(user_id: username, event: a)
   new_event.should be_a(PlaceCalendar::Event)
@@ -179,12 +179,12 @@ def events_recurrence_spec(client, username)
   # Weekly recurrence tests
   a = PlaceCalendar::Event.new
   a.title = "Weekly recurring meeting, Delete me"
-  a.description = "Weekly The quick brown fox jumps over the lazy dog"
+  a.body = "Weekly The quick brown fox jumps over the lazy dog"
   weekly_recurrence_end = start_time + 4.weeks
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
-  a.attendees << {name: "Toby Carvan", email: "testing@redant.com.au"}
-  a.attendees << {name: "Amit Gaur", email: "amit@redant.com.au"}
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Toby Carvan", email: "testing@redant.com.au")
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Amit Gaur", email: "amit@redant.com.au")
   weekly_recurrence = PlaceCalendar::Recurrence.new(start_time, weekly_recurrence_end, 1, "weekly", "monday")
   a.recurrence = weekly_recurrence
   new_event = client.create_event(user_id: username, event: a)
@@ -227,12 +227,12 @@ def events_recurrence_spec(client, username)
   # Monthly recurrence tests
   a = PlaceCalendar::Event.new
   a.title = "Monthly recurring meeting, Delete me"
-  a.description = "Monthly The quick brown fox jumps over the lazy dog"
+  a.body = "Monthly The quick brown fox jumps over the lazy dog"
   monthly_recurrence_end = start_time + 4.months
   a.event_start = start_time
   a.event_end = start_time + 30.minutes
-  a.attendees << {name: "Toby Carvan", email: "testing@redant.com.au"}
-  a.attendees << {name: "Amit Gaur", email: "amit@redant.com.au"}
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Toby Carvan", email: "testing@redant.com.au")
+  a.attendees << PlaceCalendar::Event::Attendee.new(name: "Amit Gaur", email: "amit@redant.com.au")
   monthly_recurrence = PlaceCalendar::Recurrence.new(start_time, monthly_recurrence_end, 2, "monthly", "tuesday")
   a.recurrence = monthly_recurrence
   new_event = client.create_event(user_id: username, event: a)

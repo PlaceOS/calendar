@@ -1,11 +1,11 @@
 HTTP/1.1 200 OK
-Pragma: no-cache
+Date: Wed, 09 Sep 2020 03:21:25 GMT
 Expires: Mon, 01 Jan 1990 00:00:00 GMT
-Content-Type: application/json; charset=UTF-8
+ETag: "3199243371334000"
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-ETag: "3198887995408000"
+Pragma: no-cache
+Content-Type: application/json; charset=UTF-8
 Content-Length: 1210
-Date: Mon, 07 Sep 2020 01:59:57 GMT
 Vary: Origin
 Vary: X-Origin
 Vary: Referer
@@ -17,12 +17,12 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
 
 {
  "kind": "calendar#event",
- "etag": "\"3198887995408000\"",
- "id": "7nt8237c520fb4tb3ocl61et0g",
+ "etag": "\"3199243371334000\"",
+ "id": "51lfen25cecujfmlm8lp2g3518",
  "status": "confirmed",
- "htmlLink": "https://www.google.com/calendar/event?eid=N250ODIzN2M1MjBmYjR0YjNvY2w2MWV0MGdfMjAyMDA4MzFUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
- "created": "2020-09-07T01:59:57.000Z",
- "updated": "2020-09-07T01:59:57.704Z",
+ "htmlLink": "https://www.google.com/calendar/event?eid=NTFsZmVuMjVjZWN1amZtbG04bHAyZzM1MThfMjAyMDA4MzFUMDAwMDAwWiB0ZXN0aW5nQHJlZGFudC5jb20uYXU",
+ "created": "2020-09-09T03:21:25.000Z",
+ "updated": "2020-09-09T03:21:25.667Z",
  "summary": "Monthly recurring meeting, Delete me",
  "description": "Monthly The quick brown fox jumps over the lazy dog",
  "creator": {
@@ -44,7 +44,7 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
  "recurrence": [
   "RRULE:FREQ=MONTHLY;UNTIL=20201230T230000Z;INTERVAL=2;BYDAY=1TU"
  ],
- "iCalUID": "7nt8237c520fb4tb3ocl61et0g@google.com",
+ "iCalUID": "51lfen25cecujfmlm8lp2g3518@google.com",
  "sequence": 0,
  "attendees": [
   {

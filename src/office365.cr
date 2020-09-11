@@ -19,7 +19,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_user(id : String, **options)
+    def get_user(id : String, **options) : User?
       if user = client.get_user(**options.merge(id: id))
         user.to_place_calendar
       end
@@ -27,7 +27,11 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def list_calendars(mail : String, **options)
+    def get_calendar(id : String, **options) : Calendar
+      {{ raise "Uninplemented" }}
+    end
+
+    def list_calendars(mail : String, **options) : Array(Calendar)
       if primary = client.get_calendar(mail)
         [primary.to_place_calendar(primary_calendar_id: primary.id, mailbox: mail)]
       else
@@ -42,9 +46,11 @@ module PlaceCalendar
       calendar_id : String? = nil,
       period_start : Time = Time.local.at_beginning_of_day,
       period_end : Time? = nil,
+      showDeleted : Bool? = nil,
       **options
     )
-      if events = client.list_events(**options.merge(mailbox: user_id, calendar_id: calendar_id, period_start: period_start, period_end: period_end))
+      # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
+      if events = client.list_events(**options.merge(mailbox: user_id, period_start: period_start, period_end: period_end))
         events.value.map { |e| e.to_place_calendar }
       else
         [] of Event
@@ -54,7 +60,7 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
-      params = event_params(event).merge(mailbox: user_id, calendar_id: calendar_id)
+      params = event_params(event).merge(mailbox: user_id)
       new_event = client.create_event(**params)
 
       new_event.to_place_calendar
@@ -62,8 +68,8 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_event(user_id : String, id : String, **options)
-      if event = client.get_event(**options.merge(id: id, mailbox: user_id))
+    def get_event(user_id : String, id : String, **options) : Event?
+      if event = client.get_event(id: id, mailbox: user_id)
         event.to_place_calendar
       end
     rescue ex : ::Office365::Exception
@@ -73,7 +79,7 @@ module PlaceCalendar
     def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
       o365_event = ::Office365::Event.new(**event_params(event))
 
-      if updated_event = client.update_event(**options.merge(mailbox: user_id, calendar_id: calendar_id, event: o365_event))
+      if updated_event = client.update_event(**options.merge(mailbox: user_id, event: o365_event))
         updated_event.to_place_calendar
       end
     rescue ex : ::Office365::Exception
@@ -81,16 +87,37 @@ module PlaceCalendar
     end
 
     def delete_event(user_id : String, id : String, **options) : Bool
-      client.delete_event(**options.merge(mailbox: user_id, id: id)) || false
+      # TODO: Silently ignoring notify and calendar_id from options. o365 doesn't offer option to notify on deletion
+      client.delete_event(mailbox: user_id, id: id) || false
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
 
     private def event_params(event)
       attendees = event.attendees.map do |a|
-        ::Office365::Attendee.new(
-          email: ::Office365::EmailAddress.new(address: a[:email], name: a[:name])
-        )
+        if a.response_status
+          status_type = case a.response_status
+                        when "needsAction"
+                          ::Office365::ResponseStatus::Response::NotResponded
+                        when "accepted"
+                          ::Office365::ResponseStatus::Response::Accepted
+                        when "tentative"
+                          ::Office365::ResponseStatus::Response::TentativelyAccepted
+                        when "declined"
+                          ::Office365::ResponseStatus::Response::Declined
+                        else
+                          ::Office365::ResponseStatus::Response::NotResponded
+                        end
+
+          ::Office365::Attendee.new(
+            email: ::Office365::EmailAddress.new(address: a.email, name: a.name),
+            status: ::Office365::ResponseStatus.new(response: status_type, time: Time::Format::ISO_8601_DATE_TIME.format(Time.utc))
+          )
+        else
+          ::Office365::Attendee.new(
+            email: ::Office365::EmailAddress.new(address: a.email, name: a.name)
+          )
+        end
       end
 
       sensitivity = event.private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
@@ -101,7 +128,7 @@ module PlaceCalendar
         starts_at:   event.event_start || Time.local,
         ends_at:     event.event_end,
         subject:     event.title || "",
-        description: event.description,
+        description: event.body,
         all_day:     event.all_day?,
         sensitivity: sensitivity,
         attendees:   attendees,
@@ -161,7 +188,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time)
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
       if availability = client.get_availability(user_id, calendars, starts_at, ends_at)
         availability.map { |a| a.to_placecalendar }
       else
@@ -211,9 +238,33 @@ class Office365::Event
       end
     end
 
-    attendees = @attendees
-      .select { |a| a.type != AttendeeType::Resource }
-      .map { |a| {name: a.email_address.name, email: a.email_address.address} }
+    attendees = (@attendees).map do |attendee|
+      name = attendee.email_address.name
+      email = attendee.email_address.address.downcase
+      resource = attendee.type == AttendeeType::Resource
+
+      status = if attendee.status
+                 case attendee.status.not_nil!.response
+                 when Office365::ResponseStatus::Response::None
+                   "needsAction"
+                 when Office365::ResponseStatus::Response::Organizer
+                   "accepted"
+                 when Office365::ResponseStatus::Response::TentativelyAccepted
+                   "tentative"
+                 when Office365::ResponseStatus::Response::Accepted
+                   "accepted"
+                 when Office365::ResponseStatus::Response::Declined
+                   "declined"
+                 when Office365::ResponseStatus::Response::NotResponded
+                   "declined"
+                 end
+               end
+
+      PlaceCalendar::Event::Attendee.new(name: name,
+        email: email,
+        response_status: status,
+        resource: resource)
+    end
 
     source_location = @location || @locations.try &.first
     location = if source_location
@@ -236,20 +287,35 @@ class Office365::Event
                    )
                  end
 
+    status = if @response_status
+               case @response_status.not_nil!.response
+               when Office365::ResponseStatus::Response::Accepted
+                 "confirmed"
+               when Office365::ResponseStatus::Response::Organizer
+                 "confirmed"
+               when Office365::ResponseStatus::Response::TentativelyAccepted
+                 "tentative"
+               when Office365::ResponseStatus::Response::Declined
+                 "cancelled"
+               end
+             end
+
     PlaceCalendar::Event.new(
       id: @id,
       host: @organizer.try &.email_address.try &.address,
       event_start: event_start,
       event_end: event_end,
       title: @subject,
-      description: @body.try &.content,
+      body: @body.try &.content,
       attendees: attendees,
       private: is_private?,
       all_day: all_day?,
       location: location,
       source: self.to_json,
       timezone: event_start.location.to_s,
-      recurrence: recurrence
+      recurrence: recurrence,
+      status: status,
+      creator: @organizer.try &.email_address.try &.address
     )
   end
 end

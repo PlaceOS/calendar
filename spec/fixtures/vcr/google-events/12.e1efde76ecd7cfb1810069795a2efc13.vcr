@@ -1,10 +1,10 @@
 HTTP/1.1 200 OK
+ETag: "3199243302114000"
+Date: Wed, 09 Sep 2020 03:20:54 GMT
+Content-Length: 1295
 Cache-Control: private, max-age=0, must-revalidate, no-transform
-ETag: "3198887925556000"
-Expires: Mon, 07 Sep 2020 01:59:24 GMT
-Content-Length: 1080
 Content-Type: application/json; charset=UTF-8
-Date: Mon, 07 Sep 2020 01:59:24 GMT
+Expires: Wed, 09 Sep 2020 03:20:54 GMT
 Vary: Origin
 Vary: X-Origin
 Vary: Referer
@@ -16,12 +16,12 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
 
 {
  "kind": "calendar#event",
- "etag": "\"3198887925556000\"",
- "id": "rnspsui8tqc63k75pb90ieqcb8",
+ "etag": "\"3199243302114000\"",
+ "id": "bp8qmdkfnvc7j17jbfafjdk94o",
  "status": "confirmed",
- "htmlLink": "https://www.google.com/calendar/event?eid=cm5zcHN1aTh0cWM2M2s3NXBiOTBpZXFjYjggdGVzdGluZ0ByZWRhbnQuY29tLmF1",
- "created": "2020-09-07T01:59:22.000Z",
- "updated": "2020-09-07T01:59:22.778Z",
+ "htmlLink": "https://www.google.com/calendar/event?eid=YnA4cW1ka2ZudmM3ajE3amJmYWZqZGs5NG8gdGVzdGluZ0ByZWRhbnQuY29tLmF1",
+ "created": "2020-09-09T03:20:44.000Z",
+ "updated": "2020-09-09T03:20:51.057Z",
  "summary": "My New Meeting, Delete me",
  "description": "The quick brown fox jumps over the lazy dog",
  "creator": {
@@ -40,7 +40,7 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
   "dateTime": "2020-08-31T10:30:00+10:00",
   "timeZone": "Australia/Sydney"
  },
- "iCalUID": "rnspsui8tqc63k75pb90ieqcb8@google.com",
+ "iCalUID": "bp8qmdkfnvc7j17jbfafjdk94o@google.com",
  "sequence": 0,
  "attendees": [
   {
@@ -56,5 +56,13 @@ Alt-Svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-T051=":443"; ma=25
  ],
  "reminders": {
   "useDefault": true
- }
+ },
+ "attachments": [
+  {
+   "fileUrl": "https://drive.google.com/file/d/1qj8YvnyuR8HWI2g-tngPed7jRmQvAD8o/view?usp=drivesdk",
+   "title": "",
+   "iconLink": "",
+   "fileId": "1qj8YvnyuR8HWI2g-tngPed7jRmQvAD8o"
+  }
+ ]
 }
