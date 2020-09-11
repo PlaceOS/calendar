@@ -341,10 +341,28 @@ end
 
 class Google::Directory::User
   def to_place_calendar
+    user_name = @name.full_name || "#{@name.given_name} #{@name.family_name}"
+
+    if phones = @phones.try(&.select(&.primary))
+      phone = phones.first?.try(&.value) || @recovery_phone
+    end
+
+    if orgs = @organizations.try(&.select(&.primary))
+      department = orgs.first?.try &.department
+    end
+
+    if accounts = @posix_accounts.try(&.select(&.primary))
+      account = accounts.first?.try &.username
+    end
+
     PlaceCalendar::User.new(
       id: self.id,
-      name: "", # TODO: Update google shard to extract name
+      name: user_name,
       email: self.primary_email,
+      phone: phone,
+      department: department,
+      photo: @thumbnail_photo_url,
+      username: account,
       source: self.to_json
     )
   end

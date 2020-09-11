@@ -213,7 +213,7 @@ end
 
 class Office365::User
   def to_place_calendar
-    PlaceCalendar::User.new(id: @id, name: @display_name, email: @mail, source: self.to_json)
+    PlaceCalendar::User.new(id: @id, name: @display_name, email: @mail, phone: @mobile_phone, source: self.to_json)
   end
 end
 
