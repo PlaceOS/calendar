@@ -41,6 +41,19 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
+    def list_events_request(
+      user_id : String,
+      calendar_id : String? = nil,
+      period_start : Time = Time.local.at_beginning_of_day,
+      period_end : Time? = nil,
+      showDeleted : Bool? = nil,
+      **options
+    )
+      client.list_events_request(**options.merge(mailbox: user_id, period_start: period_start, period_end: period_end))
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
     def list_events(
       user_id : String,
       calendar_id : String? = nil,
@@ -51,6 +64,16 @@ module PlaceCalendar
     )
       # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
       if events = client.list_events(**options.merge(mailbox: user_id, period_start: period_start, period_end: period_end))
+        events.value.map { |e| e.to_place_calendar }
+      else
+        [] of Event
+      end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
+    def list_events(user_id : String, response : HTTP::Client::Response) : Array(Event)
+      if events = client.list_events(response)
         events.value.map { |e| e.to_place_calendar }
       else
         [] of Event
@@ -198,6 +221,12 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
+    def batch(user_id : String, requests : Indexable(HTTP::Request)) : Hash(HTTP::Request, HTTP::Client::Response)
+      client.batch(requests)
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
     private def attachment_params(attachment)
       {
         name:          attachment.name,
@@ -219,7 +248,7 @@ end
 
 class Office365::Calendar
   def to_place_calendar(primary_calendar_id : String?, mailbox : String? = nil)
-    PlaceCalendar::Calendar.new(id: mailbox || @id, summary: @name, primary: (@id == primary_calendar_id), source: self.to_json)
+    PlaceCalendar::Calendar.new(id: mailbox || @id, summary: @name, primary: (@id == primary_calendar_id), can_edit: @can_edit, source: self.to_json)
   end
 end
 
@@ -315,7 +344,8 @@ class Office365::Event
       timezone: event_start.location.to_s,
       recurrence: recurrence,
       status: status,
-      creator: @organizer.try &.email_address.try &.address
+      creator: @organizer.try &.email_address.try &.address,
+      recurring_event_id: @series_master_id
     )
   end
 end

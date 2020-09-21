@@ -8,7 +8,8 @@ class PlaceCalendar::Calendar
   property summary : String
 
   property primary : Bool
+  property can_edit : Bool?
 
-  def initialize(@id, @summary, @source, @primary = false)
+  def initialize(@id, @summary, @source, @primary = false, @can_edit = false)
   end
 end

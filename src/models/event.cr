@@ -8,6 +8,7 @@ class PlaceCalendar::Event
   property event_end : Time?
 
   property id : String?
+  property recurring_event_id : String?
   property host : String?
   property title : String?
   property body : String?
@@ -42,7 +43,8 @@ class PlaceCalendar::Event
     @attachments = [] of Attachment,
     @recurrence = nil,
     @status = nil,
-    @creator = nil
+    @creator = nil,
+    @recurring_event_id = nil
   )
     @recurring = !@recurrence.nil?
   end
