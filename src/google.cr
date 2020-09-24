@@ -56,7 +56,9 @@ module PlaceCalendar
     end
 
     def list_calendars(mail : String, **options) : Array(Calendar)
-      if calendars = calendar(mail).calendar_list
+      only_writable = options[:only_writable]? || false
+      calendars = only_writable ? calendar(mail).calendar_list(::Google::Access::Writer) : calendar(mail).calendar_list()
+      if calendars
         # filtering out hidden and rejected calendars as seen in google-staff-api
         calendars.compact_map { |item|
           item.to_place_calendar unless item.hidden || item.deleted
@@ -71,6 +73,20 @@ module PlaceCalendar
     def get_calendar(id : String, **options) : Calendar
     end
 
+    def list_events_request(
+         user_id : String,
+         calendar_id : String? = nil,
+         period_start : Time = Time.local.at_beginning_of_day,
+         period_end : Time? = nil,
+         **options
+       ) : HTTP::Request
+      calendar_id = "primary" if calendar_id.nil?
+
+      calendar(user_id).events_request(calendar_id, period_start, period_end, **options)
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
+    end
+
     def list_events(
       user_id : String,
       calendar_id : String? = nil,
@@ -83,6 +99,16 @@ module PlaceCalendar
       calendar_id = "primary" if calendar_id.nil?
 
       if events = calendar(user_id).events(calendar_id, period_start, period_end, **options)
+        events.items.map { |e| e.to_place_calendar }
+      else
+        [] of Event
+      end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
+    end
+
+    def list_events(user_id : String, response :  HTTP::Client::Response) : Array(Event)
+      if events = calendar(user_id).events(response)
         events.items.map { |e| e.to_place_calendar }
       else
         [] of Event
@@ -124,6 +150,12 @@ module PlaceCalendar
       else
         false
       end
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
+    end
+
+    def batch(user_id : String, requests : Indexable(HTTP::Request)) : Hash(HTTP::Request, HTTP::Client::Response)
+      calendar(user_id).batch(requests)
     rescue ex : ::Google::Exception
       handle_google_exception(ex)
     end
@@ -369,12 +401,15 @@ class Google::Directory::User
 end
 
 class Google::Calendar::ListEntry
+  CALENDAR_WRITABLE = {"writer", "owner"}
+
   def to_place_calendar
     PlaceCalendar::Calendar.new(
       id: @id,
       summary: @summary_main,
       source: self.to_json,
       primary: !!@primary,
+      can_edit: @access_role.in?(CALENDAR_WRITABLE)
     )
   end
 end
@@ -444,7 +479,8 @@ class Google::Calendar::Event
       timezone: timezone,
       recurrence: recurrence,
       status: @status,
-      creator: @creator.try &.email
+      creator: @creator.try &.email,
+      recurring_event_id: @recurring_event_id
     )
   end
 end

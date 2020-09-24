@@ -21,9 +21,9 @@ module PlaceCalendar
     getter calendar : Interface
 
     delegate list_users, get_user, list_calendars, get_calendar, list_rooms,
-      list_events, get_event, create_event, update_event, delete_event,
-      list_attachments, get_attachment, create_attachment, delete_attachment,
-      get_availability, to: @calendar
+      list_events_request, list_events, get_event, create_event, update_event,
+      delete_event, list_attachments, get_attachment, create_attachment,
+      delete_attachment, get_availability, batch, to: @calendar
 
     def initialize(file_path : String, scopes : String | Array(String), domain : String, sub : String = "", user_agent = "PlaceOS")
       @calendar = Google.new(file_path, scopes, domain, sub, user_agent)
