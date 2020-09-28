@@ -186,7 +186,7 @@ module PlaceCalendar
         visibility:  event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
         summary:     event.title,
         description: event.body,
-        location:    event.location.try &.text,
+        location:    event.location,
         recurrence:  nil,
       }
       if event.recurrence
@@ -471,7 +471,7 @@ class Google::Calendar::Event
       event_end: event_end,
       title: @summary,
       body: @description,
-      location: @location.nil? ? nil : PlaceCalendar::Location.new(text: @location),
+      location: @location,
       attendees: attendees,
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,

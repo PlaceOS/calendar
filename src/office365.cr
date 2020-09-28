@@ -155,7 +155,7 @@ module PlaceCalendar
         all_day:     event.all_day?,
         sensitivity: sensitivity,
         attendees:   attendees,
-        location:    event.location.try(&.text),
+        location:    event.location,
         recurrence:  nil,
       }
       if event.recurrence
@@ -297,7 +297,7 @@ class Office365::Event
 
     source_location = @location || @locations.try &.first
     location = if source_location
-                 PlaceCalendar::Location.new(text: source_location.display_name)
+                 source_location.display_name
                end
 
     recurrence = if @recurrence

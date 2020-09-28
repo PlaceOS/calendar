@@ -13,7 +13,7 @@ class PlaceCalendar::Event
   property title : String?
   property body : String?
   property attendees : Array(Attendee)
-  property location : Location?
+  property location : String?
   property? private : Bool
   property? all_day : Bool
   property timezone : String?
@@ -47,11 +47,6 @@ class PlaceCalendar::Event
     @recurring_event_id = nil
   )
     @recurring = !@recurrence.nil?
-  end
-
-  def location=(text : String)
-    @location ||= Location.new
-    @location.text = text
   end
 
   struct Attendee
