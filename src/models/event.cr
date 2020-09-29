@@ -17,7 +17,7 @@ class PlaceCalendar::Event
   property? private : Bool
   property? all_day : Bool
   property timezone : String?
-  property recurring : Bool
+  property recurring : Bool? = false
 
   property attachments : Array(Attachment)
   property recurrence : Recurrence?
