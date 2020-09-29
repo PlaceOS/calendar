@@ -49,6 +49,7 @@ module PlaceCalendar
       showDeleted : Bool? = nil,
       **options
     )
+      # WARNING: This code is conflating calendar_id / mailbox
       mailbox = calendar_id || user_id
       client.list_events_request(**options.merge(mailbox: mailbox, period_start: period_start, period_end: period_end))
     rescue ex : ::Office365::Exception
@@ -64,6 +65,7 @@ module PlaceCalendar
       **options
     )
       # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
+      # WARNING: This code is conflating calendar_id / mailbox
       mailbox = calendar_id || user_id
       if events = client.list_events(**options.merge(mailbox: mailbox, period_start: period_start, period_end: period_end))
         events.value.map { |e| e.to_place_calendar }
