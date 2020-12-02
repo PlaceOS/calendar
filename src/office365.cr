@@ -87,6 +87,7 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
+      mailbox = calendar_id || user_id
       params = event_params(event).merge(mailbox: user_id)
       new_event = client.create_event(**params)
 
@@ -95,8 +96,9 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_event(user_id : String, id : String, **options) : Event?
-      if event = client.get_event(id: id, mailbox: user_id)
+    def get_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Event?
+      mailbox = calendar_id || user_id
+      if event = client.get_event(id: id, mailbox: mailbox)
         event.to_place_calendar
       end
     rescue ex : ::Office365::Exception
@@ -104,18 +106,20 @@ module PlaceCalendar
     end
 
     def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
+      mailbox = calendar_id || user_id
       o365_event = ::Office365::Event.new(**event_params(event))
 
-      if updated_event = client.update_event(**options.merge(mailbox: user_id, event: o365_event))
+      if updated_event = client.update_event(**options.merge(mailbox: mailbox, event: o365_event))
         updated_event.to_place_calendar
       end
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
 
-    def delete_event(user_id : String, id : String, **options) : Bool
+    def delete_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Bool
+      mailbox = calendar_id || user_id
       # TODO: Silently ignoring notify and calendar_id from options. o365 doesn't offer option to notify on deletion
-      client.delete_event(mailbox: user_id, id: id) || false
+      client.delete_event(mailbox: mailbox, id: id) || false
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
