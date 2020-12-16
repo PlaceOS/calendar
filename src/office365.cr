@@ -353,7 +353,8 @@ class Office365::Event
       recurrence: recurrence,
       status: status,
       creator: @organizer.try &.email_address.try &.address,
-      recurring_event_id: @series_master_id
+      recurring_event_id: @series_master_id,
+      ical_uid: @icaluid
     )
   end
 end

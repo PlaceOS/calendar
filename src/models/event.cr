@@ -23,6 +23,7 @@ class PlaceCalendar::Event
   property recurrence : Recurrence?
   property status : String?
   property creator : String?
+  property ical_uid : String?
 
   @[JSON::Field(ignore: true)]
   property source : String?
@@ -44,7 +45,8 @@ class PlaceCalendar::Event
     @recurrence = nil,
     @status = nil,
     @creator = nil,
-    @recurring_event_id = nil
+    @recurring_event_id = nil,
+    @ical_uid = nil
   )
     @recurring = !@recurrence.nil?
   end

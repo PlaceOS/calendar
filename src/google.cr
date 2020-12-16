@@ -480,7 +480,8 @@ class Google::Calendar::Event
       recurrence: recurrence,
       status: @status,
       creator: @creator.try &.email,
-      recurring_event_id: @recurring_event_id
+      recurring_event_id: @recurring_event_id,
+      ical_uid: @ical_uid
     )
   end
 end
