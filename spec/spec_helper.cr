@@ -8,13 +8,12 @@ require "vcr"
 class HTTP::Request
   def to_json
     {
-      method:       method,
-      host:         host,
-      resource:     resource,
+      method:   method,
+      host:     host,
+      resource: resource,
     }.to_json
   end
 end
-
 
 def o365_creds
   {
@@ -102,7 +101,7 @@ def events_spec(client, username)
     jpg = client.get_attachment(user_id: username, event_id: new_event.id.not_nil!, id: attachment_list[0].try &.id.not_nil!)
     jpg.should be_a(PlaceCalendar::Attachment)
     File.write("not_sure_if_new.jpg", jpg.try &.content_bytes)
-    #File.size("not_sure_if_new.jpg").should eq(File.size(example_attachment_path))
+    # File.size("not_sure_if_new.jpg").should eq(File.size(example_attachment_path))
     File.delete("not_sure_if_new.jpg")
     if !jpg.nil?
       client.delete_attachment(user_id: username, event_id: new_event.id.not_nil!, id: jpg.id.not_nil!).should be_true

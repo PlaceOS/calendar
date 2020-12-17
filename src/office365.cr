@@ -9,6 +9,18 @@ module PlaceCalendar
       @client ||= ::Office365::Client.new(@tenant, @client_id, @client_secret)
     end
 
+    def get_groups(user_id : String, **options) : Array(Group)
+      client.groups_member_of(user_id).value.map(&.to_place_group)
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
+    def get_members(group_id : String, **options) : Array(Member)
+      client.list_group_members(group_id).value.map(&.to_place_member)
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
     def list_users(query : String? = nil, limit : Int32? = nil, **options)
       if users = client.list_users(query, limit)
         users.value.map { |u| u.to_place_calendar }
@@ -252,6 +264,10 @@ class Office365::User
   def to_place_calendar
     PlaceCalendar::User.new(id: @id, name: @display_name, email: @mail, phone: @mobile_phone, source: self.to_json)
   end
+
+  def to_place_member
+    PlaceCalendar::Member.new(@id, @mail || @id, self.to_json)
+  end
 end
 
 class Office365::Calendar
@@ -394,5 +410,11 @@ class Office365::Availability
       ends_at,
       starts_at.location.to_s
     )
+  end
+end
+
+class Office365::Group
+  def to_place_group
+    PlaceCalendar::Group.new(@id, @display_name, @mail, @description, self.to_json)
   end
 end

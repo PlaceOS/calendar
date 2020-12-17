@@ -34,6 +34,18 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
+    def get_groups(user_id : String, **options) : Array(Group)
+      directory.groups(user_id).groups.map(&.to_place_group)
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
+    end
+
+    def get_members(group_id : String, **options) : Array(Member)
+      directory.members(group_id).members.map(&.to_place_member)
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
+    end
+
     def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
       if users = directory.users(query, limit || 500, **options)
         # TODO: Deal with pagination
@@ -57,7 +69,7 @@ module PlaceCalendar
 
     def list_calendars(mail : String, **options) : Array(Calendar)
       only_writable = options[:only_writable]? || false
-      calendars = only_writable ? calendar(mail).calendar_list(::Google::Access::Writer) : calendar(mail).calendar_list()
+      calendars = only_writable ? calendar(mail).calendar_list(::Google::Access::Writer) : calendar(mail).calendar_list
       if calendars
         # filtering out hidden and rejected calendars as seen in google-staff-api
         calendars.compact_map { |item|
@@ -74,12 +86,12 @@ module PlaceCalendar
     end
 
     def list_events_request(
-         user_id : String,
-         calendar_id : String? = nil,
-         period_start : Time = Time.local.at_beginning_of_day,
-         period_end : Time? = nil,
-         **options
-       ) : HTTP::Request
+      user_id : String,
+      calendar_id : String? = nil,
+      period_start : Time = Time.local.at_beginning_of_day,
+      period_end : Time? = nil,
+      **options
+    ) : HTTP::Request
       calendar_id = "primary" if calendar_id.nil?
 
       calendar(user_id).events_request(calendar_id, period_start, period_end, **options)
@@ -107,7 +119,7 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def list_events(user_id : String, response :  HTTP::Client::Response) : Array(Event)
+    def list_events(user_id : String, response : HTTP::Client::Response) : Array(Event)
       if events = calendar(user_id).events(response)
         events.items.map { |e| e.to_place_calendar }
       else
@@ -483,5 +495,17 @@ class Google::Calendar::Event
       recurring_event_id: @recurring_event_id,
       ical_uid: @ical_uid
     )
+  end
+end
+
+class Google::Directory::Member
+  def to_place_member
+    PlaceCalendar::Member.new(@id, @email, self.to_json)
+  end
+end
+
+class Google::Directory::Group
+  def to_place_group
+    PlaceCalendar::Group.new(@id, @name, @email, @description, self.to_json)
   end
 end
