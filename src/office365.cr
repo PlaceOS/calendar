@@ -9,6 +9,11 @@ module PlaceCalendar
       @client ||= ::Office365::Client.new(@tenant, @client_id, @client_secret)
     end
 
+    def access_token(user_id : String? = nil) : NamedTuple(expires: Time, token: String)
+      token = client.get_token
+      {expires: token.created_at + token.expires_in.seconds, token: token.access_token}
+    end
+
     def get_groups(user_id : String, **options) : Array(Group)
       client.groups_member_of(user_id).value.map(&.to_place_group)
     rescue ex : ::Office365::Exception

@@ -34,6 +34,11 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
+    def access_token(user_id : String? = nil) : NamedTuple(expires: Time, token: String)
+      token = auth(user_id || @sub).get_token
+      {expires: token.expires, token: token.access_token}
+    end
+
     def get_groups(user_id : String, **options) : Array(Group)
       directory.groups(user_id).groups.map(&.to_place_group)
     rescue ex : ::Google::Exception

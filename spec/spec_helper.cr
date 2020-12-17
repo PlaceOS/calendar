@@ -76,6 +76,11 @@ def events_spec(client, username)
   new_event = client.create_event(user_id: username, event: a)
   new_event.should be_a(PlaceCalendar::Event)
 
+  # Check that obtaining an access token works
+  token = client.access_token
+  token[:expires].should be_a(Time)
+  token[:token].should be_a(String)
+
   list = client.list_events(username, period_start: start_time.at_beginning_of_day)
   list.should be_a(Array(PlaceCalendar::Event))
   list.size.should be > 0
