@@ -2,7 +2,9 @@ require "office365"
 
 module PlaceCalendar
   class Office365 < Interface
-    def initialize(@tenant : String, @client_id : String, @client_secret : String)
+    DEFAULT_CONFERENCE = "teamsForBusiness"
+
+    def initialize(@tenant : String, @client_id : String, @client_secret : String, @conference_type : String? = DEFAULT_CONFERENCE)
     end
 
     def client : ::Office365::Client
@@ -106,6 +108,7 @@ module PlaceCalendar
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
       mailbox = calendar_id || user_id
       params = event_params(event).merge(mailbox: user_id)
+
       new_event = client.create_event(**params)
 
       new_event.to_place_calendar
@@ -171,17 +174,18 @@ module PlaceCalendar
       sensitivity = event.private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
 
       params = {
-        id:          event.id,
-        organizer:   event.host,
-        starts_at:   event.event_start || Time.local,
-        ends_at:     event.event_end,
-        subject:     event.title || "",
-        description: event.body,
-        all_day:     event.all_day?,
-        sensitivity: sensitivity,
-        attendees:   attendees,
-        location:    event.location,
-        recurrence:  nil,
+        id:                      event.id,
+        organizer:               event.host,
+        starts_at:               event.event_start || Time.local,
+        ends_at:                 event.event_end,
+        subject:                 event.title || "",
+        description:             event.body,
+        all_day:                 event.all_day?,
+        sensitivity:             sensitivity,
+        attendees:               attendees,
+        location:                event.location,
+        recurrence:              nil,
+        online_meeting_provider: @conference_type,
       }
       if event.recurrence
         e_recurrence = event.recurrence.not_nil!

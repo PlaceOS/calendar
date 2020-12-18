@@ -1,13 +1,17 @@
 require "mime"
+require "uuid"
 
 module PlaceCalendar
   class Google < Interface
+    DEFAULT_CONFERENCE = "hangoutsMeet"
+
     def initialize(
       @file_path : String,
       @scopes : String | Array(String),
       @domain : String,
       @sub : String = "",
-      @user_agent : String = "PlaceOS"
+      @user_agent : String = "PlaceOS",
+      @conference_type : String? = DEFAULT_CONFERENCE
     )
       @issuer = ""
       @signing_key = ""
@@ -19,7 +23,8 @@ module PlaceCalendar
       @scopes : String | Array(String),
       @domain : String,
       @sub : String = "",
-      @user_agent : String = "PlaceOS"
+      @user_agent : String = "PlaceOS",
+      @conference_type : String? = DEFAULT_CONFERENCE
     )
       @file_path = ""
     end
@@ -145,8 +150,23 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-      new_event = calendar(user_id).create(**event_params(event, calendar_id))
-
+      new_event = if conference_type = @conference_type
+                    params = event_params(event, calendar_id)
+                    params = params.merge(
+                      conference: {
+                        createRequest: {
+                          requestId:             UUID.random.to_s,
+                          conferenceSolutionKey: {
+                            type: conference_type,
+                          },
+                        },
+                      }
+                    )
+                    calendar(user_id).create(**params)
+                  else
+                    params = event_params(event, calendar_id)
+                    calendar(user_id).create(**params)
+                  end
       new_event ? new_event.to_place_calendar : nil
     rescue ex : ::Google::Exception
       handle_google_exception(ex)
