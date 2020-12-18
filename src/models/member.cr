@@ -6,7 +6,8 @@ class PlaceCalendar::Member
 
   property id : String
   property email : String
+  property username : String
 
-  def initialize(@id, @email, @source = nil)
+  def initialize(@id, @email, @username, @source = nil)
   end
 end

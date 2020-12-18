@@ -505,7 +505,7 @@ end
 
 class Google::Directory::Member
   def to_place_member
-    PlaceCalendar::Member.new(@id, @email, self.to_json)
+    PlaceCalendar::Member.new(@id, @email, @email, self.to_json)
   end
 end
 
