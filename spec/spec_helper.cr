@@ -20,6 +20,7 @@ def o365_creds
     tenant:        "bb89674a-238b-4b7d-91ec-6bebad83553a",
     client_id:     "",
     client_secret: "",
+    conference_type: nil,
   }
 end
 
@@ -30,6 +31,7 @@ def google_creds
     domain:    "redant.com.au",
     sub:       "toby@redant.com.au",
     scopes:    "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/directory.user.readonly https://www.googleapis.com/auth/drive",
+    conference_type: nil,
   }
 end
 

@@ -26,16 +26,16 @@ module PlaceCalendar
       delete_attachment, get_availability, batch, get_groups, get_members,
       access_token, to: @calendar
 
-    def initialize(file_path : String, scopes : String | Array(String), domain : String, sub : String = "", user_agent = "PlaceOS")
-      @calendar = Google.new(file_path, scopes, domain, sub, user_agent)
+    def initialize(file_path : String, scopes : String | Array(String), domain : String, sub : String = "", user_agent = "PlaceOS", conference_type : String? = Google::DEFAULT_CONFERENCE)
+      @calendar = Google.new(file_path, scopes, domain, sub, user_agent, conference_type)
     end
 
-    def initialize(issuer : String, signing_key : String, scopes : String | Array(String), domain : String, sub : String = "", user_agent = "PlaceOS")
-      @calendar = Google.new(issuer, signing_key, scopes, domain, sub, user_agent)
+    def initialize(issuer : String, signing_key : String, scopes : String | Array(String), domain : String, sub : String = "", user_agent = "PlaceOS", conference_type : String? = Google::DEFAULT_CONFERENCE)
+      @calendar = Google.new(issuer, signing_key, scopes, domain, sub, user_agent, conference_type)
     end
 
-    def initialize(tenant : String, client_id : String, client_secret : String)
-      @calendar = Office365.new(tenant, client_id, client_secret)
+    def initialize(tenant : String, client_id : String, client_secret : String, conference_type : String? = Office365::DEFAULT_CONFERENCE)
+      @calendar = Office365.new(tenant, client_id, client_secret, conference_type)
     end
   end
 end
