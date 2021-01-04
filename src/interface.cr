@@ -24,5 +24,7 @@ module PlaceCalendar
     abstract def get_members(group_id : String, **options) : Array(Member)
 
     abstract def access_token(user_id : String? = nil) : NamedTuple(expires: Time, token: String)
+
+    abstract def client_id : Symbol
   end
 end

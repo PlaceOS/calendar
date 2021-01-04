@@ -24,7 +24,7 @@ module PlaceCalendar
       list_events_request, list_events, get_event, create_event, update_event,
       delete_event, list_attachments, get_attachment, create_attachment,
       delete_attachment, get_availability, batch, get_groups, get_members,
-      access_token, to: @calendar
+      access_token, client_id, to: @calendar
 
     def initialize(file_path : String, scopes : String | Array(String), domain : String, sub : String = "", user_agent = "PlaceOS", conference_type : String? = Google::DEFAULT_CONFERENCE)
       @calendar = Google.new(file_path, scopes, domain, sub, user_agent, conference_type)

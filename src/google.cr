@@ -29,6 +29,10 @@ module PlaceCalendar
       @file_path = ""
     end
 
+    def client_id : Symbol
+      :google
+    end
+
     def auth(sub = @sub) : ::Google::FileAuth | ::Google::Auth
       if @file_path.empty?
         ::Google::Auth.new(issuer: @issuer, signing_key: @signing_key, scopes: @scopes, sub: sub, user_agent: @user_agent)
