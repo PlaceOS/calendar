@@ -100,11 +100,12 @@ module PlaceCalendar
       calendar_id : String? = nil,
       period_start : Time = Time.local.at_beginning_of_day,
       period_end : Time? = nil,
+      ical_uid : String? = nil,
       **options
     ) : HTTP::Request
       calendar_id = "primary" if calendar_id.nil?
 
-      calendar(user_id).events_request(calendar_id, period_start, period_end, **options)
+      calendar(user_id).events_request(calendar_id, period_start, period_end, **options.merge(iCalUID: ical_uid))
     rescue ex : ::Google::Exception
       handle_google_exception(ex)
     end
@@ -114,13 +115,14 @@ module PlaceCalendar
       calendar_id : String? = nil,
       period_start : Time = Time.local.at_beginning_of_day,
       period_end : Time? = nil,
+      ical_uid : String? = nil,
       **options
     ) : Array(Event)
       # user_id ignored?
       # TODO: how to avoid duplicating default values from the shards
       calendar_id = "primary" if calendar_id.nil?
 
-      if events = calendar(user_id).events(calendar_id, period_start, period_end, **options)
+      if events = calendar(user_id).events(calendar_id, period_start, period_end, **options.merge(iCalUID: ical_uid))
         events.items.map { |e| e.to_place_calendar }
       else
         [] of Event
