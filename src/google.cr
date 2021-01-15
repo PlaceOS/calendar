@@ -1,5 +1,6 @@
 require "mime"
 require "uuid"
+require "email"
 
 module PlaceCalendar
   class Google < Interface
@@ -329,6 +330,43 @@ module PlaceCalendar
       else
         "text/plain"
       end
+    end
+
+    def send_mail(
+      from : String,
+      to : String | Array(String),
+      subject : String,
+      message_plaintext : String? = nil,
+      message_html : String? = nil,
+      resource_attachments : Array(ResourceAttachment) = [] of ResourceAttachment,
+      attachments : Array(EmailAttachment) = [] of EmailAttachment,
+      cc : String | Array(String) = [] of String,
+      bcc : String | Array(String) = [] of String
+    )
+      email = EMail::Message.new
+      email.from from
+      to_array(to).each { |address| email.to address }
+      to_array(cc).each { |address| email.cc address }
+      to_array(bcc).each { |address| email.bcc address }
+      email.subject subject
+      email.message message_plaintext.as(String) if message_plaintext
+      email.message_html message_html.as(String) if message_html
+
+      {resource_attachments, attachments}.map(&.each).each.flatten.each do |attachment|
+        # Base64 decode to memory, then attach to email
+        attachment_io = IO::Memory.new
+        Base64.decode(attachment[:content], attachment_io)
+        attachment_io.rewind
+
+        case attachment
+        in EmailAttachment
+          message.attach(io: attachment_io, file_name: attachment[:file_name])
+        in ResourceAttachment
+          message.message_resource(io: attachment_io, file_name: attachment[:file_name], cid: attachment[:content_id])
+        end
+      end
+
+      ::Google::Gmail::Messages.new(auth: auth(from)).send(from, email.to_s)
     end
 
     def self.recurrence_to_google(recurrence)

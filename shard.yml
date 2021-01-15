@@ -1,5 +1,5 @@
 name: place_calendar
-version: 4.6.1
+version: 4.7.0
 
 authors:
   - Toby Carvan <toby@redant.com.au>
@@ -11,6 +11,9 @@ dependencies:
     github: PlaceOS/office365
   google:
     github: PlaceOS/google
+  email:
+    github: arcage/crystal-email
+
 development_dependencies:
   vcr:
     github: spoved/vcr.cr

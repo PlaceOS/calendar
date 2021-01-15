@@ -25,6 +25,31 @@ module PlaceCalendar
 
     abstract def access_token(user_id : String? = nil) : NamedTuple(expires: Time, token: String)
 
+    alias EmailAttachment = NamedTuple(file_name: String, content: String)
+    alias ResourceAttachment = NamedTuple(file_name: String, content: String, content_id: String)
+
+    abstract def send_mail(
+      from : String,
+      to : String | Array(String),
+      subject : String,
+      message_plaintext : String? = nil,
+      message_html : String? = nil,
+      resource_attachments : Array(ResourceAttachment) = [] of ResourceAttachment,
+      attachments : Array(EmailAttachment) = [] of EmailAttachment,
+      cc : String | Array(String) = [] of String,
+      bcc : String | Array(String) = [] of String
+    )
+
+    # For use in processing send_mail
+    protected def to_array(emails : String | Array(String)) : Array(String)
+      case emails
+      in String
+        [emails]
+      in Array(String)
+        emails
+      end
+    end
+
     abstract def client_id : Symbol
   end
 end

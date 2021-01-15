@@ -269,6 +269,41 @@ module PlaceCalendar
       }
     end
 
+    def send_mail(
+      from : String,
+      to : String | Array(String),
+      subject : String,
+      message_plaintext : String? = nil,
+      message_html : String? = nil,
+      resource_attachments : Array(ResourceAttachment) = [] of ResourceAttachment,
+      attachments : Array(EmailAttachment) = [] of EmailAttachment,
+      cc : String | Array(String) = [] of String,
+      bcc : String | Array(String) = [] of String
+    )
+      content_type = message_html.presence ? "HTML" : "Text"
+      content = message_html.presence || message_plaintext.not_nil!
+
+      attach = attachments.map { |a| Office365::Attachment.new(a[:file_name], a[:content]) }
+      attach.concat resource_attachments.map { |a|
+        tmp_attach = Office365::Attachment.new(a[:file_name], a[:content])
+        tmp_attach.content_id = a[:content_id]
+        tmp_attach
+      }
+
+      client.send_mail(
+        from,
+        Office365::Message.new(
+          subject,
+          content,
+          content_type,
+          to_array(to),
+          to_array(cc),
+          to_array(bcc),
+          attachments: attach
+        )
+      )
+    end
+
     private def handle_office365_exception(ex : ::Office365::Exception)
       raise PlaceCalendar::Exception.new(ex.http_status, ex.http_body, ex.message)
     end
