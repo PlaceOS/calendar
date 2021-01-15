@@ -360,9 +360,9 @@ module PlaceCalendar
 
         case attachment
         in EmailAttachment
-          message.attach(io: attachment_io, file_name: attachment[:file_name])
+          email.attach(io: attachment_io, file_name: attachment[:file_name])
         in ResourceAttachment
-          message.message_resource(io: attachment_io, file_name: attachment[:file_name], cid: attachment[:content_id])
+          email.message_resource(io: attachment_io, file_name: attachment[:file_name], cid: attachment[:content_id])
         end
       end
 
