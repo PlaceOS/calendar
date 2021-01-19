@@ -283,9 +283,9 @@ module PlaceCalendar
       content_type = message_html.presence ? "HTML" : "Text"
       content = message_html.presence || message_plaintext.not_nil!
 
-      attach = attachments.map { |a| ::Office365::Attachment.new(a[:file_name], a[:content]) }
+      attach = attachments.map { |a| ::Office365::Attachment.new(a[:file_name], a[:content], base64_encoded: true) }
       attach.concat resource_attachments.map { |a|
-        tmp_attach = ::Office365::Attachment.new(a[:file_name], a[:content])
+        tmp_attach = ::Office365::Attachment.new(a[:file_name], a[:content], base64_encoded: true)
         tmp_attach.content_id = a[:content_id]
         tmp_attach
       }
