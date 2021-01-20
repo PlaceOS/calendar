@@ -316,7 +316,7 @@ class Office365::User
   end
 
   def to_place_member
-    PlaceCalendar::Member.new(@id, email, @user_principal_name, self.to_json)
+    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, self.to_json)
   end
 end
 
