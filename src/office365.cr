@@ -342,8 +342,8 @@ class Office365::Event
     end
 
     attendees = (@attendees).map do |attendee|
-      name = attendee.email_address.name
-      email = attendee.email_address.address.downcase
+      email = attendee.email_address.address.not_nil!.downcase
+      name = attendee.email_address.name || email
       resource = attendee.type == AttendeeType::Resource
 
       status = if attendee.status
