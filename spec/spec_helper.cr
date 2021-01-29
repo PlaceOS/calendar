@@ -9,7 +9,7 @@ class HTTP::Request
   def to_json
     {
       method:   method,
-      host:     host,
+      host:     hostname,
       resource: resource,
     }.to_json
   end

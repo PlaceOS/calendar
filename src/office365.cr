@@ -32,7 +32,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def list_users(query : String? = nil, limit : Int32? = nil, **options)
+    def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
       if users = client.list_users(query, limit)
         users.value.map { |u| u.to_place_calendar }
       else
@@ -72,7 +72,7 @@ module PlaceCalendar
       ical_uid : String? = nil,
       showDeleted : Bool? = nil,
       **options
-    )
+    ) : HTTP::Request
       # WARNING: This code is conflating calendar_id / mailbox
       mailbox = calendar_id || user_id
       client.list_events_request(**options.merge(mailbox: mailbox, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
@@ -88,7 +88,7 @@ module PlaceCalendar
       ical_uid : String? = nil,
       showDeleted : Bool? = nil,
       **options
-    )
+    ) : Array(Event)
       # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
       # WARNING: This code is conflating calendar_id / mailbox
       mailbox = calendar_id || user_id
@@ -111,7 +111,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options)
+    def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
       mailbox = calendar_id || user_id
       params = event_params(event).merge(mailbox: user_id)
 
@@ -205,7 +205,7 @@ module PlaceCalendar
       params
     end
 
-    def list_attachments(user_id : String, event_id : String, calendar_id : String? = nil, **options)
+    def list_attachments(user_id : String, event_id : String, calendar_id : String? = nil, **options) : Array(Attachment)
       if attachments = client.list_attachments(**options.merge(mailbox: user_id, event_id: event_id, calendar_id: calendar_id))
         attachments.value.map { |a| a.to_placecalendar }
       else
@@ -215,7 +215,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options)
+    def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options) : Attachment?
       if attachment = client.get_attachment(**options.merge(mailbox: user_id, event_id: event_id, id: id, calendar_id: calendar_id))
         attachment.to_placecalendar
       else

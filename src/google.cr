@@ -179,7 +179,8 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def update_event(user_id : String, event : Event, calendar_id : String = "primary", **options) : Event?
+    def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
+      calendar_id ||= "primary"
       params = event_params(event, calendar_id).merge(event_id: event.id)
       updated_event = calendar(user_id).update(**params)
       updated_event ? updated_event.to_place_calendar : nil
@@ -240,7 +241,8 @@ module PlaceCalendar
       params
     end
 
-    def list_attachments(user_id : String, event_id : String, calendar_id : String? = "primary", **options)
+    def list_attachments(user_id : String, event_id : String, calendar_id : String? = nil, **options) : Array(Attachment)
+      calendar_id ||= "primary"
       attachments = [] of Attachment
 
       if event = calendar(user_id).event(event_id, calendar_id)
@@ -252,7 +254,8 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = "primary", **options)
+    def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options) : Attachment?
+      calendar_id ||= "primary"
       if attachments = list_attachments(user_id, event_id, calendar_id)
         attachments.find { |a| a.id == id }
       else
@@ -262,7 +265,8 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def create_attachment(user_id : String, event_id : String, attachment : Attachment, calendar_id : String = "primary", **options)
+    def create_attachment(user_id : String, event_id : String, attachment : Attachment, calendar_id : String? = nil, **options) : Attachment?
+      calendar_id ||= "primary"
       file = drive_files(user_id).create(name: attachment.name, content_bytes: attachment.content_bytes, content_type: extract_mime_type(attachment.name).not_nil!)
 
       if !file.nil?
@@ -282,7 +286,8 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = "primary", **options)
+    def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = nil, **options) : Bool
+      calendar_id ||= "primary"
       event = calendar(user_id).event(event_id, calendar_id)
 
       if !event.nil?
