@@ -82,6 +82,10 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
+    def get_user_by_email(email : String, **options) : User?
+      list_users(email: email).first?
+    end
+
     def list_calendars(mail : String, **options) : Array(Calendar)
       only_writable = options[:only_writable]? || false
       calendars = only_writable ? calendar(mail).calendar_list(::Google::Access::Writer) : calendar(mail).calendar_list

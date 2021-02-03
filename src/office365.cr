@@ -50,6 +50,19 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
+    # This function will work with IDs and emails
+    def get_user_by_email(email : String, **options) : User?
+      if email.includes?("@")
+        client.get_user_by_mail(email).to_place_calendar
+      else
+        get_user(email, **options)
+      end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    rescue error : Enumerable::EmptyError
+      nil
+    end
+
     def get_calendar(id : String, **options) : Calendar
       {{ raise "Uninplemented" }}
     end

@@ -2,6 +2,7 @@ module PlaceCalendar
   abstract class Interface
     abstract def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
     abstract def get_user(id : String, **options) : User?
+    abstract def get_user_by_email(email : String, **options) : User?
     abstract def list_calendars(mail : String, **options) : Array(Calendar)
     abstract def get_calendar(id : String, **options) : Calendar
 
