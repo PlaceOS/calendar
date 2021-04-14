@@ -190,7 +190,7 @@ module PlaceCalendar
         end
       end
 
-      sensitivity = event.private? ? ::Office365::Sensitivity::Normal : ::Office365::Sensitivity::Private
+      sensitivity = event.private? ? ::Office365::Sensitivity::Private : ::Office365::Sensitivity::Normal
 
       params = {
         id:                      event.id,
