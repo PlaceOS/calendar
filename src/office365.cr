@@ -181,11 +181,13 @@ module PlaceCalendar
 
           ::Office365::Attendee.new(
             email: ::Office365::EmailAddress.new(address: a.email, name: a.name),
-            status: ::Office365::ResponseStatus.new(response: status_type, time: Time::Format::ISO_8601_DATE_TIME.format(Time.utc))
+            status: ::Office365::ResponseStatus.new(response: status_type, time: Time::Format::ISO_8601_DATE_TIME.format(Time.utc)),
+            type: a.resource ? ::Office365::AttendeeType::Resource : ::Office365::AttendeeType::Required
           )
         else
           ::Office365::Attendee.new(
-            email: ::Office365::EmailAddress.new(address: a.email, name: a.name)
+            email: ::Office365::EmailAddress.new(address: a.email, name: a.name),
+            type: a.resource ? ::Office365::AttendeeType::Resource : ::Office365::AttendeeType::Required
           )
         end
       end
@@ -382,10 +384,8 @@ class Office365::Event
         resource: resource)
     end
 
-    source_location = @location || @locations.try &.first
-    location = if source_location
-                 source_location.display_name
-               end
+    source_location = @location || @locations.try &.first?
+    location = source_location.try &.display_name
 
     recurrence = if @recurrence
                    e_recurrence = @recurrence.not_nil!
