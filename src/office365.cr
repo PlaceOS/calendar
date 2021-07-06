@@ -34,7 +34,7 @@ module PlaceCalendar
 
     def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
       if users = client.list_users(query, limit)
-        users.value.map { |u| u.to_place_calendar }
+        users.value.map(&.to_place_calendar)
       else
         [] of User
       end
@@ -106,7 +106,7 @@ module PlaceCalendar
       # WARNING: This code is conflating calendar_id / mailbox
       mailbox = calendar_id || user_id
       if events = client.list_events(**options.merge(mailbox: mailbox, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
-        events.value.map { |e| e.to_place_calendar }
+        events.value.map(&.to_place_calendar)
       else
         [] of Event
       end
@@ -116,7 +116,7 @@ module PlaceCalendar
 
     def list_events(user_id : String, response : HTTP::Client::Response) : Array(Event)
       if events = client.list_events(response)
-        events.value.map { |e| e.to_place_calendar }
+        events.value.map(&.to_place_calendar)
       else
         [] of Event
       end
@@ -126,7 +126,7 @@ module PlaceCalendar
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
       mailbox = calendar_id || user_id
-      params = event_params(event).merge(mailbox: user_id)
+      params = event_params(event).merge(mailbox: mailbox)
 
       new_event = client.create_event(**params)
 
@@ -222,7 +222,7 @@ module PlaceCalendar
 
     def list_attachments(user_id : String, event_id : String, calendar_id : String? = nil, **options) : Array(Attachment)
       if attachments = client.list_attachments(**options.merge(mailbox: user_id, event_id: event_id, calendar_id: calendar_id))
-        attachments.value.map { |a| a.to_placecalendar }
+        attachments.value.map(&.to_placecalendar)
       else
         [] of Attachment
       end
@@ -263,7 +263,7 @@ module PlaceCalendar
 
     def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
       if availability = client.get_availability(user_id, calendars, starts_at, ends_at)
-        availability.map { |a| a.to_placecalendar }
+        availability.map(&.to_placecalendar)
       else
         [] of AvailabilitySchedule
       end
@@ -327,7 +327,15 @@ end
 
 class Office365::User
   def to_place_calendar
-    PlaceCalendar::User.new(id: @id, name: @display_name, email: email, phone: @mobile_phone, username: @user_principal_name, source: self.to_json)
+    PlaceCalendar::User.new(
+      id: @id,
+      name: @display_name,
+      title: @job_title,
+      email: email,
+      phone: @mobile_phone,
+      username: @user_principal_name,
+      source: self.to_json
+    )
   end
 
   def to_place_member
@@ -454,7 +462,7 @@ class Office365::AvailabilitySchedule
   def to_placecalendar
     PlaceCalendar::AvailabilitySchedule.new(
       @calendar,
-      @availability.map { |a| a.to_placecalendar }
+      @availability.map(&.to_placecalendar)
     )
   end
 end

@@ -64,7 +64,7 @@ module PlaceCalendar
     def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
       if users = directory.users(query, limit || 500, **options)
         # TODO: Deal with pagination
-        users.users.map { |u| u.to_place_calendar }
+        users.users.map(&.to_place_calendar)
       else
         [] of User
       end
@@ -132,7 +132,7 @@ module PlaceCalendar
       calendar_id = "primary" if calendar_id.nil?
 
       if events = calendar(user_id).events(calendar_id, period_start, period_end, **options.merge(iCalUID: ical_uid))
-        events.items.map { |e| e.to_place_calendar }
+        events.items.map(&.to_place_calendar)
       else
         [] of Event
       end
@@ -142,7 +142,7 @@ module PlaceCalendar
 
     def list_events(user_id : String, response : HTTP::Client::Response) : Array(Event)
       if events = calendar(user_id).events(response)
-        events.items.map { |e| e.to_place_calendar }
+        events.items.map(&.to_place_calendar)
       else
         [] of Event
       end
@@ -261,7 +261,7 @@ module PlaceCalendar
     def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options) : Attachment?
       calendar_id ||= "primary"
       if attachments = list_attachments(user_id, event_id, calendar_id)
-        attachments.find { |a| a.id == id }
+        attachments.find(&.id.==(id))
       else
         nil
       end
@@ -282,7 +282,7 @@ module PlaceCalendar
         )
 
         attachments = list_attachments(user_id, event_id, calendar_id)
-        attachments.find { |a| a.id == file.id }
+        attachments.find(&.id.==(file.id))
       else
         nil
       end
@@ -298,7 +298,7 @@ module PlaceCalendar
         if calendar(user_id).update(
              event_id: event_id,
              calendar_id: calendar_id,
-             attachments: event.attachments.reject! { |a| a.file_id == id }
+             attachments: event.attachments.reject!(&.file_id.==(id))
            )
           true
         else
@@ -313,7 +313,7 @@ module PlaceCalendar
 
     def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
       if schedule = calendar(user_id).availability(calendars, starts_at, ends_at)
-        schedule.map { |a| a.to_place_calendar }
+        schedule.map(&.to_place_calendar)
       else
         [] of AvailabilitySchedule
       end
@@ -471,6 +471,7 @@ class Google::Directory::User
 
     if orgs = @organizations.try(&.select(&.primary))
       department = orgs.first?.try &.department
+      title = orgs.first?.try &.title
     end
 
     if accounts = @posix_accounts.try(&.select(&.primary))
@@ -483,6 +484,7 @@ class Google::Directory::User
       email: self.primary_email,
       phone: phone,
       department: department,
+      title: title,
       photo: @thumbnail_photo_url,
       username: account,
       source: self.to_json
@@ -508,7 +510,7 @@ class Google::Calendar::CalendarAvailability
   def to_place_calendar
     PlaceCalendar::AvailabilitySchedule.new(
       @calendar,
-      @availability.map { |a| a.to_place_calendar }
+      @availability.map(&.to_place_calendar)
     )
   end
 end

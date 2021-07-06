@@ -9,6 +9,7 @@ class PlaceCalendar::User
   property email : String?
   property phone : String?
   property department : String?
+  property title : String?
   property photo : String?
   property username : String?
 
@@ -18,6 +19,7 @@ class PlaceCalendar::User
     @email = nil,
     @phone = nil,
     @department = nil,
+    @title = nil,
     @photo = nil,
     @username = nil,
     @source = nil
