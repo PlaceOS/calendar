@@ -534,7 +534,12 @@ class Google::Calendar::Event
     event_end = @end.try { |time| (time.date_time || time.date) }
 
     timezone = @start.time_zone || "UTC"
-    tz_location = Time::Location.load(timezone)
+    tz_location = if timezone.starts_with?("GMT")
+                    offset_str = timezone.split("GMT").last
+                    Time.parse!(offset_str, "%:z").location
+                  else
+                    Time::Location.load(timezone)
+                  end
     event_start = event_start.in(tz_location)
 
     if !event_end.nil?
