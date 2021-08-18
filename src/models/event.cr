@@ -25,6 +25,13 @@ class PlaceCalendar::Event
   property creator : String?
   property ical_uid : String?
 
+  property online_meeting_provider : String?
+  property online_meeting_phones : Array(String)?
+  property online_meeting_url : String?
+  property online_meeting_sip : String?
+  property online_meeting_pin : String?
+  property online_meeting_id : String?
+
   @[JSON::Field(ignore: true)]
   property source : String?
 
@@ -46,7 +53,13 @@ class PlaceCalendar::Event
     @status = nil,
     @creator = nil,
     @recurring_event_id = nil,
-    @ical_uid = nil
+    @ical_uid = nil,
+    @online_meeting_provider = nil,
+    @online_meeting_phones = nil,
+    @online_meeting_url = nil,
+    @online_meeting_sip = nil,
+    @online_meeting_pin = nil,
+    @online_meeting_id = nil
   )
     @recurring = !@recurrence.nil?
   end

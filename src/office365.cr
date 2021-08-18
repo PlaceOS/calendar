@@ -441,7 +441,11 @@ class Office365::Event
       status: status,
       creator: @organizer.try &.email_address.try &.address,
       recurring_event_id: @series_master_id,
-      ical_uid: @icaluid
+      ical_uid: @icaluid,
+      online_meeting_provider: online_meeting_provider,
+      online_meeting_phones: online_meeting_phones,
+      online_meeting_url: online_meeting_url,
+      online_meeting_id: online_meeting_id,
     )
   end
 end

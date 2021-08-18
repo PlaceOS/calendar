@@ -561,6 +561,19 @@ class Google::Calendar::Event
                    PlaceCalendar::Google.recurrence_from_google(@recurrence, self)
                  end
 
+    # obtain online meeting details
+    pins = [] of String?
+    if url = online_meeting_url
+      pins << url[1]
+    end
+    if sip = online_meeting_sip
+      pins << sip[1]
+    end
+    phones = online_meeting_phones.try &.map do |phone|
+      pins << phone[1]
+      phone[0]
+    end
+
     PlaceCalendar::Event.new(
       id: @id,
       host: @organizer.try &.email,
@@ -578,7 +591,13 @@ class Google::Calendar::Event
       status: @status,
       creator: @creator.try &.email,
       recurring_event_id: @recurring_event_id,
-      ical_uid: @ical_uid
+      ical_uid: @ical_uid,
+      online_meeting_provider: online_meeting_provider,
+      online_meeting_phones: phones,
+      online_meeting_url: url.try &.[](0),
+      online_meeting_sip: sip.try &.[](0),
+      online_meeting_pin: pins.compact.first?,
+      online_meeting_id: online_meeting_id,
     )
   end
 end
