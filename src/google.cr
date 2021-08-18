@@ -1,3 +1,4 @@
+require "uri"
 require "mime"
 require "uuid"
 require "email"
@@ -160,8 +161,42 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
+    alias EntryPoint = ::Google::Calendar::EntryPoint
+
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-      new_event = if conference_type = @conference_type
+      new_event = if meeting_url = event.online_meeting_url
+                    meeting_uri = URI.parse meeting_url
+                    meeting_type = meeting_uri.host.try &.starts_with?("meet.") ? "hangoutsMeet" : "addOn"
+
+                    meeting_id = event.online_meeting_id
+                    meeting_id ||= meeting_type == "hangoutsMeet" ? meeting_uri.path[1..-1] : raise ArgumentError.new("online_meeting_id required for addOn meeting types")
+
+                    access_code = event.online_meeting_pin
+                    entry_points = [EntryPoint.new("video", meeting_url, "#{meeting_uri.host}#{meeting_uri.path}", access_code)]
+
+                    if sip = event.online_meeting_sip
+                      entry_points << EntryPoint.new("sip", "sip:#{sip}", sip, access_code)
+                    end
+
+                    if phones = event.online_meeting_phones
+                      phones.each do |phone|
+                        entry_points << EntryPoint.new("phone", "tel:#{phone}", phone, access_code)
+                      end
+                    end
+
+                    params = event_params(event, calendar_id)
+                    params = params.merge({
+                      conference: {
+                        conferenceId:       meeting_id,
+                        conferenceSolution: {
+                          key:  {type: meeting_type},
+                          name: event.online_meeting_provider,
+                        },
+                        entryPoints: entry_points,
+                      },
+                    })
+                    calendar(user_id).create(**params)
+                  elsif conference_type = @conference_type
                     params = event_params(event, calendar_id)
                     params = params.merge(
                       conference: {
