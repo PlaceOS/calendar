@@ -32,6 +32,8 @@ class PlaceCalendar::Event
   property online_meeting_pin : String?
   property online_meeting_id : String?
 
+  property extended_properties : Hash(String, String?)?
+
   @[JSON::Field(ignore: true)]
   property source : String?
 
@@ -59,7 +61,8 @@ class PlaceCalendar::Event
     @online_meeting_url = nil,
     @online_meeting_sip = nil,
     @online_meeting_pin = nil,
-    @online_meeting_id = nil
+    @online_meeting_id = nil,
+    @extended_properties = nil
   )
     @recurring = !@recurrence.nil?
   end

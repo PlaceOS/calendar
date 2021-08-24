@@ -262,16 +262,17 @@ module PlaceCalendar
 
     private def event_params(event, calendar_id)
       params = {
-        event_start: event.event_start,
-        event_end:   event.event_end || Time.local + 1.hour,
-        calendar_id: calendar_id ? calendar_id : "primary",
-        attendees:   event.attendees.map { |e| e.response_status ? {email: e.email, responseStatus: e.response_status} : {email: e.email} },
-        all_day:     event.all_day?,
-        visibility:  event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
-        summary:     event.title,
-        description: event.body,
-        location:    event.location,
-        recurrence:  nil,
+        event_start:         event.event_start,
+        event_end:           event.event_end || Time.local + 1.hour,
+        calendar_id:         calendar_id ? calendar_id : "primary",
+        attendees:           event.attendees.map { |e| e.response_status ? {email: e.email, responseStatus: e.response_status} : {email: e.email} },
+        all_day:             event.all_day?,
+        visibility:          event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
+        summary:             event.title,
+        description:         event.body,
+        location:            event.location,
+        recurrence:          nil,
+        extended_properties: event.extended_properties,
       }
       if event.recurrence
         e_recurrence = event.recurrence.not_nil!
@@ -609,6 +610,8 @@ class Google::Calendar::Event
       phone[0]
     end
 
+    ext_prop = (@extended_properties.try(&.[]?("shared")) || @extended_properties.try(&.[]?("private"))).try &.transform_values(&.as(String | Nil))
+
     PlaceCalendar::Event.new(
       id: @id,
       host: @organizer.try &.email,
@@ -633,6 +636,7 @@ class Google::Calendar::Event
       online_meeting_sip: sip.try &.[](0),
       online_meeting_pin: pins.compact.first?,
       online_meeting_id: online_meeting_id,
+      extended_properties: ext_prop
     )
   end
 end
