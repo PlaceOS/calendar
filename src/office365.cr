@@ -68,8 +68,16 @@ module PlaceCalendar
     end
 
     def list_calendars(mail : String, **options) : Array(Calendar)
-      if primary = client.get_calendar(mail)
-        [primary.to_place_calendar(primary_calendar_id: primary.id, mailbox: mail)]
+      only_writable = options[:only_writable]? || false
+
+      if calendars = client.list_calendars(mail).value
+        calendars.compact_map do |calendar|
+          if only_writable
+            calendar.to_place_calendar(mail) if calendar.can_edit?
+          else
+            calendar.to_place_calendar(mail)
+          end
+        end
       else
         [] of Calendar
       end
@@ -344,8 +352,16 @@ class Office365::User
 end
 
 class Office365::Calendar
-  def to_place_calendar(primary_calendar_id : String?, mailbox : String? = nil)
-    PlaceCalendar::Calendar.new(id: mailbox || @id, summary: @name, primary: (@id == primary_calendar_id), can_edit: @can_edit, source: self.to_json)
+  def to_place_calendar(mailbox : String? = nil)
+    id = @owner.try(&.address) || mailbox || @id
+
+    PlaceCalendar::Calendar.new(
+      id: id,
+      summary: @name,
+      primary: !!self.is_default_calendar?,
+      can_edit: !!self.can_edit?,
+      source: self.to_json
+    )
   end
 end
 
