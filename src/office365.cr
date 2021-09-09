@@ -71,7 +71,12 @@ module PlaceCalendar
       only_writable = options[:only_writable]? || false
 
       if calendars = client.list_calendars(mail).value
+        mail = mail.downcase
+
         calendars.compact_map do |calendar|
+          # we only want to list calendars with mailboxes
+          next if calendar.is_removable? && calendar.owner.try(&.address.try(&.downcase)) == mail
+
           if only_writable
             calendar.to_place_calendar(mail) if calendar.can_edit?
           else
@@ -360,6 +365,7 @@ class Office365::Calendar
       summary: @name,
       primary: !!self.is_default_calendar?,
       can_edit: !!self.can_edit?,
+      ref: @id,
       source: self.to_json
     )
   end

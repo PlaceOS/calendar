@@ -5,11 +5,16 @@ class PlaceCalendar::Calendar
   property source : String?
 
   property id : String?
+  property ref : String?
   property summary : String
 
   property primary : Bool
   property can_edit : Bool?
 
-  def initialize(@id, @summary, @source, @primary = false, @can_edit = false)
+  def mailbox
+    @id
+  end
+
+  def initialize(@id, @summary, @source, @primary = false, @can_edit = false, @ref = nil)
   end
 end
