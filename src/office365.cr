@@ -219,7 +219,7 @@ module PlaceCalendar
         attendees:               attendees,
         location:                event.location,
         recurrence:              nil,
-        online_meeting_provider: @conference_type,
+        online_meeting_provider: event.online_meeting_provider || @conference_type,
       }
       if event.recurrence
         e_recurrence = event.recurrence.not_nil!

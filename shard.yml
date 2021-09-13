@@ -1,7 +1,7 @@
 name: place_calendar
-version: 4.11.1
+version: 4.11.2
 
-crystal: ">= 0.36.1, < 2.0.0"
+crystal: ">= 0.36.1"
 
 authors:
   - Toby Carvan <toby@redant.com.au>
