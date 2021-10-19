@@ -19,6 +19,9 @@ class PlaceCalendar::Event
   property timezone : String?
   property recurring : Bool? = false
 
+  property created : Time? = nil
+  property updated : Time? = nil
+
   property attachments : Array(Attachment)
   property recurrence : Recurrence?
   property status : String?
@@ -62,7 +65,9 @@ class PlaceCalendar::Event
     @online_meeting_sip = nil,
     @online_meeting_pin = nil,
     @online_meeting_id = nil,
-    @extended_properties = nil
+    @extended_properties = nil,
+    @created = nil,
+    @updated = nil
   )
     @recurring = !@recurrence.nil?
   end

@@ -636,7 +636,9 @@ class Google::Calendar::Event
       online_meeting_sip: sip.try &.[](0),
       online_meeting_pin: pins.compact.first?,
       online_meeting_id: online_meeting_id,
-      extended_properties: ext_prop
+      extended_properties: ext_prop,
+      created: @created,
+      updated: @updated
     )
   end
 end

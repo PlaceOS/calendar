@@ -468,6 +468,8 @@ class Office365::Event
       online_meeting_phones: online_meeting_phones,
       online_meeting_url: online_meeting_url,
       online_meeting_id: online_meeting_id,
+      created: @created,
+      updated: @updated,
     )
   end
 end
