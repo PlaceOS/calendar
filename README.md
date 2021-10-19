@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.com/PlaceOS/calendar.svg?branch=master)](https://travis-ci.com/PlaceOS/calendar)
+[![CI](https://github.com/PlaceOS/calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/PlaceOS/calendar/actions/workflows/ci.yml)
+
 
 # calendar
 
