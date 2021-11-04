@@ -1,5 +1,5 @@
 name: place_calendar
-version: 4.11.3
+version: 4.12.0
 
 crystal: ">= 0.36.1"
 
@@ -9,7 +9,7 @@ authors:
 dependencies:
   office365:
     github: PlaceOS/office365
-    version: ">= 1.13.15"
+    version: ">= 1.14"
   google:
     github: PlaceOS/google
   email:
