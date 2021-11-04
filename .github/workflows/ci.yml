@@ -4,31 +4,32 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 6 * * 1"
+
 jobs:
-  build:
+  style:
+    uses: PlaceOS/.github/.github/workflows/crystal-style.yml@main
+
+  test:
     strategy:
       fail-fast: false
       matrix:
         experimental: [false]
-        os: [ubuntu-latest]
         crystal:
-          - latest
-          - 1.2.0
           - 1.1.1
+          - 1.2.1
         include:
           - experimental: true
-            os: ubuntu-latest
             crystal: nightly
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
-    container: crystallang/crystal:${{ matrix.crystal }}-alpine
     steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: shards install --ignore-crystal-version
-    - name: Format
-      run: crystal tool format --check
-    - name: Run tests
-      run: crystal spec -v --error-trace
-      env:
-        http_proxy: http://51.38.71.101:8080
+      - uses: oprypin/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: shards install --ignore-crystal-version
+      - name: Run tests
+        run: crystal spec -v --error-trace --order=random
+        env:
+          http_proxy: http://51.38.71.101:8080
