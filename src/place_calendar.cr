@@ -37,5 +37,9 @@ module PlaceCalendar
     def initialize(tenant : String, client_id : String, client_secret : String, conference_type : String? = Office365::DEFAULT_CONFERENCE)
       @calendar = Office365.new(tenant, client_id, client_secret, conference_type)
     end
+
+    def initialize(tenant : String, client_id : String, client_secret : String, conference_type : String? = Office365::DEFAULT_CONFERENCE, scopes : String = Office365::DEFAULT_SCOPE)
+      @calendar = Office365.new(tenant, client_id, client_secret, conference_type, scopes)
+    end
   end
 end
