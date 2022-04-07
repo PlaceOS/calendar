@@ -275,7 +275,8 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time, view_interval : Int32 = 30) : Array(AvailabilitySchedule)
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time, **options) : Array(AvailabilitySchedule)
+      view_interval = options[:view_interval]? || 30
       if availability = client.get_availability(user_id, calendars, starts_at, ends_at, view_interval)
         availability.map(&.to_placecalendar)
       else

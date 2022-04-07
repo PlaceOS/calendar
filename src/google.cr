@@ -347,7 +347,7 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
+    def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time, **options) : Array(AvailabilitySchedule)
       if schedule = calendar(user_id).availability(calendars, starts_at, ends_at)
         schedule.map(&.to_place_calendar)
       else

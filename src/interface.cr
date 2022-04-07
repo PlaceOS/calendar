@@ -18,7 +18,7 @@ module PlaceCalendar
     abstract def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options) : Attachment?
     abstract def create_attachment(user_id : String, event_id : String, attachment : Attachment, calendar_id : String? = nil, **options) : Attachment?
     abstract def delete_attachment(id : String, user_id : String, event_id : String, calendar_id : String? = nil, **options) : Bool
-    abstract def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time) : Array(AvailabilitySchedule)
+    abstract def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time, **options) : Array(AvailabilitySchedule)
     abstract def batch(user_id : String, requests : Indexable(HTTP::Request)) : Hash(HTTP::Request, HTTP::Client::Response)
 
     abstract def get_groups(user_id : String, **options) : Array(Group)
