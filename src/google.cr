@@ -355,7 +355,15 @@ module PlaceCalendar
     end
 
     def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time, **options) : Array(AvailabilitySchedule)
-      if schedule = calendar(user_id).availability(calendars, starts_at, ends_at)
+      # Max is 50 so we need to batch if we're above this
+      if calendars.size > 50
+        requests = Array(HTTP::Request).new((calendars.size / 50).round(:to_positive).to_i)
+        client = calendar(user_id)
+        calendars.in_groups_of(50) do |cals|
+          requests << client.availability_request(cals.compact, starts_at, ends_at)
+        end
+        client.batch(requests).values.flat_map { |response| client.availability(response).map(&.to_place_calendar) }
+      elsif schedule = calendar(user_id).availability(calendars, starts_at, ends_at)
         schedule.map(&.to_place_calendar)
       else
         [] of AvailabilitySchedule
