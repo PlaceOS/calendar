@@ -177,6 +177,13 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
+    def decline_event(user_id : String, id : String, notify : Bool = true, comment : String? = nil, **options) : Bool
+      mailbox = calendar_id || user_id
+      client.decline_event(mailbox: mailbox, id: id, notify: notify, comment: comment)
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
     private def event_params(event)
       attendees = event.attendees.map do |a|
         if a.response_status
@@ -277,7 +284,15 @@ module PlaceCalendar
 
     def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time, **options) : Array(AvailabilitySchedule)
       view_interval = options[:view_interval]? || 30
-      if availability = client.get_availability(user_id, calendars, starts_at, ends_at, view_interval)
+
+      # Max is 100 so we need to batch if we're above this
+      if calendars.size > 100
+        requests = Array(HTTP::Request).new((calendars.size / 100).round(:to_positive).to_i)
+        calendars.in_groups_of(100) do |cals|
+          requests << client.get_availability_request(user_id, cals.compact, starts_at, ends_at, view_interval)
+        end
+        client.batch(requests).values.flat_map { |response| client.get_availability(response).map(&.to_placecalendar) }
+      elsif availability = client.get_availability(user_id, calendars, starts_at, ends_at, view_interval)
         availability.map(&.to_placecalendar)
       else
         [] of AvailabilitySchedule
