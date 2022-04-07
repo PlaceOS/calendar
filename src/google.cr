@@ -238,6 +238,13 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
+    def decline_event(user_id : String, id : String, notify : Bool = true, comment : String? = nil, **options) : Bool
+      notify_option = notify ? ::Google::UpdateGuests::All : ::Google::UpdateGuests::None
+      calendar(user_id).decline(id, calendar_id, notify_option, comment)
+    rescue ex : ::Google::Exception
+      handle_google_exception(ex)
+    end
+
     def batch(user_id : String, requests : Indexable(HTTP::Request)) : Hash(HTTP::Request, HTTP::Client::Response)
       calendar(user_id).batch(requests)
     rescue ex : ::Google::Exception
