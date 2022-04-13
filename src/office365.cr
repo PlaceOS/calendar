@@ -177,7 +177,7 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def decline_event(user_id : String, id : String, notify : Bool = true, comment : String? = nil, **options) : Bool
+    def decline_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
       mailbox = calendar_id || user_id
       client.decline_event(mailbox: mailbox, id: id, notify: notify, comment: comment)
     rescue ex : ::Office365::Exception

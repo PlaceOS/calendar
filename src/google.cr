@@ -227,7 +227,8 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def delete_event(user_id : String, id : String, calendar_id : String = "primary", **options) : Bool
+    def delete_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Bool
+      calendar_id ||= "primary"
       notify_option = options[:notify]? ? ::Google::UpdateGuests::All : ::Google::UpdateGuests::None
       if calendar(user_id).delete(id, calendar_id, notify_option)
         true
@@ -238,7 +239,8 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def decline_event(user_id : String, id : String, notify : Bool = true, comment : String? = nil, **options) : Bool
+    def decline_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
+      calendar_id ||= "primary"
       notify_option = notify ? ::Google::UpdateGuests::All : ::Google::UpdateGuests::None
       calendar(user_id).decline(id, calendar_id, notify_option, comment)
     rescue ex : ::Google::Exception
