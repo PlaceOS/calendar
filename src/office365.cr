@@ -179,7 +179,10 @@ module PlaceCalendar
 
     def decline_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
       mailbox = calendar_id || user_id
-      client.decline_event(mailbox: mailbox, id: id, notify: notify, comment: comment)
+      response = client.decline_event(mailbox: mailbox, id: id, notify: notify, comment: comment)
+      # Office365 requires you cancel an event if you're the host so we just check if the above failed
+      response = client.cancel_event(mailbox: mailbox, id: id, comment: comment) unless response
+      response
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
