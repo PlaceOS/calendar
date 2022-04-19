@@ -518,17 +518,30 @@ class Google::Directory::User
   def to_place_calendar
     user_name = @name.full_name || "#{@name.given_name} #{@name.family_name}"
 
-    if phones = @phones.try(&.select(&.primary))
-      phone = phones.first?.try(&.value) || @recovery_phone
+    if phones = @phones
+      preference = phones.select(&.primary)
+
+      {"work_mobile", "mobile", "work", "assistant"}.each do |type|
+        break unless preference.empty?
+        preference.concat phones.select(&.type.==(type))
+      end
+
+      phone = preference.first?.try(&.value) || phones.first?.try(&.value) || @recovery_phone
     end
 
-    if orgs = @organizations.try(&.select(&.primary))
-      department = orgs.first?.try &.department
-      title = orgs.first?.try &.title
+    if orgs = @organizations
+      preferred_org = orgs.select(&.primary)
+      preferred_org = orgs if preferred_org.empty?
+      if org = preferred_org.first?
+        department = org.department
+        title = org.title
+      end
     end
 
-    if accounts = @posix_accounts.try(&.select(&.primary))
-      account = accounts.first?.try &.username
+    if accounts = @posix_accounts
+      preferred_account = accounts.select(&.primary)
+      preferred_account = accounts if preferred_account.empty?
+      account = preferred_account.first?.try &.username
     end
 
     PlaceCalendar::User.new(
