@@ -7,6 +7,8 @@ module PlaceCalendar
   class Google < Interface
     DEFAULT_CONFERENCE = "hangoutsMeet"
 
+    @static_auth : ::Google::Auth? = nil
+
     def initialize(
       @file_path : String,
       @scopes : String | Array(String),
@@ -15,8 +17,7 @@ module PlaceCalendar
       @user_agent : String = "PlaceOS",
       @conference_type : String? = DEFAULT_CONFERENCE
     )
-      @issuer = ""
-      @signing_key = ""
+      @signing_key = @issuer = ""
     end
 
     def initialize(
@@ -31,12 +32,24 @@ module PlaceCalendar
       @file_path = ""
     end
 
+    def initialize(
+      auth : ::Google::Auth,
+      @domain : String,
+      @user_agent : String = "PlaceOS",
+      @conference_type : String? = DEFAULT_CONFERENCE
+    )
+      @static_auth = auth
+      @signing_key = @issuer = @file_path = @scopes = @sub = ""
+    end
+
     def client_id : Symbol
       :google
     end
 
-    def auth(sub = @sub) : ::Google::FileAuth | ::Google::Auth
-      if @file_path.empty?
+    def auth(sub = @sub) : ::Google::Auth
+      if auth = @static_auth
+        auth
+      elsif @file_path.empty?
         ::Google::Auth.new(issuer: @issuer, signing_key: @signing_key, scopes: @scopes, sub: sub, user_agent: @user_agent)
       else
         ::Google::FileAuth.new(file_path: @file_path, scopes: @scopes, sub: sub, user_agent: @user_agent)

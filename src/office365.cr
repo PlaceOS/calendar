@@ -5,15 +5,18 @@ module PlaceCalendar
     DEFAULT_CONFERENCE = "teamsForBusiness"
     DEFAULT_SCOPE      = "https://graph.microsoft.com/.default"
 
-    def initialize(@tenant : String, @client_id : String, @client_secret : String, @conference_type : String? = DEFAULT_CONFERENCE, @scopes : String = DEFAULT_SCOPE)
+    def initialize(tenant : String, client_id : String, client_secret : String, @conference_type : String? = DEFAULT_CONFERENCE, scopes : String = DEFAULT_SCOPE)
+      @client = ::Office365::Client.new(tenant, client_id, client_secret, scopes)
     end
+
+    def initialize(token : String, @conference_type : String? = DEFAULT_CONFERENCE)
+      @client = ::Office365::Client.new(token)
+    end
+
+    getter client : ::Office365::Client
 
     def client_id : Symbol
       :office365
-    end
-
-    def client : ::Office365::Client
-      @client ||= ::Office365::Client.new(@tenant, @client_id, @client_secret, @scopes)
     end
 
     def access_token(user_id : String? = nil) : NamedTuple(expires: Time, token: String)
