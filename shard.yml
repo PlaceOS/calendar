@@ -9,10 +9,10 @@ authors:
 dependencies:
   office365:
     github: PlaceOS/office365
-    version: ">= 1.16.1"
+    version: ">= 1.17.1"
   google:
     github: PlaceOS/google
-    version: ">= 3.2.1"
+    version: ">= 3.3.0"
   email:
     github: arcage/crystal-email
 
