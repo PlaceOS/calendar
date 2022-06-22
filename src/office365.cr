@@ -19,6 +19,33 @@ module PlaceCalendar
       :office365
     end
 
+    def create_notifier(resource : String, notification_url : String, expiration_time : Time, client_secret : String? = nil, **options) : PlaceCalendar::Subscription
+      change_type = options[:change_type]? || ::Office365::Subscription::Change::All
+      lifecycle_notification_url = options[:lifecycle_notification_url]?
+      client.create_subscription(resource, change_type, notification_url, expiration_time, client_secret, lifecycle_notification_url).to_place_subscription(notification_url)
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
+    def renew_notifier(subscription : PlaceCalendar::Subscription, new_expiration_time : Time) : PlaceCalendar::Subscription
+      client.renew_subscription(subscription.id, new_expiration_time).to_place_subscription(subscription.notification_url)
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
+    def reauthorize_notifier(subscription : PlaceCalendar::Subscription, new_expiration_time : Time? = nil) : PlaceCalendar::Subscription
+      client.reauthorize_subscription(subscription.id)
+      renew_notifier(subscription, new_expiration_time || subscription.expiration_date_time)
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
+    def delete_notifier(subscription : PlaceCalendar::Subscription) : Nil
+      client.delete_subscription(subscription.id)
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
     def access_token(user_id : String? = nil) : NamedTuple(expires: Time, token: String)
       token = client.get_token
       {expires: token.created_at + token.expires_in.seconds, token: token.access_token}
@@ -538,5 +565,11 @@ end
 class Office365::Group
   def to_place_group
     PlaceCalendar::Group.new(@id, @display_name, @mail, @description, self.to_json)
+  end
+end
+
+class Office365::Subscription
+  def to_place_subscription(notification_url : String)
+    PlaceCalendar::Subscription.new(@id.not_nil!, @resource, @resource, notification_url, @expiration_date_time, @client_state, source: self.to_json)
   end
 end

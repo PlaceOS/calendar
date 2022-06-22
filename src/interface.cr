@@ -27,6 +27,11 @@ module PlaceCalendar
 
     abstract def access_token(user_id : String? = nil) : NamedTuple(expires: Time, token: String)
 
+    abstract def create_notifier(resource : String, notification_url : String, expiration_time : Time, client_secret : String? = nil, **options) : PlaceCalendar::Subscription
+    abstract def renew_notifier(subscription : PlaceCalendar::Subscription, new_expiration_time : Time) : PlaceCalendar::Subscription
+    abstract def reauthorize_notifier(subscription : PlaceCalendar::Subscription, new_expiration_time : Time? = nil) : PlaceCalendar::Subscription
+    abstract def delete_notifier(subscription : PlaceCalendar::Subscription) : Nil
+
     alias EmailAttachment = NamedTuple(file_name: String, content: String)
     alias ResourceAttachment = NamedTuple(file_name: String, content: String, content_id: String)
 

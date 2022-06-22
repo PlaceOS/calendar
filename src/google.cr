@@ -63,6 +63,26 @@ module PlaceCalendar
       {expires: token.expires, token: token.access_token}
     end
 
+    # https://developers.google.com/calendar/api/guides/push
+    def create_notifier(resource : String, notification_url : String, expiration_time : Time, client_secret : String? = nil, **options) : PlaceCalendar::Subscription
+      notifier_id = UUID.random.to_s
+      user_id = options[:user_id]? || @sub
+      calendar(user_id).watch(notifier_id, resource, notification_url, client_secret, expiration_time).to_place_subscription(user_id, resource, notification_url)
+    end
+
+    def renew_notifier(subscription : PlaceCalendar::Subscription, new_expiration_time : Time) : PlaceCalendar::Subscription
+      # There is no renewal process with google, the subscriptions will just overlap for a short period of time
+      create_notifier(subscription.resource_uri, subscription.notification_url, new_expiration_time, subscription.client_secret, user_id: subscription.user_id)
+    end
+
+    def reauthorize_notifier(subscription : PlaceCalendar::Subscription, new_expiration_time : Time? = nil) : PlaceCalendar::Subscription
+      raise NotImplementedError.new("google watchers don't support reauthorization")
+    end
+
+    def delete_notifier(subscription : PlaceCalendar::Subscription) : Nil
+      calendar(subscription.user_id || @sub).stop_watching(subscription.id, subscription.resource_id)
+    end
+
     def get_groups(user_id : String, **options) : Array(Group)
       directory.groups(user_id).groups.map(&.to_place_group)
     rescue ex : ::Google::Exception
@@ -695,5 +715,14 @@ end
 class Google::Directory::Group
   def to_place_group
     PlaceCalendar::Group.new(@id, @name, @email, @description, self.to_json)
+  end
+end
+
+struct Google::Calendar::Notification::Receipt
+  def to_place_subscription(user_id : String, resource : String, notification_url : String)
+    if expires = expiration
+      expires_time = Time.unix_ms(expires)
+    end
+    PlaceCalendar::Subscription.new(@id.not_nil!, @resource_id, resource, notification_url, expires_time, @token, user_id, source: self.to_json)
   end
 end
