@@ -17,6 +17,7 @@ module PlaceCalendar
       @user_agent : String = "PlaceOS",
       @conference_type : String? = DEFAULT_CONFERENCE
     )
+      @delegated_access = false
       @signing_key = @issuer = ""
     end
 
@@ -29,6 +30,7 @@ module PlaceCalendar
       @user_agent : String = "PlaceOS",
       @conference_type : String? = DEFAULT_CONFERENCE
     )
+      @delegated_access = false
       @file_path = ""
     end
 
@@ -36,7 +38,8 @@ module PlaceCalendar
       auth : ::Google::Auth,
       @domain : String,
       @user_agent : String = "PlaceOS",
-      @conference_type : String? = DEFAULT_CONFERENCE
+      @conference_type : String? = DEFAULT_CONFERENCE,
+      @delegated_access : Bool = false
     )
       @static_auth = auth
       @signing_key = @issuer = @file_path = @scopes = @sub = ""
@@ -45,6 +48,8 @@ module PlaceCalendar
     def client_id : Symbol
       :google
     end
+
+    getter? delegated_access : Bool
 
     def auth(sub = @sub) : ::Google::Auth
       if auth = @static_auth

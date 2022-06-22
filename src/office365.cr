@@ -6,14 +6,16 @@ module PlaceCalendar
     DEFAULT_SCOPE      = "https://graph.microsoft.com/.default"
 
     def initialize(tenant : String, client_id : String, client_secret : String, @conference_type : String? = DEFAULT_CONFERENCE, scopes : String = DEFAULT_SCOPE)
+      @delegated_access = false
       @client = ::Office365::Client.new(tenant, client_id, client_secret, scopes)
     end
 
-    def initialize(token : String, @conference_type : String? = DEFAULT_CONFERENCE)
+    def initialize(token : String, @conference_type : String? = DEFAULT_CONFERENCE, @delegated_access = false)
       @client = ::Office365::Client.new(token)
     end
 
     getter client : ::Office365::Client
+    getter? delegated_access : Bool
 
     def client_id : Symbol
       :office365
@@ -121,6 +123,25 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
+    protected def extract_user_calendar_params(user_id, calendar_id)
+      if calendar_id && delegated_access?
+        mailbox = user_id
+        if calendar_id == mailbox
+          calendar_id = nil
+        elsif calendar_id.includes?('@')
+          # we need to convert this email to the actual id of the calendar
+          find_cal = calendar_id.downcase
+          if result = list_calendars(mailbox).find { |cal| cal.id == find_cal }
+            calendar_id = result.ref
+          end
+        end
+      else
+        mailbox = calendar_id || user_id
+        calendar_id = nil
+      end
+      {mailbox, calendar_id}
+    end
+
     def list_events_request(
       user_id : String,
       calendar_id : String? = nil,
@@ -130,9 +151,8 @@ module PlaceCalendar
       showDeleted : Bool? = nil,
       **options
     ) : HTTP::Request
-      # WARNING: This code is conflating calendar_id / mailbox
-      mailbox = calendar_id || user_id
-      client.list_events_request(**options.merge(mailbox: mailbox, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
+      client.list_events_request(**options.merge(mailbox: mailbox, calendar_id: calendar_id, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
@@ -147,9 +167,8 @@ module PlaceCalendar
       **options
     ) : Array(Event)
       # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
-      # WARNING: This code is conflating calendar_id / mailbox
-      mailbox = calendar_id || user_id
-      if events = client.list_events(**options.merge(mailbox: mailbox, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
+      if events = client.list_events(**options.merge(mailbox: mailbox, calendar_id: calendar_id, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
         events.value.map(&.to_place_calendar)
       else
         [] of Event
@@ -169,8 +188,8 @@ module PlaceCalendar
     end
 
     def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-      mailbox = calendar_id || user_id
-      params = event_params(event).merge(mailbox: mailbox)
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
+      params = event_params(event).merge(mailbox: mailbox, calendar_id: calendar_id)
 
       new_event = client.create_event(**params)
 
@@ -180,8 +199,8 @@ module PlaceCalendar
     end
 
     def get_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Event?
-      mailbox = calendar_id || user_id
-      if event = client.get_event(id: id, mailbox: mailbox)
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
+      if event = client.get_event(id: id, mailbox: mailbox, calendar_id: calendar_id)
         event.to_place_calendar
       end
     rescue ex : ::Office365::Exception
@@ -189,10 +208,10 @@ module PlaceCalendar
     end
 
     def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-      mailbox = calendar_id || user_id
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
       o365_event = ::Office365::Event.new(**event_params(event))
 
-      if updated_event = client.update_event(**options.merge(mailbox: mailbox, event: o365_event))
+      if updated_event = client.update_event(**options.merge(mailbox: mailbox, calendar_id: calendar_id, event: o365_event))
         updated_event.to_place_calendar
       end
     rescue ex : ::Office365::Exception
@@ -200,16 +219,16 @@ module PlaceCalendar
     end
 
     def delete_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Bool
-      mailbox = calendar_id || user_id
-      # TODO: Silently ignoring notify and calendar_id from options. o365 doesn't offer option to notify on deletion
-      client.delete_event(mailbox: mailbox, id: id) || false
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
+      # TODO: Silently ignoring notify from options. o365 doesn't offer option to notify on deletion
+      client.delete_event(mailbox: mailbox, calendar_id: calendar_id, id: id) || false
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
 
     def decline_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
-      mailbox = calendar_id || user_id
-      response = client.decline_event(mailbox: mailbox, id: id, notify: notify, comment: comment)
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
+      response = client.decline_event(mailbox: mailbox, calendar_id: calendar_id, id: id, notify: notify, comment: comment)
       # Office365 requires you cancel an event if you're the host so we just check if the above failed
       response = client.cancel_event(mailbox: mailbox, id: id, comment: comment) unless response
       response

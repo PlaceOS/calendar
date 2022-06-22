@@ -58,5 +58,6 @@ module PlaceCalendar
     end
 
     abstract def client_id : Symbol
+    abstract def delegated_access? : Bool
   end
 end
