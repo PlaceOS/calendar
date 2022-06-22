@@ -146,7 +146,7 @@ module PlaceCalendar
         elsif calendar_id.includes?('@')
           # we need to convert this email to the actual id of the calendar
           find_cal = calendar_id.downcase
-          if result = list_calendars(mailbox).find { |cal| cal.id.downcase == find_cal }
+          if result = list_calendars(mailbox).find { |cal| cal.id.try(&.downcase) == find_cal }
             calendar_id = result.ref
           end
         end
