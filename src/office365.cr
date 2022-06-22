@@ -17,6 +17,8 @@ module PlaceCalendar
     getter client : ::Office365::Client
     getter? delegated_access : Bool
 
+    @calendar_list_cache = Hash(String, Tuple(Time, Array(::Office365::Calendar))).new
+
     def client_id : Symbol
       :office365
     end
@@ -103,8 +105,21 @@ module PlaceCalendar
     def list_calendars(mail : String, **options) : Array(Calendar)
       only_writable = options[:only_writable]? || false
 
-      if calendars = client.list_calendars(mail).value
-        mail = mail.downcase
+      mail = mail.downcase
+
+      if delegated_access?
+        cached_list = @calendar_list_cache.delete(mail)
+        if cached_list
+          expires, cached = cached_list
+          expires = cached = nil if expires && expires <= Time.utc
+        end
+      end
+
+      if calendars = cached || client.list_calendars(mail).value
+        if delegated_access?
+          expires = expires || 10.minutes.from_now
+          @calendar_list_cache[mail] = {expires, calendars}
+        end
 
         calendars.compact_map do |calendar|
           # we only want to list calendars with mailboxes
