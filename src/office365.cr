@@ -292,7 +292,7 @@ module PlaceCalendar
         all_day:                 event.all_day?,
         sensitivity:             sensitivity,
         attendees:               attendees,
-        hide_attendees:          event.hide_attendees,
+        hide_attendees:          event.hide_attendees?,
         location:                event.location,
         recurrence:              nil,
         online_meeting_provider: event.online_meeting_provider || @conference_type,

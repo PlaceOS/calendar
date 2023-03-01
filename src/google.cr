@@ -313,7 +313,7 @@ module PlaceCalendar
         event_end:                   event.event_end || Time.local + 1.hour,
         calendar_id:                 calendar_id ? calendar_id : "primary",
         attendees:                   event.attendees.map { |e| e.response_status ? {email: e.email, responseStatus: e.response_status} : {email: e.email} },
-        guests_can_see_other_guests: !event.hide_attendees,
+        guests_can_see_other_guests: !event.hide_attendees?,
         all_day:                     event.all_day?,
         visibility:                  event.private? ? ::Google::Visibility::Private : ::Google::Visibility::Default,
         summary:                     event.title,
