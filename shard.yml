@@ -9,7 +9,7 @@ authors:
 dependencies:
   office365:
     github: PlaceOS/office365
-    version: ">= 1.18.0"
+    version: ">= 1.18.4"
 
   google:
     github: PlaceOS/google
