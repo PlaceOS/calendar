@@ -13,7 +13,7 @@ class PlaceCalendar::Event
   property title : String?
   property body : String?
   property attendees : Array(Attendee)
-  property? hide_attendees : Bool
+  property? hide_attendees : Bool = false
   property location : String?
   property? private : Bool
   property? all_day : Bool
