@@ -661,7 +661,7 @@ class Google::Calendar::Event
         organizer: attendee.organizer)
     end
 
-    hide_attendees = @guests_can_see_other_guests.nil? ? true : @guests_can_see_other_guests
+    hide_attendees = @guests_can_see_other_guests.nil? ? false : !@guests_can_see_other_guests
 
     recurrence = if @recurrence
                    PlaceCalendar::Google.recurrence_from_google(@recurrence, self)
