@@ -538,6 +538,7 @@ class Office365::Event
       title: @subject,
       body: @body.try &.content,
       attendees: attendees,
+      hide_attendees: @hide_attendees,
       private: is_private?,
       all_day: all_day?,
       location: location,

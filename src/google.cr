@@ -661,6 +661,8 @@ class Google::Calendar::Event
         organizer: attendee.organizer)
     end
 
+    hide_attendees = @guests_can_see_other_guests.nil? ? true : @guests_can_see_other_guests
+
     recurrence = if @recurrence
                    PlaceCalendar::Google.recurrence_from_google(@recurrence, self)
                  end
@@ -689,6 +691,7 @@ class Google::Calendar::Event
       body: @description,
       location: @location,
       attendees: attendees,
+      hide_attendees: hide_attendees,
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,
       source: self.to_json,

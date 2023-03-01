@@ -13,6 +13,7 @@ class PlaceCalendar::Event
   property title : String?
   property body : String?
   property attendees : Array(Attendee)
+  property? hide_attendees : Bool
   property location : String?
   property? private : Bool
   property? all_day : Bool
@@ -48,6 +49,7 @@ class PlaceCalendar::Event
     @title = nil,
     @body = nil,
     @attendees = [] of Attendee,
+    @hide_attendees = false,
     @location = nil,
     @private = false,
     @all_day = false,
