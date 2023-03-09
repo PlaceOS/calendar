@@ -1,10 +1,10 @@
 class PlaceCalendar::Recurrence
   include JSON::Serializable
 
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Time::EpochConverter, type: "integer", format: "Int64")]
   property range_start : Time
 
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Time::EpochConverter, type: "integer", format: "Int64")]
   property range_end : Time
 
   property interval : Int32
