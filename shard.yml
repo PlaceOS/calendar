@@ -15,6 +15,9 @@ dependencies:
     github: PlaceOS/google
     version: ">= 3.4.0"
 
+  pegmatite:
+    github: jemc/crystal-pegmatite
+
   email:
     github: arcage/crystal-email
 

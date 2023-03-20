@@ -5,6 +5,7 @@ require "./models/*"
 require "./interface"
 require "./google"
 require "./office365"
+require "./azure_ad_filter"
 
 module PlaceCalendar
   VERSION = {{ `shards version "#{__DIR__}"`.chomp.stringify.downcase }}
