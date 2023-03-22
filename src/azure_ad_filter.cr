@@ -21,15 +21,18 @@ module AzureADFilter
 
     identifier = (
       range('a', 'z') |
-      range('A', 'Z')
+      range('A', 'Z') |
+      char('/')
     ).repeat(1).named(:identifier)
 
     unquoted_value = (
       range('a', 'z') |
       range('A', 'Z') |
       range('0', '9') |
-      char('_') |
-      char('-')
+      char('@') |
+      char('.') |
+      char('-') |
+      char(' ')
     ).repeat(1).named(:value)
 
     quoted_value = (
@@ -39,6 +42,15 @@ module AzureADFilter
     )
 
     value = unquoted_value | quoted_value
+
+    value_list = (
+      char('(') >>
+      whitespace >>
+      value >>
+      (char(',') >> whitespace >> value).repeat(0) >>
+      whitespace >>
+      char(')')
+    ).named(:value_list)
 
     # Equality operators
     eq_operator = str("eq").named(:eq_operator)
@@ -59,14 +71,27 @@ module AzureADFilter
     or_operator = str("or").named(:or_operator)
     # Functions
     starts_with = str("startsWith").named(:starts_with)
-    ends_with = str("endsWith").named(:starts_with)
-    contains = str("contains").named(:starts_with)
+    ends_with = str("endsWith").named(:ends_with)
+    contains = str("contains").named(:contains)
 
     equality_expression = (
       identifier ^
-      (eq_operator | ne_operator | not_operator | in_operator | has_operator) ^
+      (eq_operator | ne_operator | has_operator) ^
       value
     ).named(:equality_expression)
+
+    in_expression = (
+      identifier ^
+      in_operator ^
+      value_list
+    ).named(:in_expression)
+
+    right_expression = (
+      not_operator ^
+      char('(') ^
+      expression ^
+      char(')')
+    ).named(:right_expression)
 
     relational_expression = (
       identifier ^
@@ -101,6 +126,8 @@ module AzureADFilter
 
     expression.define (
       equality_expression |
+      right_expression |
+      in_expression |
       relational_expression |
       lambda_expression |
       conditional_expression |
@@ -126,28 +153,40 @@ module AzureADFilter
         case kind
         when :identifier then Identifier.new(source[start...finish])
         when :value      then Value.new(source[start...finish])
+        when :value_list
+          values = source[start...finish].split(",").map { |v| Value.new(v) }
+          ValueList.new(values)
           # Equality operators
-        when :eq_operator  then Operator.new("eq")
-        when :ne_operator  then Operator.new("ne")
-        when :not_operator then Operator.new("not")
-        when :in_operator  then Operator.new("in")
-        when :has_operator then Operator.new("has")
+        when :eq_operator  then Operator.new("eq", "equality")
+        when :ne_operator  then Operator.new("ne", "equality")
+        when :not_operator then Operator.new("not", "equality")
+        when :in_operator  then Operator.new("in", "equality")
+        when :has_operator then Operator.new("has", "equality")
           # Relational operators
-        when :lt_operator then Operator.new("lt")
-        when :gt_operator then Operator.new("gt")
-        when :le_operator then Operator.new("le")
-        when :ge_operator then Operator.new("ge")
+        when :lt_operator then Operator.new("lt", "relational")
+        when :gt_operator then Operator.new("gt", "relational")
+        when :le_operator then Operator.new("le", "relational")
+        when :ge_operator then Operator.new("ge", "relational")
           # Lambda operators
-        when :any_operator then Operator.new("any")
-        when :all_operator then Operator.new("all")
+        when :any_operator then Operator.new("any", "lambda")
+        when :all_operator then Operator.new("all", "lambda")
           # Conditional operators
-        when :and_operator then Operator.new("and")
-        when :or_operator  then Operator.new("or")
+        when :and_operator then Operator.new("and", "conditional")
+        when :or_operator  then Operator.new("or", "conditional")
           # Functions
-        when :starts_with then Operator.new("startsWith")
-        when :ends_with   then Operator.new("endsWith")
-        when :contains    then Operator.new("contains")
+        when :starts_with then Operator.new("startsWith", "function")
+        when :ends_with   then Operator.new("endsWith", "function")
+        when :contains    then Operator.new("contains", "function")
         when :equality_expression, :relational_expression
+          identifier = build_expression(iter.next_as_child_of(main), iter, source)
+          operator = build_expression(iter.next_as_child_of(main), iter, source)
+          value = build_expression(iter.next_as_child_of(main), iter, source)
+          Expression.new(operator: operator, left: identifier, right: value)
+        when :right_expression
+          operator = build_expression(iter.next_as_child_of(main), iter, source)
+          value = build_expression(iter.next_as_child_of(main), iter, source)
+          Expression.new(operator: operator, right: value)
+        when :in_expression
           identifier = build_expression(iter.next_as_child_of(main), iter, source)
           operator = build_expression(iter.next_as_child_of(main), iter, source)
           value = build_expression(iter.next_as_child_of(main), iter, source)
@@ -198,14 +237,30 @@ module AzureADFilter
     end
 
     def to_s
-      value
+      if value == "true" || value == "false" || value == "null"
+        value
+      else
+        "'#{value}'"
+      end
+    end
+  end
+
+  class ValueList < Node
+    getter value : Array(Value)
+
+    def initialize(@value : Array(Value))
+    end
+
+    def to_s
+      "(#{value.join(", ")})"
     end
   end
 
   class Operator < Node
     getter operator : String
+    getter type : String
 
-    def initialize(@operator : String)
+    def initialize(@operator : String, @type : String)
     end
 
     def to_s
@@ -215,17 +270,34 @@ module AzureADFilter
 
   class Expression < Node
     getter operator : Node
-    getter left : Node
-    getter right : Node
+    getter left : Node?
+    getter right : Node?
 
-    def initialize(@operator : Node, @left : Node, @right : Node)
+    def initialize(@operator : Node, @left : Node? = nil, @right : Node? = nil)
     end
 
     def to_s
-      if operator == "and" || operator == "or"
-        "(#{left.to_s} #{operator.to_s} #{right.to_s})"
+      # left_str = left.is_a?(Expression) ? "(#{left.to_s})" : left.to_s unless left.nil?
+      # right_str = right.is_a?(Expression) ? "(#{right.to_s})" : right.to_s unless right.nil?
+
+      if operator.as(Operator).type == "function"
+        String.build do |str|
+          str << operator.to_s
+          str << '('
+          str << left.to_s
+          str << ", "
+          str << right.to_s
+          str << ')'
+        end
       else
-        "(#{operator.to_s}(#{left.to_s}, #{right.to_s}))"
+        String.build do |str|
+          str << left.to_s unless left.nil?
+          str << ' ' unless left.nil?
+          str << operator.to_s
+          str << (left.nil? ? '(' : ' ')
+          str << right.to_s
+          str << (left.nil? ? ')' : nil)
+        end
       end
     end
 
