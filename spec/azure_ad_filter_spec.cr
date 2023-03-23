@@ -1,19 +1,108 @@
 require "./spec_helper"
 
-describe AzureADFilter, focus: true do
-  # it "" do
-  #   input = "accountEnabled eq true"
-  #   # input = "startswith(displayName,'mary') or startswith(givenName,'mary') or startswith(surname,'mary') or startswith(mail,'mary') or startswith(userPrincipalName,'mary')"
-  #   # input = "startsWith(displayName, 'mary')"
-  #   result = AzureADFilter::Parser.parse(input)
+describe AzureADFilter do
+  describe "#tokenize", focus: true do
+    it "multiple conditional operators" do
+      input = "startsWith(displayName,'user') or startsWith(givenName,'user') or startsWith(mail,'user')"
+      result = AzureADFilter::Parser.tokenize(input)
+      result.should eq([
+        {:expression, 0, 89},
+        {:conditional, 0, 89},
+        {:function, 0, 30},
+        {:starts_with, 0, 10},
+        {:identifier, 11, 22},
+        {:value, 23, 29},
+        {:or_operator, 31, 33},
+        {:function, 34, 62},
+        {:starts_with, 34, 44},
+        {:identifier, 45, 54},
+        {:value, 55, 61},
+        {:or_operator, 63, 65},
+        {:function, 66, 89},
+        {:starts_with, 66, 76},
+        {:identifier, 77, 81},
+        {:value, 82, 88},
+      ])
+    end
 
-  #   pp! result
-  #   pp result.to_s
-  # end
+    it "single function" do
+      input = "endsWith(mail,'@hotmail.com')"
+      result = AzureADFilter::Parser.tokenize(input)
+      result.should eq([
+        {:expression, 0, 29},
+        {:function, 0, 29},
+        {:ends_with, 0, 8},
+        {:identifier, 9, 13},
+        {:value, 14, 28},
+      ])
+    end
+
+    it "single comparison operator" do
+      input = "assignedLicenses/$count eq 0"
+      result = AzureADFilter::Parser.tokenize(input)
+      result.should eq([
+        {:expression, 0, 28},
+        {:comparison, 0, 28},
+        {:identifier, 0, 23},
+        {:eq_operator, 24, 26},
+        {:value, 27, 28},
+      ])
+    end
+
+    it "single 'in' operator" do
+      input = "department in ('Retail', 'Sales')"
+      result = AzureADFilter::Parser.tokenize(input)
+      result.should eq([
+        {:expression, 0, 33},
+        {:in_expression, 0, 33},
+        {:identifier, 0, 10},
+        {:in_operator, 11, 13},
+        {:list, 14, 33},
+        {:value, 15, 23},
+        {:value, 25, 32},
+      ])
+    end
+
+    it "single 'not' operator" do
+      input = "not(companyName eq 'Test Corp')"
+      result = AzureADFilter::Parser.tokenize(input)
+      result.should eq([
+        {:expression, 0, 31},
+        {:not_expression, 0, 31},
+        {:not_operator, 0, 3},
+        {:expression, 4, 30},
+        {:comparison, 4, 30},
+        {:identifier, 4, 15},
+        {:eq_operator, 16, 18},
+        {:value, 19, 30},
+      ])
+    end
+
+    it "single 'has' operator" do
+      input = "scenarios has 'secureFoundation'"
+      result = AzureADFilter::Parser.tokenize(input)
+      result.should eq([
+        {:expression, 0, 32},
+        {:comparison, 0, 32},
+        {:identifier, 0, 9},
+        {:has_operator, 10, 13},
+        {:value, 14, 32},
+      ])
+    end
+
+    it "single 'any' operator, multiple comparison operators" do
+      input = "assignedPlans/any(a:a/servicePlanId eq 2e2ddb96-6af9-4b1d-a3f0-d6ecfd22edb2 and a/capabilityStatus eq 'Suspended')"
+      result = AzureADFilter::Parser.tokenize(input)
+      # result.should eq([
+      #   {:expression, 0, 32},
+      # ])
+      pp! result
+    end
+  end
 
   # Filter examples from:
   # https://learn.microsoft.com/en-us/graph/filter-query-parameter?tabs=http#examples-using-the-filter-query-operator
-  describe "filter examples" do
+  describe "#parse" do
     it "Get all users with the name Mary across multiple properties" do
       input = "startswith(displayName,'mary') or startswith(givenName,'mary') or startswith(surname,'mary') or startswith(mail,'mary') or startswith(userPrincipalName,'mary')"
       result = AzureADFilter::Parser.parse(input)

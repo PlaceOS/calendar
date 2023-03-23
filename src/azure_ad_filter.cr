@@ -4,8 +4,12 @@ module AzureADFilter
   module Parser
     extend self
 
+    def tokenize(source)
+      Pegmatite.tokenize(Grammar, source)
+    end
+
     def parse(source)
-      tokens = Pegmatite.tokenize(Grammar, source)
+      tokens = tokenize(source)
       Builder.build(tokens, source)
     end
   end
@@ -19,10 +23,13 @@ module AzureADFilter
     whitespace = (char(' ') | char('\t')).repeat
     whitespace_pattern(whitespace)
 
+    separator = (char('/') | char(':')) # .named(:separator)
+
     identifier = (
       range('a', 'z') |
       range('A', 'Z') |
-      char('/')
+      char('$') |
+      separator
     ).repeat(1).named(:identifier)
 
     unquoted_value = (
@@ -31,26 +38,25 @@ module AzureADFilter
       range('0', '9') |
       char('@') |
       char('.') |
-      char('-') |
-      char(' ')
-    ).repeat(1).named(:value)
+      char('-')
+    ).repeat(1)
 
     quoted_value = (
       char('\'') >>
-      unquoted_value >>
+      (unquoted_value | whitespace).repeat >>
       char('\'')
     )
 
-    value = unquoted_value | quoted_value
+    value = (unquoted_value | quoted_value).named(:value)
 
-    value_list = (
-      char('(') >>
-      whitespace >>
-      value >>
-      (char(',') >> whitespace >> value).repeat(0) >>
-      whitespace >>
+    list = (
+      char('(') ^
+      value ^
+      (char(',') ^ value).repeat ^
       char(')')
-    ).named(:value_list)
+    ).named(:list)
+
+    # TODO: operators should be case insensitive
 
     # Equality operators
     eq_operator = str("eq").named(:eq_operator)
@@ -65,7 +71,7 @@ module AzureADFilter
     ge_operator = str("ge").named(:ge_operator)
     # Lambda operators
     any_operator = str("any").named(:any_operator)
-    all_operator = str("all").named(:all_operator)
+    # all_operator = str("all").named(:all_operator) # not currently supported by any Azure AD property
     # Conditional operators
     and_operator = str("and").named(:and_operator)
     or_operator = str("or").named(:or_operator)
@@ -74,64 +80,71 @@ module AzureADFilter
     ends_with = str("endsWith").named(:ends_with)
     contains = str("contains").named(:contains)
 
-    equality_expression = (
-      identifier ^
-      (eq_operator | ne_operator | has_operator) ^
+    comparison = (
+      identifier >>
+      whitespace >>
+      (
+        eq_operator |
+        ne_operator |
+        lt_operator |
+        gt_operator |
+        le_operator |
+        ge_operator |
+        has_operator
+      ) >>
+      whitespace >>
       value
-    ).named(:equality_expression)
+    ).named(:comparison)
 
     in_expression = (
-      identifier ^
+      identifier >>
+      whitespace >>
       in_operator ^
-      value_list
+      list
     ).named(:in_expression)
 
-    right_expression = (
+    not_expression = (
       not_operator ^
       char('(') ^
       expression ^
       char(')')
-    ).named(:right_expression)
+    ).named(:not_expression)
 
-    relational_expression = (
-      identifier ^
-      (lt_operator | gt_operator | le_operator | ge_operator) ^
-      value
-    ).named(:relational_expression)
-
-    lambda_expression = (
-      (any_operator | all_operator) ^
+    function = (
+      (starts_with | ends_with | contains) ^
       char('(') ^
       identifier ^
-      char(':') ^
-      expression ^
+      char(',') ^
+      value ^
       char(')')
-    ).named(:lambda_expression)
+    ).named(:function)
 
-    conditional_expression = (
+    conditional = (
+      function ^
       (and_operator | or_operator) ^
-      expression ^
-      expression
-    ).named(:conditional_expression)
+      function ^
+      ((and_operator | or_operator) ^ function).repeat
+    ).named(:conditional)
 
-    function_expression = (
-      (starts_with | ends_with | contains) >>
+    any_expression = (
+      identifier >>
+      separator >>
+      any_operator >>
       char('(') >>
       identifier >>
-      char(',') >>
-      whitespace >> # Allow optional whitespace
-      value >>
+      char(':') >>
+      (function | identifier) ^
       char(')')
-    ).named(:function_expression)
+    ).named(:any_expression)
 
+    # Order matters here, as the first match will be used
     expression.define (
-      equality_expression |
-      right_expression |
+      conditional |
+      function |
+      comparison |
       in_expression |
-      relational_expression |
-      lambda_expression |
-      conditional_expression |
-      function_expression
+      not_expression |
+      any_expression
     ).named(:expression)
 
     (whitespace >> expression >> whitespace).then_eof
