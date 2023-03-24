@@ -1,25 +1,28 @@
 require "./spec_helper"
 
 describe AzureADFilter do
-  describe "#tokenize", focus: true do
+  describe "#tokenize" do
     it "multiple conditional operators" do
       input = "startsWith(displayName,'user') or startsWith(givenName,'user') or startsWith(mail,'user')"
       result = AzureADFilter::Parser.tokenize(input)
       result.should eq([
         {:expression, 0, 89},
-        {:conditional, 0, 89},
-        {:function, 0, 30},
+        {:conditional_expression, 0, 89},
+        {:function_expression, 0, 30},
         {:starts_with, 0, 10},
+        {:identifier_path, 11, 22},
         {:identifier, 11, 22},
         {:value, 23, 29},
         {:or_operator, 31, 33},
-        {:function, 34, 62},
+        {:function_expression, 34, 62},
         {:starts_with, 34, 44},
+        {:identifier_path, 45, 54},
         {:identifier, 45, 54},
         {:value, 55, 61},
         {:or_operator, 63, 65},
-        {:function, 66, 89},
+        {:function_expression, 66, 89},
         {:starts_with, 66, 76},
+        {:identifier_path, 77, 81},
         {:identifier, 77, 81},
         {:value, 82, 88},
       ])
@@ -30,8 +33,9 @@ describe AzureADFilter do
       result = AzureADFilter::Parser.tokenize(input)
       result.should eq([
         {:expression, 0, 29},
-        {:function, 0, 29},
+        {:function_expression, 0, 29},
         {:ends_with, 0, 8},
+        {:identifier_path, 9, 13},
         {:identifier, 9, 13},
         {:value, 14, 28},
       ])
@@ -42,8 +46,11 @@ describe AzureADFilter do
       result = AzureADFilter::Parser.tokenize(input)
       result.should eq([
         {:expression, 0, 28},
-        {:comparison, 0, 28},
-        {:identifier, 0, 23},
+        {:comparison_expression, 0, 28},
+        {:identifier_path, 0, 23},
+        {:identifier, 0, 16},
+        {:slash, 16, 17},
+        {:identifier, 17, 23},
         {:eq_operator, 24, 26},
         {:value, 27, 28},
       ])
@@ -55,6 +62,7 @@ describe AzureADFilter do
       result.should eq([
         {:expression, 0, 33},
         {:in_expression, 0, 33},
+        {:identifier_path, 0, 10},
         {:identifier, 0, 10},
         {:in_operator, 11, 13},
         {:list, 14, 33},
@@ -71,7 +79,8 @@ describe AzureADFilter do
         {:not_expression, 0, 31},
         {:not_operator, 0, 3},
         {:expression, 4, 30},
-        {:comparison, 4, 30},
+        {:comparison_expression, 4, 30},
+        {:identifier_path, 4, 15},
         {:identifier, 4, 15},
         {:eq_operator, 16, 18},
         {:value, 19, 30},
@@ -83,7 +92,8 @@ describe AzureADFilter do
       result = AzureADFilter::Parser.tokenize(input)
       result.should eq([
         {:expression, 0, 32},
-        {:comparison, 0, 32},
+        {:comparison_expression, 0, 32},
+        {:identifier_path, 0, 9},
         {:identifier, 0, 9},
         {:has_operator, 10, 13},
         {:value, 14, 32},
@@ -93,17 +103,39 @@ describe AzureADFilter do
     it "single 'any' operator, multiple comparison operators" do
       input = "assignedPlans/any(a:a/servicePlanId eq 2e2ddb96-6af9-4b1d-a3f0-d6ecfd22edb2 and a/capabilityStatus eq 'Suspended')"
       result = AzureADFilter::Parser.tokenize(input)
-      # result.should eq([
-      #   {:expression, 0, 32},
-      # ])
-      pp! result
+      result.should eq([
+        {:expression, 0, 114},
+        {:lambda_expression, 0, 114},
+        {:identifier, 0, 13},
+        {:slash, 13, 14},
+        {:any_operator, 14, 17},
+        {:expression, 18, 113},
+        {:conditional_expression, 18, 113},
+        {:comparison_expression, 18, 75},
+        {:identifier_path, 18, 35},
+        {:identifier, 18, 19},
+        {:colon, 19, 20},
+        {:identifier, 20, 21},
+        {:slash, 21, 22},
+        {:identifier, 22, 35},
+        {:eq_operator, 36, 38},
+        {:value, 39, 75},
+        {:and_operator, 76, 79},
+        {:comparison_expression, 80, 113},
+        {:identifier_path, 80, 98},
+        {:identifier, 80, 81},
+        {:slash, 81, 82},
+        {:identifier, 82, 98},
+        {:eq_operator, 99, 101},
+        {:value, 102, 113},
+      ])
     end
   end
 
   # Filter examples from:
   # https://learn.microsoft.com/en-us/graph/filter-query-parameter?tabs=http#examples-using-the-filter-query-operator
   describe "#parse" do
-    it "Get all users with the name Mary across multiple properties" do
+    it "Get all users with the name Mary across multiple properties", focus: true do
       input = "startswith(displayName,'mary') or startswith(givenName,'mary') or startswith(surname,'mary') or startswith(mail,'mary') or startswith(userPrincipalName,'mary')"
       result = AzureADFilter::Parser.parse(input)
       result.to_s.should eq(input)

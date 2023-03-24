@@ -23,14 +23,20 @@ module AzureADFilter
     whitespace = (char(' ') | char('\t')).repeat
     whitespace_pattern(whitespace)
 
-    separator = (char('/') | char(':')) # .named(:separator)
+    slash = char('/').named(:slash)
+    colon = char(':').named(:colon)
+    separator = (slash | colon)
 
     identifier = (
       range('a', 'z') |
       range('A', 'Z') |
-      char('$') |
-      separator
+      char('$')
     ).repeat(1).named(:identifier)
+
+    identifier_path = (
+      identifier >>
+      (separator >> identifier).repeat
+    ).named(:identifier_path)
 
     unquoted_value = (
       range('a', 'z') |
@@ -71,7 +77,7 @@ module AzureADFilter
     ge_operator = str("ge").named(:ge_operator)
     # Lambda operators
     any_operator = str("any").named(:any_operator)
-    # all_operator = str("all").named(:all_operator) # not currently supported by any Azure AD property
+    all_operator = str("all").named(:all_operator) # not currently supported by any Azure AD property
     # Conditional operators
     and_operator = str("and").named(:and_operator)
     or_operator = str("or").named(:or_operator)
@@ -80,8 +86,8 @@ module AzureADFilter
     ends_with = str("endsWith").named(:ends_with)
     contains = str("contains").named(:contains)
 
-    comparison = (
-      identifier >>
+    comparison_expression = (
+      identifier_path >>
       whitespace >>
       (
         eq_operator |
@@ -94,10 +100,10 @@ module AzureADFilter
       ) >>
       whitespace >>
       value
-    ).named(:comparison)
+    ).named(:comparison_expression)
 
     in_expression = (
-      identifier >>
+      identifier_path >>
       whitespace >>
       in_operator ^
       list
@@ -110,41 +116,38 @@ module AzureADFilter
       char(')')
     ).named(:not_expression)
 
-    function = (
+    function_expression = (
       (starts_with | ends_with | contains) ^
       char('(') ^
-      identifier ^
+      identifier_path ^
       char(',') ^
       value ^
       char(')')
-    ).named(:function)
+    ).named(:function_expression)
 
-    conditional = (
-      function ^
+    conditional_expression = (
+      (comparison_expression | function_expression) ^
       (and_operator | or_operator) ^
-      function ^
-      ((and_operator | or_operator) ^ function).repeat
-    ).named(:conditional)
+      (comparison_expression | function_expression) ^
+      ((and_operator | or_operator) ^ function_expression).repeat
+    ).named(:conditional_expression)
 
-    any_expression = (
-      identifier >>
-      separator >>
-      any_operator >>
-      char('(') >>
-      identifier >>
-      char(':') >>
-      (function | identifier) ^
+    lambda_expression = (
+      (identifier >> separator).repeat(1) >>
+      (any_operator | all_operator) ^
+      char('(') ^
+      expression ^
       char(')')
-    ).named(:any_expression)
+    ).named(:lambda_expression)
 
     # Order matters here, as the first match will be used
     expression.define (
-      conditional |
-      function |
-      comparison |
+      conditional_expression |
+      function_expression |
+      comparison_expression |
       in_expression |
       not_expression |
-      any_expression
+      lambda_expression
     ).named(:expression)
 
     (whitespace >> expression >> whitespace).then_eof
