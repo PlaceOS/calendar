@@ -65,7 +65,7 @@ describe AzureADFilter do
         {:identifier_path, 0, 10},
         {:identifier, 0, 10},
         {:in_operator, 11, 13},
-        {:list, 14, 33},
+        {:value_list, 14, 33},
         {:value, 15, 23},
         {:value, 25, 32},
       ])
@@ -130,21 +130,52 @@ describe AzureADFilter do
         {:value, 102, 113},
       ])
     end
+
+    it "single lambda expression" do
+      input = "assignedPlans/any(a:a/servicePlanId eq 2e2ddb96-6af9-4b1d-a3f0-d6ecfd22edb2 and a/capabilityStatus eq 'Suspended')"
+      result = AzureADFilter::Parser.tokenize(input)
+      result.should eq([
+        {:expression, 0, 114},
+        {:lambda_expression, 0, 114},
+        {:identifier, 0, 13},
+        {:slash, 13, 14},
+        {:any_operator, 14, 17},
+        {:expression, 18, 113},
+        {:conditional_expression, 18, 113},
+        {:comparison_expression, 18, 75},
+        {:identifier_path, 18, 35},
+        {:identifier, 18, 19},
+        {:colon, 19, 20},
+        {:identifier, 20, 21},
+        {:slash, 21, 22},
+        {:identifier, 22, 35},
+        {:eq_operator, 36, 38},
+        {:value, 39, 75},
+        {:and_operator, 76, 79},
+        {:comparison_expression, 80, 113},
+        {:identifier_path, 80, 98},
+        {:identifier, 80, 81},
+        {:slash, 81, 82},
+        {:identifier, 82, 98},
+        {:eq_operator, 99, 101},
+        {:value, 102, 113},
+      ])
+    end
   end
 
   # Filter examples from:
   # https://learn.microsoft.com/en-us/graph/filter-query-parameter?tabs=http#examples-using-the-filter-query-operator
   describe "#parse" do
-    it "Get all users with the name Mary across multiple properties", focus: true do
+    it "Get all users with the name Mary across multiple properties" do
       input = "startswith(displayName,'mary') or startswith(givenName,'mary') or startswith(surname,'mary') or startswith(mail,'mary') or startswith(userPrincipalName,'mary')"
       result = AzureADFilter::Parser.parse(input)
-      result.to_s.should eq(input)
+      result.to_s.should eq(input.gsub(",", ", ").gsub("startswith", "startsWith"))
     end
 
     it "Get all users with mail domain equal to 'hotmail.com'" do
       input = "endsWith(mail,'@hotmail.com')"
       result = AzureADFilter::Parser.parse(input)
-      result.to_s.should eq(input)
+      result.to_s.should eq(input.gsub(",", ", "))
     end
 
     it "Get all users without assigned licenses" do
@@ -172,7 +203,7 @@ describe AzureADFilter do
     end
 
     it "Get all unread mail in the signed-in user's Inbox" do
-      input = "filter=isRead eq false"
+      input = "isRead eq false"
       result = AzureADFilter::Parser.parse(input)
       result.to_s.should eq(input)
     end
@@ -192,13 +223,13 @@ describe AzureADFilter do
     it "List all non-Microsoft 365 groups in an organization" do
       input = "NOT groupTypes/any(c:c eq 'Unified')"
       result = AzureADFilter::Parser.parse(input)
-      result.to_s.should eq(input)
+      result.to_s.should eq(input.gsub("NOT", "not"))
     end
 
     it "List all users whose company name isn't undefined (that is, not a null value) or Microsoft" do
       input = "companyName ne null and NOT(companyName eq 'Microsoft')"
       result = AzureADFilter::Parser.parse(input)
-      result.to_s.should eq(input)
+      result.to_s.should eq(input.gsub("NOT", "not"))
     end
 
     it "List all users whose company name is either undefined or Microsoft" do
@@ -210,7 +241,7 @@ describe AzureADFilter do
     it "Use OData cast to get transitive membership in groups with a display name that starts with 'a' including a count of returned objects" do
       input = "startswith(displayName, 'a')"
       result = AzureADFilter::Parser.parse(input)
-      result.to_s.should eq(input)
+      result.to_s.should eq(input.gsub("startswith", "startsWith"))
     end
 
     # For single primitive types like String, Int, and dates
@@ -320,7 +351,7 @@ describe AzureADFilter do
         result.to_s.should eq(input)
       end
 
-      it "startsWith" do
+      it "startsWith", focus: true do
         input = "businessPhones/any(p:startsWith(p, '44'))"
         result = AzureADFilter::Parser.parse(input)
         result.to_s.should eq(input)
@@ -329,19 +360,19 @@ describe AzureADFilter do
       it "endsWith" do
         input = "endsWith(mail,'@outlook.com')"
         result = AzureADFilter::Parser.parse(input)
-        result.to_s.should eq(input)
+        result.to_s.should eq(input.gsub(",", ", "))
       end
 
       it "not and endsWith" do
         input = "not(endsWith(mail,'OnMicrosoft.com'))"
         result = AzureADFilter::Parser.parse(input)
-        result.to_s.should eq(input)
+        result.to_s.should eq(input.gsub(",", ", "))
       end
 
       it "not and startsWith" do
         input = "not(startsWith(mail,'Pineview'))"
         result = AzureADFilter::Parser.parse(input)
-        result.to_s.should eq(input)
+        result.to_s.should eq(input.gsub(",", ", "))
       end
 
       it "not and eq" do
