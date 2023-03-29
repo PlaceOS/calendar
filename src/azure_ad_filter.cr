@@ -302,6 +302,11 @@ module AzureADFilter
 
   module AST
     abstract class Node
+      abstract def to_s : String
+
+      def to_google : String
+        raise NotImplementedError.new(self)
+      end
     end
 
     class Separator < Node
@@ -310,8 +315,12 @@ module AzureADFilter
       def initialize(@value : Char)
       end
 
-      def to_s
+      def to_s : String
         value.to_s
+      end
+
+      def to_google : String
+        "."
       end
     end
 
@@ -321,7 +330,12 @@ module AzureADFilter
       def initialize(@value : String)
       end
 
-      def to_s
+      def to_s : String
+        value.to_s
+      end
+
+      # TODO: translate property names to google equivalents
+      def to_google : String
         value.to_s
       end
     end
@@ -332,23 +346,29 @@ module AzureADFilter
       def initialize(@value : Array(Node))
       end
 
-      def to_s
+      def to_s : String
         value.map(&.to_s).join
+      end
+
+      # TODO: discard separators and join by dot
+      def to_google : String
+        value.map(&.to_google).join
       end
     end
 
     class Value < Node
       getter value : String | Bool?
 
+      # TODO: support multiple data types
       def initialize(@value : String | Bool?)
       end
 
-      def to_s
-        if value == "true" || value == "false" || value == "null"
-          value.to_s
-        else
-          "#{value}"
-        end
+      def to_s : String
+        "#{value}"
+      end
+
+      def to_google : String
+        "#{value}"
       end
     end
 
@@ -358,7 +378,7 @@ module AzureADFilter
       def initialize(@value : Array(Node))
       end
 
-      def to_s
+      def to_s : String
         "(#{value.map(&.to_s).join(", ")})"
       end
     end
@@ -367,79 +387,103 @@ module AzureADFilter
     ###########
 
     class EqOperator < Node
-      def to_s
+      def to_s : String
         "eq"
+      end
+
+      def to_google : String
+        "="
       end
     end
 
     class NeOperator < Node
-      def to_s
+      def to_s : String
         "ne"
       end
     end
 
     class NotOperator < Node
-      def to_s
+      def to_s : String
         "not"
       end
     end
 
     class InOperator < Node
-      def to_s
+      def to_s : String
         "in"
       end
     end
 
     class HasOperator < Node
-      def to_s
+      def to_s : String
         "has"
       end
     end
 
     class LtOperator < Node
-      def to_s
+      def to_s : String
         "lt"
+      end
+
+      def to_google : String
+        "<"
       end
     end
 
     class GtOperator < Node
-      def to_s
+      def to_s : String
         "gt"
+      end
+
+      def to_google : String
+        ">"
       end
     end
 
     class LeOperator < Node
-      def to_s
+      def to_s : String
         "le"
+      end
+
+      def to_google : String
+        "<="
       end
     end
 
     class GeOperator < Node
-      def to_s
+      def to_s : String
         "ge"
+      end
+
+      def to_google : String
+        ">="
       end
     end
 
     class AnyOperator < Node
-      def to_s
+      def to_s : String
         "any"
       end
     end
 
     class AllOperator < Node
-      def to_s
+      def to_s : String
         "all"
       end
     end
 
     class AndOperator < Node
-      def to_s
+      def to_s : String
         "and"
+      end
+
+      def to_google : String
+        " "
       end
     end
 
     class OrOperator < Node
-      def to_s
+      def to_s : String
         "or"
       end
     end
@@ -448,20 +492,28 @@ module AzureADFilter
     ###########
 
     class StartsWithFunction < Node
-      def to_s
+      def to_s : String
         "startsWith"
+      end
+
+      def to_google : String
+        ":"
       end
     end
 
     class EndsWithFunction < Node
-      def to_s
+      def to_s : String
         "endsWith"
       end
     end
 
     class ContainsFunction < Node
-      def to_s
+      def to_s : String
         "contains"
+      end
+
+      def to_google : String
+        ":"
       end
     end
 
@@ -474,8 +526,12 @@ module AzureADFilter
       def initialize(@values : Array(Node))
       end
 
-      def to_s
+      def to_s : String
         values.map(&.to_s).join(" ")
+      end
+
+      def to_google : String
+        values.map(&.to_google).join
       end
     end
 
@@ -488,8 +544,7 @@ module AzureADFilter
       def initialize(@function : Node, @identifier : Node, @value : Node, @parent_identifier : Node? = nil)
       end
 
-      def to_s
-        "#{function.to_s}(#{identifier.to_s}, #{value.to_s})"
+      def to_s : String
         String.build do |str|
           if parent_identifier
             str << parent_identifier.to_s
@@ -503,6 +558,16 @@ module AzureADFilter
           str << ")"
         end
       end
+
+      def to_google : String
+        raise NotImplementedError.new("parent_identifier") if parent_identifier
+        String.build do |str|
+          str << identifier.to_google
+          str << function.to_google
+          str << value.to_google
+          str << "*" if function.is_a?(StartsWithFunction)
+        end
+      end
     end
 
     class NotExpression < Node
@@ -512,7 +577,7 @@ module AzureADFilter
       def initialize(@operator : Node, @value : Node)
       end
 
-      def to_s
+      def to_s : String
         if value.is_a? LambdaExpression
           "#{operator.to_s} #{value.to_s}"
         else
@@ -529,7 +594,7 @@ module AzureADFilter
       def initialize(@identifier : Node, @operator : Node, @expression : Node)
       end
 
-      def to_s
+      def to_s : String
         "#{identifier.to_s}/#{operator.to_s}(#{expression.to_s})"
       end
     end
