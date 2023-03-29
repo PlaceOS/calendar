@@ -493,4 +493,106 @@ describe AzureADFilter, tags: ["azure_ad_filter"] do
       end
     end
   end
+
+  # Query examples from:
+  # https://developers.google.com/admin-sdk/directory/v1/guides/search-users#examples
+  describe "#to_google" do
+    it "Search for a user by name" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("name='Jane Smith'")
+    end
+
+    it "Search for users with a givenName OR familyName that contains a value" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("name:'Jane'")
+    end
+
+    it "Search for users matching an email prefix" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("email:admin*")
+    end
+
+    it "Search for all super administrators" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("isAdmin=true")
+    end
+
+    it "Search for users with orgTitles containing \"Manager\"" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("orgTitle:Manager")
+    end
+
+    it "Search for users with a common manager in their reporting chain" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("manager='janesmith@example.com'")
+    end
+
+    it "Search for users with the same direct manager" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("directManager='bobjones@example.com'")
+    end
+
+    it "Search for users in a given country" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("addressCountry='Sweden'")
+    end
+
+    it "Search for users in a specific organization" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("orgName='Human Resources'")
+    end
+
+    it "Search for managers in a specific organization" do
+      input = ""
+      result = AzureADFilter::Parser.parse(input)
+      result.to_google.should eq("orgName=Engineering orgTitle:Manager")
+    end
+
+    context "[Search custom user attributes]" do
+      it "Search for all employees that work on a specific project" do
+        input = ""
+        result = AzureADFilter::Parser.parse(input)
+        result.to_google.should eq("EmploymentData.projects:'GeneGnomes'")
+      end
+
+      it "Search for all employees in a specific location" do
+        input = ""
+        result = AzureADFilter::Parser.parse(input)
+        result.to_google.should eq("EmploymentData.location='Atlanta'")
+      end
+
+      it "Search for all employees above job level 7" do
+        input = ""
+        result = AzureADFilter::Parser.parse(input)
+        result.to_google.should eq("EmploymentData.jobLevel>=7")
+      end
+
+      it "Search for all employees with job levels that are >= 5 and < 8" do
+        input = ""
+        result = AzureADFilter::Parser.parse(input)
+        result.to_google.should eq("EmploymentData.jobLevel:[5,8]")
+      end
+
+      it "Search for all employees who are enrolled in 2-Step vVerification" do
+        input = ""
+        result = AzureADFilter::Parser.parse(input)
+        result.to_google.should eq("isEnrolledIn2Sv=true")
+      end
+
+      it "Search for all employees who have 2-Step Verification enforced" do
+        input = ""
+        result = AzureADFilter::Parser.parse(input)
+        result.to_google.should eq("isEnforcedIn2Sv=true")
+      end
+    end
+  end
 end
