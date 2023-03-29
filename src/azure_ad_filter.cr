@@ -45,6 +45,10 @@ module AzureADFilter
       (separator >> identifier).repeat
     ).named(:identifier_path)
 
+    parent_identifier_path = (
+      identifier >> separator
+    ).repeat(1).named(:parent_identifier_path)
+
     unquoted_value = (
       range('a', 'z') |
       range('A', 'Z') |
@@ -120,7 +124,7 @@ module AzureADFilter
     ).named(:in_expression)
 
     lambda_expression = (
-      (identifier >> separator).repeat(1) >>
+      parent_identifier_path >>
       (any_operator | all_operator) ^
       char('(') ^
       expression ^
@@ -133,6 +137,7 @@ module AzureADFilter
     ).named(:not_expression)
 
     function_expression = (
+      parent_identifier_path |
       (starts_with | ends_with | contains) ^
       char('(') ^
       identifier_path ^
@@ -189,6 +194,16 @@ module AzureADFilter
             break
           end
           AST::IdentifierPath.new(nodes)
+        when :parent_identifier_path
+          nodes = [] of AST::Node
+          loop do
+            child = iter.try &.next_as_child_of(main)
+            nodes << build_expression(child, iter, source)
+          rescue IndexError
+            break
+          end
+          _separator = nodes.pop
+          AST::IdentifierPath.new(nodes)
         when :value then AST::Value.new(source[start...finish])
         when :value_list
           nodes = [] of AST::Node
@@ -232,7 +247,6 @@ module AzureADFilter
           AST::Expression.new([identifier, operator, value])
         when :lambda_expression
           identifier = build_expression(iter.next_as_child_of(main), iter, source)
-          _slash = build_expression(iter.next_as_child_of(main), iter, source)
           operator = build_expression(iter.next_as_child_of(main), iter, source)
           expression = build_expression(iter.next_as_child_of(main), iter, source)
           AST::LambdaExpression.new(identifier: identifier, operator: operator, expression: expression)
@@ -241,10 +255,23 @@ module AzureADFilter
           value = build_expression(iter.next_as_child_of(main), iter, source)
           AST::NotExpression.new(operator: operator, value: value)
         when :function_expression
-          function = build_expression(iter.next_as_child_of(main), iter, source)
-          identifier = build_expression(iter.next_as_child_of(main), iter, source)
-          value = build_expression(iter.next_as_child_of(main), iter, source)
-          AST::FunctionExpression.new(function: function, identifier: identifier, value: value)
+          nodes = [] of AST::Node
+          loop do
+            child = iter.try &.next_as_child_of(main)
+            nodes << build_expression(child, iter, source)
+          rescue IndexError
+            break
+          end
+          # order matters here
+          value = nodes.pop
+          identifier = nodes.pop
+          function = nodes.pop
+
+          if !nodes.empty?
+            parent_identifier = nodes.pop
+          end
+
+          AST::FunctionExpression.new(function: function, identifier: identifier, value: value, parent_identifier: parent_identifier)
         when :conditional_expression
           nodes = [] of AST::Node
           loop do
@@ -456,12 +483,25 @@ module AzureADFilter
       getter function : Node
       getter identifier : Node
       getter value : Node
+      getter parent_identifier : Node?
 
-      def initialize(@function : Node, @identifier : Node, @value : Node)
+      def initialize(@function : Node, @identifier : Node, @value : Node, @parent_identifier : Node? = nil)
       end
 
       def to_s
         "#{function.to_s}(#{identifier.to_s}, #{value.to_s})"
+        String.build do |str|
+          if parent_identifier
+            str << parent_identifier.to_s
+            str << ":"
+          end
+          str << function.to_s
+          str << "("
+          str << identifier.to_s
+          str << ", "
+          str << value.to_s
+          str << ")"
+        end
       end
     end
 

@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe AzureADFilter do
+describe AzureADFilter, tags: ["azure_ad_filter"] do
   describe "#tokenize" do
     it "multiple conditional operators" do
       input = "startsWith(displayName,'user') or startsWith(givenName,'user') or startsWith(mail,'user')"
@@ -106,6 +106,7 @@ describe AzureADFilter do
       result.should eq([
         {:expression, 0, 114},
         {:lambda_expression, 0, 114},
+        {:parent_identifier_path, 0, 14},
         {:identifier, 0, 13},
         {:slash, 13, 14},
         {:any_operator, 14, 17},
@@ -137,6 +138,7 @@ describe AzureADFilter do
       result.should eq([
         {:expression, 0, 114},
         {:lambda_expression, 0, 114},
+        {:parent_identifier_path, 0, 14},
         {:identifier, 0, 13},
         {:slash, 13, 14},
         {:any_operator, 14, 17},
@@ -159,6 +161,29 @@ describe AzureADFilter do
         {:identifier, 82, 98},
         {:eq_operator, 99, 101},
         {:value, 102, 113},
+      ])
+    end
+
+    it "single lambda expression, single function" do
+      input = "businessPhones/any(p:startsWith(p, '44'))"
+      result = AzureADFilter::Parser.tokenize(input)
+      pp! result
+      result.should eq([
+        {:expression, 0, 41},
+        {:lambda_expression, 0, 41},
+        {:parent_identifier_path, 0, 15},
+        {:identifier, 0, 14},
+        {:slash, 14, 15},
+        {:any_operator, 15, 18},
+        {:expression, 19, 40},
+        {:function_expression, 19, 40},
+        {:parent_identifier_path, 19, 21},
+        {:identifier, 19, 20},
+        {:colon, 20, 21},
+        {:starts_with, 21, 31},
+        {:identifier_path, 32, 33},
+        {:identifier, 32, 33},
+        {:value, 35, 39},
       ])
     end
   end
@@ -351,7 +376,7 @@ describe AzureADFilter do
         result.to_s.should eq(input)
       end
 
-      it "startsWith", focus: true do
+      it "startsWith" do
         input = "businessPhones/any(p:startsWith(p, '44'))"
         result = AzureADFilter::Parser.parse(input)
         result.to_s.should eq(input)
@@ -415,7 +440,7 @@ describe AzureADFilter do
       end
 
       it "not" do
-        input = "not(appOwnerOrganizationId eq 72f988bf-86f1-41af-91ab-2d7cd011db47)&$count=true"
+        input = "not(appOwnerOrganizationId eq 72f988bf-86f1-41af-91ab-2d7cd011db47)"
         result = AzureADFilter::Parser.parse(input)
         result.to_s.should eq(input)
       end
@@ -465,7 +490,7 @@ describe AzureADFilter do
       it "endsWith" do
         input = "proxyAddresses/any(p:endsWith(p,'OnMicrosoft.com'))"
         result = AzureADFilter::Parser.parse(input)
-        result.to_s.should eq(input)
+        result.to_s.should eq(input.gsub(",", ", "))
       end
     end
   end
