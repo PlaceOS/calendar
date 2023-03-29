@@ -1,6 +1,7 @@
 require "pegmatite"
 
 class Pegmatite::DSL
+  # case insensitive string
   def i_str(text)
     text.chars.map { |c| char(c.downcase) | char(c.upcase) }.reduce { |a, b| a >> b }
   end
@@ -29,10 +30,12 @@ module AzureADFilter
     whitespace = (char(' ') | char('\t')).repeat
     whitespace_pattern(whitespace)
 
+    # Path separators
     slash = char('/').named(:slash)
     colon = char(':').named(:colon)
     separator = (slash | colon)
 
+    # Identifiers / Property names
     identifier = (
       range('a', 'z') |
       range('A', 'Z') |
@@ -45,10 +48,12 @@ module AzureADFilter
       (separator >> identifier).repeat
     ).named(:identifier_path)
 
+    # For scoped operators/functions, e.g. `groups/any(...)`
     parent_identifier_path = (
       identifier >> separator
     ).repeat(min: 1).named(:parent_identifier_path)
 
+    # Characters allowed in values
     unquoted_value = (
       range('a', 'z') |
       range('A', 'Z') |
@@ -61,6 +66,7 @@ module AzureADFilter
       char('/')
     ).repeat(min: 1)
 
+    # Values can be quoted with single quotes
     quoted_value = (
       char('\'') >>
       (unquoted_value | whitespace).repeat >>
@@ -69,6 +75,7 @@ module AzureADFilter
 
     value = (unquoted_value | quoted_value).named(:value)
 
+    # Lists of values
     value_list = (
       char('(') ^
       value ^
@@ -76,7 +83,8 @@ module AzureADFilter
       char(')')
     ).named(:value_list)
 
-    # TODO: operators should be case insensitive
+    # Operators
+    ###########
 
     # Equality operators
     eq_operator = i_str("eq").named(:eq_operator)
@@ -99,6 +107,9 @@ module AzureADFilter
     starts_with = i_str("startswith").named(:starts_with)
     ends_with = i_str("endswith").named(:ends_with)
     contains = i_str("contains").named(:contains)
+
+    # Expressions
+    #############
 
     comparison_expression = (
       identifier_path >>
@@ -147,11 +158,11 @@ module AzureADFilter
     ).named(:function_expression)
 
     conditional_expression = (
-      (comparison_expression | function_expression | not_expression) >>
+      (comparison_expression | function_expression | not_expression | in_expression) >>
       whitespace >>
       (and_operator | or_operator) >>
       whitespace >>
-      (comparison_expression | function_expression | not_expression) >>
+      (comparison_expression | function_expression | not_expression | in_expression) >>
       (whitespace >> (and_operator | or_operator) >> whitespace >> (comparison_expression | function_expression)).repeat
     ).named(:conditional_expression)
 
@@ -177,6 +188,7 @@ module AzureADFilter
       build_expression(main, iter, source)
     end
 
+    # ameba:disable Metrics/CyclomaticComplexity
     private def build_expression(main, iter, source)
       kind, start, finish = main
 
@@ -357,10 +369,10 @@ module AzureADFilter
     end
 
     class Value < Node
-      getter value : String | Bool?
+      getter value : String
 
       # TODO: support multiple data types
-      def initialize(@value : String | Bool?)
+      def initialize(@value : String)
       end
 
       def to_s : String

@@ -100,7 +100,8 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
+    def list_users(query : String? = nil, limit : Int32? = nil, filter : String? = nil, **options) : Array(User)
+      query = AzureADFilter.parse(filter).to_google if filter
       if users = directory.users(query, limit || 500, **options)
         # TODO: Deal with pagination
         users.users.map(&.to_place_calendar)
