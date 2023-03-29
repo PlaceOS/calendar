@@ -167,7 +167,6 @@ describe AzureADFilter, tags: ["azure_ad_filter"] do
     it "single lambda expression, single function" do
       input = "businessPhones/any(p:startsWith(p, '44'))"
       result = AzureADFilter::Parser.tokenize(input)
-      pp! result
       result.should eq([
         {:expression, 0, 41},
         {:lambda_expression, 0, 41},
@@ -484,7 +483,7 @@ describe AzureADFilter, tags: ["azure_ad_filter"] do
       it "startsWith" do
         input = "authorizationInfo/certificateUserIds/any(x:startswith(x,'987654321'))"
         result = AzureADFilter::Parser.parse(input)
-        result.to_s.should eq(input)
+        result.to_s.should eq(input.gsub(",", ", ").gsub("startswith", "startsWith"))
       end
 
       it "endsWith" do

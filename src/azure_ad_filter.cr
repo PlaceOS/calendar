@@ -47,7 +47,7 @@ module AzureADFilter
 
     parent_identifier_path = (
       identifier >> separator
-    ).repeat(1).named(:parent_identifier_path)
+    ).repeat(min: 1).named(:parent_identifier_path)
 
     unquoted_value = (
       range('a', 'z') |
@@ -59,7 +59,7 @@ module AzureADFilter
       char('_') |
       char(':') |
       char('/')
-    ).repeat(1)
+    ).repeat(min: 1)
 
     quoted_value = (
       char('\'') >>
@@ -137,7 +137,7 @@ module AzureADFilter
     ).named(:not_expression)
 
     function_expression = (
-      parent_identifier_path |
+      parent_identifier_path.repeat(max: 1) >>
       (starts_with | ends_with | contains) ^
       char('(') ^
       identifier_path ^
@@ -533,82 +533,5 @@ module AzureADFilter
         "#{identifier.to_s}/#{operator.to_s}(#{expression.to_s})"
       end
     end
-
-    # class ComparisonExpression < Expression
-    #   getter operator : Node
-    #   getter left : Node
-    #   getter right : Node
-
-    #   def initialize(@operator : Node, @left : Node, @right : Node)
-    #   end
-
-    #   def to_s
-    #     "#{left} #{operator} #{right}"
-    #   end
-    # end
-
-    # class InExpression < Expression
-    # end
-
-    # class NotExpression < Expression
-    # end
-
-    # class ConditionalExpression < Expression
-    #   getter operator : Node
-    #   getter left : Node
-    #   getter right : Node
-
-    #   def initialize(@operator : Node, @left : Node, @right : Node)
-    #   end
-
-    #   def to_s
-    #     "#{left} #{operator} #{right}"
-    #   end
-    # end
-
-    # class LambdaExpression < Expression
-    # end
-
-    # class Expression < Node
-    #   getter operator : Node
-    #   getter left : Node?
-    #   getter right : Node?
-
-    #   def initialize(@operator : Node, @left : Node? = nil, @right : Node? = nil)
-    #   end
-
-    #   def to_s
-    #     # left_str = left.is_a?(Expression) ? "(#{left.to_s})" : left.to_s unless left.nil?
-    #     # right_str = right.is_a?(Expression) ? "(#{right.to_s})" : right.to_s unless right.nil?
-
-    #     if operator.as(Operator).type == "function"
-    #       String.build do |str|
-    #         str << operator.to_s
-    #         str << '('
-    #         str << left.to_s
-    #         str << ", "
-    #         str << right.to_s
-    #         str << ')'
-    #       end
-    #     else
-    #       String.build do |str|
-    #         str << left.to_s unless left.nil?
-    #         str << ' ' unless left.nil?
-    #         str << operator.to_s
-    #         str << (left.nil? ? '(' : ' ')
-    #         str << right.to_s
-    #         str << (left.nil? ? ')' : nil)
-    #       end
-    #     end
-    #   end
-
-    # def to_google
-    #   if operator == "and" || operator == "or"
-    #     "(#{left.to_google} #{operator.to_google} #{right.to_google})"
-    #   else
-    #     "(#{operator.to_google}(#{left.to_google}, #{right.to_google}))"
-    #   end
-    # end
-
   end
 end
