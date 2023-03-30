@@ -1,10 +1,10 @@
 class PlaceCalendar::Event
   include JSON::Serializable
 
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Time::EpochConverter, type: "integer", format: "Int64")]
   property event_start : Time
 
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Time::EpochConverter, type: "integer", format: "Int64")]
   property event_end : Time?
 
   property id : String?

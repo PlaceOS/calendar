@@ -1,7 +1,7 @@
 module PlaceCalendar
   enum AvailabilityStatus
-    Free
     Busy
+    Free
 
     def to_json(json : JSON::Builder)
       json.string(to_s.downcase)
@@ -23,10 +23,10 @@ module PlaceCalendar
 
     property status : AvailabilityStatus
 
-    @[JSON::Field(converter: Time::EpochConverter)]
+    @[JSON::Field(converter: Time::EpochConverter, type: "integer", format: "Int64")]
     property starts_at : Time
 
-    @[JSON::Field(converter: Time::EpochConverter)]
+    @[JSON::Field(converter: Time::EpochConverter, type: "integer", format: "Int64")]
     property ends_at : Time
 
     property timezone : String
