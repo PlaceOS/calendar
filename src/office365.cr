@@ -67,8 +67,9 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
-      if users = client.list_users(query, limit)
+    def list_users(query : String? = nil, limit : Int32? = nil, filter : String? = nil, **options) : Array(User)
+      filter_string = AzureADFilter.parse(filter).to_s if filter
+      if users = client.list_users(query, limit, **options, filter: filter_string)
         users.value.map(&.to_place_calendar)
       else
         [] of User

@@ -1,5 +1,5 @@
 name: place_calendar
-version: 4.15.7
+version: 4.16.0
 
 crystal: ">= 0.36.1"
 
@@ -9,11 +9,14 @@ authors:
 dependencies:
   office365:
     github: PlaceOS/office365
-    version: ">= 1.18.4"
+    version: ">= 1.19.0"
 
   google:
     github: PlaceOS/google
     version: ">= 3.4.0"
+
+  pegmatite:
+    github: jemc/crystal-pegmatite
 
   email:
     github: arcage/crystal-email
