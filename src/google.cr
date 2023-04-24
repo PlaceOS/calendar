@@ -323,8 +323,7 @@ module PlaceCalendar
         recurrence:                  nil,
         extended_properties:         event.extended_properties,
       }
-      if event.recurrence
-        e_recurrence = event.recurrence.not_nil!
+      if e_recurrence = event.recurrence
         params = params.merge(recurrence: PlaceCalendar::Google.recurrence_to_google(e_recurrence))
       end
       params
@@ -358,8 +357,8 @@ module PlaceCalendar
       calendar_id ||= "primary"
       file = drive_files(user_id).create(name: attachment.name, content_bytes: attachment.content_bytes, content_type: extract_mime_type(attachment.name).not_nil!)
 
-      if !file.nil?
-        metadata = drive_files(user_id).file(file.id.not_nil!)
+      if file
+        metadata = drive_files(user_id).file(file.id.as(String))
         calendar(user_id).update(
           event_id: event_id,
           calendar_id: calendar_id,
@@ -415,8 +414,8 @@ module PlaceCalendar
     end
 
     private def create_place_calendar_attachment(user_id : String, attachment : ::Google::Calendar::Attachment) : PlaceCalendar::Attachment
-      metadata = drive_files(user_id).file(attachment.file_id.not_nil!)
-      file = drive_files(user_id).download_file(attachment.file_id.not_nil!)
+      metadata = drive_files(user_id).file(attachment.file_id.as(String))
+      file = drive_files(user_id).download_file(attachment.file_id.as(String))
 
       PlaceCalendar::Attachment.new(
         id: metadata.id,
@@ -428,7 +427,7 @@ module PlaceCalendar
 
     private def extract_mime_type(filename : String?)
       if match = /(.\w+)$/.match(filename)
-        MIME.from_extension?(match.not_nil![0])
+        MIME.from_extension?(match[0])
       else
         "text/plain"
       end
@@ -490,7 +489,9 @@ module PlaceCalendar
 
     def self.recurrence_from_google(recurrence_rule, event)
       rule_parts = recurrence_rule.not_nil!.first.split(";")
-      location = event.start.time_zone ? Time::Location.load(event.start.time_zone.not_nil!) : Time::Location.load("UTC")
+
+      timezone = event.start.time_zone
+      location = timezone ? Time::Location.load(timezone) : Time::Location.load("UTC")
       PlaceCalendar::Recurrence.new(range_start: event.start.time.at_beginning_of_day.in(location),
         range_end: google_range_end(rule_parts, event),
         interval: google_interval(rule_parts),
@@ -500,27 +501,29 @@ module PlaceCalendar
     end
 
     private def self.google_pattern(rule_parts)
-      pattern_part = rule_parts.find do |parts|
+      pattern_part = rule_parts.find! do |parts|
         parts.includes?("RRULE:FREQ")
-      end.not_nil!
+      end
 
       pattern_part.split("=").last.downcase
     end
 
     private def self.google_interval(rule_parts)
-      interval_part = rule_parts.find do |parts|
+      interval_part = rule_parts.find! do |parts|
         parts.includes?("INTERVAL")
-      end.not_nil!
+      end
 
       interval_part.split("=").last.to_i
     end
 
     private def self.google_range_end(rule_parts, event)
-      range_end_part = rule_parts.find do |parts|
+      range_end_part = rule_parts.find! do |parts|
         parts.includes?("UNTIL")
-      end.not_nil!
+      end
       until_date = range_end_part.gsub("Z", "").split("=").last
-      location = event.start.time_zone ? Time::Location.load(event.start.time_zone.not_nil!) : Time::Location.load("UTC")
+
+      timezone = event.start.time_zone
+      location = timezone ? Time::Location.load(timezone) : Time::Location.load("UTC")
 
       Time.parse(until_date, "%Y%m%dT%H%M%S", location)
     end
@@ -531,7 +534,7 @@ module PlaceCalendar
       end
 
       if byday_part
-        byday = byday_part.not_nil!.split("=").last
+        byday = byday_part.split("=").last
 
         case byday
         when "SU", "1SU"
@@ -648,8 +651,8 @@ class Google::Calendar::Event
                   end
     event_start = event_start.in(tz_location)
 
-    if !event_end.nil?
-      event_end = event_end.not_nil!.in(tz_location)
+    if event_end
+      event_end = event_end.in(tz_location)
     end
 
     # Grab the list of external visitors
@@ -733,6 +736,6 @@ struct Google::Calendar::Notification::Receipt
     if expires = expiration
       expires_time = Time.unix_ms(expires)
     end
-    PlaceCalendar::Subscription.new(@id.not_nil!, @resource_id, resource, notification_url, expires_time, @token, user_id, source: self.to_json)
+    PlaceCalendar::Subscription.new(@id.as(String), @resource_id, resource, notification_url, expires_time, @token, user_id, source: self.to_json)
   end
 end
