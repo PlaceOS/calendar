@@ -298,9 +298,9 @@ module PlaceCalendar
         recurrence:              nil,
         online_meeting_provider: event.online_meeting_provider || @conference_type,
       }
-      if event.recurrence
-        e_recurrence = event.recurrence.not_nil!
-        timezone_loc = event.timezone ? Time::Location.load(event.timezone.not_nil!) : Time::Location.load("UTC")
+      if e_recurrence = event.recurrence
+        timezone = event.timezone
+        timezone_loc = timezone ? Time::Location.load(timezone) : Time::Location.load("UTC")
         recurrence_params = ::Office365::RecurrenceParam.new(pattern: e_recurrence.pattern,
           range_end: e_recurrence.range_end.in(location: timezone_loc),
           interval: e_recurrence.interval,
@@ -395,7 +395,7 @@ module PlaceCalendar
       bcc : String | Array(String) = [] of String
     )
       content_type = message_html.presence ? "HTML" : "Text"
-      content = message_html.presence || message_plaintext.not_nil!
+      content = message_html.presence || message_plaintext || ""
 
       attach = attachments.map { |a| ::Office365::Attachment.new(a[:file_name], a[:content], base64_encoded: true) }
       attach.concat resource_attachments.map { |a|
@@ -462,23 +462,24 @@ class Office365::Event
     event_start = @starts_at || Time.local
     event_end = @ends_at
 
-    if !@timezone.nil?
-      tz_location = DateTimeTimeZone.tz_location(@timezone.not_nil!)
-
+    if timezone = @timezone.presence
+      tz_location = DateTimeTimeZone.tz_location(timezone)
       event_start = event_start.in(tz_location)
 
-      if !event_end.nil?
-        event_end = event_end.not_nil!.in(tz_location)
+      if ending = event_end
+        event_end = ending.in(tz_location)
       end
     end
 
-    attendees = (@attendees).map do |attendee|
-      email = attendee.email_address.address.not_nil!.downcase
+    attendees = (@attendees).compact_map do |attendee|
+      email = attendee.email_address.address
+      next unless email
+      email = email.downcase
       name = attendee.email_address.name || email
       resource = attendee.type == AttendeeType::Resource
 
-      status = if attendee.status
-                 case attendee.status.not_nil!.response
+      status = if attend_status = attendee.status
+                 case attend_status.response
                  when Office365::ResponseStatus::Response::None
                    "needsAction"
                  when Office365::ResponseStatus::Response::Organizer
@@ -503,12 +504,11 @@ class Office365::Event
     source_location = @location || @locations.try &.first?
     location = source_location.try &.display_name
 
-    recurrence = if @recurrence
-                   e_recurrence = @recurrence.not_nil!
-                   range = e_recurrence.range.not_nil!
-                   pattern = e_recurrence.pattern.not_nil!
-                   days_of_week = pattern.days_of_week ? pattern.days_of_week.not_nil!.first.to_s.downcase : nil
-                   recurrence_time_zone_loc = range.recurrence_time_zone ? Time::Location.load(range.recurrence_time_zone.not_nil!) : Time::Location.load("UTC")
+    recurrence = if (e_recurrence = @recurrence) && (range = e_recurrence.range) && (pattern = e_recurrence.pattern)
+                   days_of_week = pattern.days_of_week ? pattern.days_of_week.try(&.first.to_s.downcase) : nil
+
+                   recurrence_time_zone = range.recurrence_time_zone
+                   recurrence_time_zone_loc = recurrence_time_zone ? Time::Location.load(recurrence_time_zone) : Time::Location.load("UTC")
                    range_start = Time.parse(range.start_date, pattern: "%F", location: recurrence_time_zone_loc)
                    range_end = Time.parse(range.end_date, pattern: "%F", location: recurrence_time_zone_loc)
                    PlaceCalendar::Recurrence.new(range_start: range_start,
@@ -519,8 +519,8 @@ class Office365::Event
                    )
                  end
 
-    status = if @response_status
-               case @response_status.not_nil!.response
+    status = if resp_status = @response_status
+               case resp_status.response
                when Office365::ResponseStatus::Response::Accepted
                  "confirmed"
                when Office365::ResponseStatus::Response::Organizer
@@ -584,11 +584,11 @@ end
 
 class Office365::Availability
   def to_placecalendar
-    raise "@starts_at cannot be nil!" if @starts_at.nil?
-    raise "@ends_at cannot be nil!" if @ends_at.nil?
+    starts_at = @starts_at
+    ends_at = @ends_at
 
-    starts_at = @starts_at.not_nil!
-    ends_at = @ends_at.not_nil!
+    raise "@starts_at cannot be nil!" unless starts_at
+    raise "@ends_at cannot be nil!" unless ends_at
 
     PlaceCalendar::Availability.new(
       @status == ::Office365::AvailabilityStatus::Free ? PlaceCalendar::AvailabilityStatus::Free : PlaceCalendar::AvailabilityStatus::Busy,
@@ -607,6 +607,6 @@ end
 
 class Office365::Subscription
   def to_place_subscription(notification_url : String)
-    PlaceCalendar::Subscription.new(@id.not_nil!, @resource, @resource, notification_url, @expiration_date_time, @client_state, source: self.to_json)
+    PlaceCalendar::Subscription.new(@id.as(String), @resource, @resource, notification_url, @expiration_date_time, @client_state, source: self.to_json)
   end
 end
