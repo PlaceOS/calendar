@@ -185,7 +185,7 @@ module PlaceCalendar
       # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
       if events = client.list_events(**options.merge(mailbox: mailbox, calendar_id: calendar_id, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
-        events.value.map(&.to_place_calendar)
+        events.value.map(&.to_place_calendar(mailbox))
       else
         [] of Event
       end
@@ -195,7 +195,7 @@ module PlaceCalendar
 
     def list_events(user_id : String, response : HTTP::Client::Response) : Array(Event)
       if events = client.list_events(response)
-        events.value.map(&.to_place_calendar)
+        events.value.map(&.to_place_calendar(user_id))
       else
         [] of Event
       end
@@ -209,7 +209,7 @@ module PlaceCalendar
 
       new_event = client.create_event(**params)
 
-      new_event.to_place_calendar
+      new_event.to_place_calendar(mailbox)
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
@@ -217,7 +217,7 @@ module PlaceCalendar
     def get_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Event?
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
       if event = client.get_event(id: id, mailbox: mailbox, calendar_id: calendar_id)
-        event.to_place_calendar
+        event.to_place_calendar(mailbox)
       end
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
@@ -228,7 +228,7 @@ module PlaceCalendar
       o365_event = ::Office365::Event.new(**event_params(event))
 
       if updated_event = client.update_event(**options.merge(mailbox: mailbox, calendar_id: calendar_id, event: o365_event))
-        updated_event.to_place_calendar
+        updated_event.to_place_calendar(mailbox)
       end
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
@@ -458,7 +458,7 @@ class Office365::Calendar
 end
 
 class Office365::Event
-  def to_place_calendar
+  def to_place_calendar(mailbox : String? = nil)
     event_start = @starts_at || Time.local
     event_end = @ends_at
 
@@ -557,7 +557,7 @@ class Office365::Event
       online_meeting_id: online_meeting_id,
       created: @created,
       updated: @updated,
-    )
+    ).set_mailbox(mailbox)
   end
 end
 
