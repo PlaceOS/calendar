@@ -180,11 +180,13 @@ module PlaceCalendar
       period_end : Time? = nil,
       ical_uid : String? = nil,
       showDeleted : Bool? = nil,
+      filter : String? = nil,
       **options
     ) : Array(Event)
+      filter_string = AzureADFilter::Parser.parse(filter).to_s if filter
       # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
-      if events = client.list_events(**options.merge(mailbox: mailbox, calendar_id: calendar_id, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
+      if events = client.list_events(**options.merge(mailbox: mailbox, calendar_id: calendar_id, period_start: period_start, period_end: period_end, ical_uid: ical_uid), filter: filter_string)
         events.value.map(&.to_place_calendar)
       else
         [] of Event
