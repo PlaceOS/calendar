@@ -39,7 +39,7 @@ module PlaceCalendar
 
     def reauthorize_notifier(subscription : PlaceCalendar::Subscription, new_expiration_time : Time? = nil) : PlaceCalendar::Subscription
       client.reauthorize_subscription(subscription.id)
-      renew_notifier(subscription, new_expiration_time || subscription.expires_at)
+      renew_notifier(subscription, new_expiration_time || subscription.expires_at.as(Time))
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
