@@ -20,7 +20,7 @@ struct PlaceCalendar::Subscription
 
   def expired?
     if time = expires_at
-      5.minutes.ago >= time
+      6.minutes.ago >= time
     else
       false
     end
