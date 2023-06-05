@@ -481,14 +481,14 @@ module PlaceCalendar
       when "daily"
         ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};UNTIL=#{until_date}"]
       when "weekly"
-        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=#{days_of_week.not_nil!.upcase[0..1]};UNTIL=#{until_date}"]
+        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=#{days_of_week.map(&.upcase[0..1]).join(",")};UNTIL=#{until_date}"]
       when "monthly"
-        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=1#{days_of_week.not_nil!.upcase[0..1]};UNTIL=#{until_date}"]
+        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=1#{days_of_week.first.upcase[0..1]};UNTIL=#{until_date}"]
       end
     end
 
     def self.recurrence_from_google(recurrence_rule, event)
-      rule_parts = recurrence_rule.not_nil!.first.split(";")
+      rule_parts = recurrence_rule.first.split(";")
 
       timezone = event.start.time_zone
       location = timezone ? Time::Location.load(timezone) : Time::Location.load("UTC")
@@ -533,10 +533,11 @@ module PlaceCalendar
         parts.includes?("BYDAY")
       end
 
-      if byday_part
-        byday = byday_part.split("=").last
+      return [] of String unless byday_part
 
-        case byday
+      days = byday_part.split("=").last
+      days.split(",").compact_map do |byday|
+        case byday.strip.upcase
         when "SU", "1SU"
           "sunday"
         when "MO", "1MO"
@@ -668,8 +669,8 @@ class Google::Calendar::Event
 
     hide_attendees = @guests_can_see_other_guests.nil? ? false : !@guests_can_see_other_guests
 
-    recurrence = if @recurrence
-                   PlaceCalendar::Google.recurrence_from_google(@recurrence, self)
+    recurrence = if rec = @recurrence
+                   PlaceCalendar::Google.recurrence_from_google(rec, self)
                  end
 
     # obtain online meeting details

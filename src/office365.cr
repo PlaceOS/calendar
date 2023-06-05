@@ -480,18 +480,20 @@ class Office365::Event
 
       status = if attend_status = attendee.status
                  case attend_status.response
-                 when Office365::ResponseStatus::Response::None
+                 in Office365::ResponseStatus::Response::None
                    "needsAction"
-                 when Office365::ResponseStatus::Response::Organizer
+                 in Office365::ResponseStatus::Response::Organizer
                    "accepted"
-                 when Office365::ResponseStatus::Response::TentativelyAccepted
+                 in Office365::ResponseStatus::Response::TentativelyAccepted
                    "tentative"
-                 when Office365::ResponseStatus::Response::Accepted
+                 in Office365::ResponseStatus::Response::Accepted
                    "accepted"
-                 when Office365::ResponseStatus::Response::Declined
+                 in Office365::ResponseStatus::Response::Declined
                    "declined"
-                 when Office365::ResponseStatus::Response::NotResponded
-                   "declined"
+                 in Office365::ResponseStatus::Response::NotResponded
+                   "needsAction"
+                 in Nil
+                   "needsAction"
                  end
                end
 
@@ -505,7 +507,7 @@ class Office365::Event
     location = source_location.try &.display_name
 
     recurrence = if (e_recurrence = @recurrence) && (range = e_recurrence.range) && (pattern = e_recurrence.pattern)
-                   days_of_week = pattern.days_of_week ? pattern.days_of_week.try(&.first.to_s.downcase) : nil
+                   days_of_week = pattern.days_of_week ? pattern.days_of_week.try(&.map(&.to_s.downcase)) : nil
 
                    recurrence_time_zone = range.recurrence_time_zone
                    recurrence_time_zone_loc = recurrence_time_zone ? Time::Location.load(recurrence_time_zone) : Time::Location.load("UTC")
@@ -515,22 +517,26 @@ class Office365::Event
                      range_end: range_end,
                      interval: pattern.interval.not_nil!,
                      pattern: pattern.type.to_s.downcase,
-                     days_of_week: days_of_week,
+                     days_of_week: days_of_week || [] of String,
                    )
                  end
 
-    status = if resp_status = @response_status
-               case resp_status.response
-               when Office365::ResponseStatus::Response::Accepted
-                 "confirmed"
-               when Office365::ResponseStatus::Response::Organizer
-                 "confirmed"
-               when Office365::ResponseStatus::Response::TentativelyAccepted
-                 "tentative"
-               when Office365::ResponseStatus::Response::Declined
-                 "cancelled"
+    if @is_cancelled
+      status = "cancelled"
+    else
+      status = if resp_status = @response_status
+                 case resp_status.response
+                 when Office365::ResponseStatus::Response::Accepted
+                   "confirmed"
+                 when Office365::ResponseStatus::Response::Organizer
+                   "confirmed"
+                 when Office365::ResponseStatus::Response::TentativelyAccepted
+                   "tentative"
+                 when Office365::ResponseStatus::Response::Declined
+                   "cancelled"
+                 end
                end
-             end
+    end
 
     PlaceCalendar::Event.new(
       id: @id,

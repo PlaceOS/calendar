@@ -7,11 +7,17 @@ class PlaceCalendar::Recurrence
   @[JSON::Field(converter: Time::EpochConverter, type: "integer", format: "Int64")]
   property range_end : Time
 
+  # the gap in the pattern (daily + an interval of every 2nd day etc)
   property interval : Int32
-  property pattern : String
-  property days_of_week : String?
 
-  def initialize(@range_start, @range_end, @interval, pattern, @days_of_week = nil)
+  # one of daily, weekly, monthly
+  property pattern : String
+
+  # sunday, monday, wednesday, thursday, friday, saturday
+  property days_of_week : Array(String) { [] of String }
+
+  def initialize(@range_start, @range_end, @interval, pattern, days_of_week : String | Array(String) = [] of String)
     @pattern = pattern == "relativemonthly" ? "monthly" : pattern
+    @days_of_week = days_of_week.is_a?(Array) ? days_of_week : [days_of_week]
   end
 end
