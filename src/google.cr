@@ -324,7 +324,7 @@ module PlaceCalendar
         extended_properties:         event.extended_properties,
       }
       if e_recurrence = event.recurrence
-        params = params.merge(recurrence: PlaceCalendar::Google.recurrence_to_google(e_recurrence))
+        params = params.merge(recurrence: PlaceCalendar::Google.recurrence_to_google(e_recurrence, event.event_start))
       end
       params
     end
@@ -470,7 +470,7 @@ module PlaceCalendar
       ::Google::Gmail::Messages.new(auth: auth(from)).send(from, email.to_s)
     end
 
-    def self.recurrence_to_google(recurrence)
+    def self.recurrence_to_google(recurrence, time)
       interval = recurrence.interval
       pattern = recurrence.pattern
       days_of_week = recurrence.days_of_week
@@ -483,7 +483,12 @@ module PlaceCalendar
       when "weekly"
         ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=#{days_of_week.map(&.upcase[0..1]).join(",")};UNTIL=#{until_date}"]
       when "monthly"
-        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=1#{days_of_week.first.upcase[0..1]};UNTIL=#{until_date}"]
+        week = time.day // 7 + 1
+        week = -1 if week == 5
+        week = -2 if week == 4
+        ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=#{week}#{days_of_week.first.upcase[0..1]};UNTIL=#{until_date}"]
+      when "month_day"
+        ["RRULE:FREQ=MONTHLY;INTERVAL=#{interval};BYMONTHDAY=1#{time.day};UNTIL=#{until_date}"]
       end
     end
 
@@ -505,7 +510,11 @@ module PlaceCalendar
         parts.includes?("RRULE:FREQ")
       end
 
-      pattern_part.split("=").last.downcase
+      if rule_parts.any?(&.starts_with?("BYMONTHDAY"))
+        "month_day"
+      else
+        pattern_part.split("=").last.downcase
+      end
     end
 
     private def self.google_interval(rule_parts)

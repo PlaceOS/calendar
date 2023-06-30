@@ -282,11 +282,12 @@ module PlaceCalendar
       end
 
       sensitivity = event.private? ? ::Office365::Sensitivity::Private : ::Office365::Sensitivity::Normal
+      starts_at = event.event_start || Time.local
 
       params = {
         id:                      event.id,
         organizer:               event.host,
-        starts_at:               event.event_start || Time.local,
+        starts_at:               starts_at,
         ends_at:                 event.event_end,
         subject:                 event.title || "",
         description:             event.body,
@@ -301,10 +302,28 @@ module PlaceCalendar
       if e_recurrence = event.recurrence
         timezone = event.timezone
         timezone_loc = timezone ? Time::Location.load(timezone) : Time::Location.load("UTC")
-        recurrence_params = ::Office365::RecurrenceParam.new(pattern: e_recurrence.pattern,
+
+        index = nil
+        pattern = case e_recurrence.pattern
+                  when "monthly"
+                    # need to calculate the weekly index
+                    starts_at = starts_at.in(timezone_loc)
+                    week = starts_at.day // 7
+                    index = ::Office365::WeekIndex.from_value week
+                    "RelativeMonthly"
+                  when "month_day"
+                    "AbsoluteMonthly"
+                  else
+                    e_recurrence.pattern
+                  end
+
+        recurrence_params = ::Office365::RecurrenceParam.new(
+          pattern: pattern,
           range_end: e_recurrence.range_end.in(location: timezone_loc),
           interval: e_recurrence.interval,
-          days_of_week: e_recurrence.days_of_week)
+          days_of_week: e_recurrence.days_of_week,
+          index: index
+        )
         params = params.merge(recurrence: recurrence_params)
       end
       params
@@ -513,10 +532,20 @@ class Office365::Event
                    recurrence_time_zone_loc = recurrence_time_zone ? Time::Location.load(recurrence_time_zone) : Time::Location.load("UTC")
                    range_start = Time.parse(range.start_date, pattern: "%F", location: recurrence_time_zone_loc)
                    range_end = Time.parse(range.end_date, pattern: "%F", location: recurrence_time_zone_loc)
+
+                   pos_pattern = case pattern.type.as(::Office365::RecurrencePatternType)
+                                 when .absolute_monthly?
+                                   "month_day"
+                                 when .relative_monthly?
+                                   "monthly"
+                                 else
+                                   pattern.type.to_s.downcase
+                                 end
+
                    PlaceCalendar::Recurrence.new(range_start: range_start,
                      range_end: range_end,
                      interval: pattern.interval.not_nil!,
-                     pattern: pattern.type.to_s.downcase,
+                     pattern: pos_pattern,
                      days_of_week: days_of_week || [] of String,
                    )
                  end
