@@ -310,9 +310,9 @@ module PlaceCalendar
                     starts_at = starts_at.in(timezone_loc)
                     week = starts_at.day // 7
                     index = ::Office365::WeekIndex.from_value week
-                    "RelativeMonthly"
+                    "relativeMonthly"
                   when "month_day"
-                    "AbsoluteMonthly"
+                    "absoluteMonthly"
                   else
                     e_recurrence.pattern
                   end
