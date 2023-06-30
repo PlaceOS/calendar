@@ -304,6 +304,7 @@ module PlaceCalendar
         timezone_loc = timezone ? Time::Location.load(timezone) : Time::Location.load("UTC")
 
         index = nil
+        day_of_month = nil
         pattern = case e_recurrence.pattern
                   when "monthly"
                     # need to calculate the weekly index
@@ -312,6 +313,7 @@ module PlaceCalendar
                     index = ::Office365::WeekIndex.from_value week
                     "relativeMonthly"
                   when "month_day"
+                    day_of_month = starts_at.in(timezone_loc).day
                     "absoluteMonthly"
                   else
                     e_recurrence.pattern
@@ -322,7 +324,8 @@ module PlaceCalendar
           range_end: e_recurrence.range_end.in(location: timezone_loc),
           interval: e_recurrence.interval,
           days_of_week: e_recurrence.days_of_week,
-          index: index
+          index: index,
+          day_of_month: day_of_month
         )
         params = params.merge(recurrence: recurrence_params)
       end
