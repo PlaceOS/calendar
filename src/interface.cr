@@ -14,6 +14,7 @@ module PlaceCalendar
     abstract def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
     abstract def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
     abstract def delete_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Bool
+    abstract def accept_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
     abstract def decline_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
     abstract def list_attachments(user_id : String, event_id : String, calendar_id : String? = nil, **options) : Array(Attachment)
     abstract def get_attachment(user_id : String, event_id : String, id : String, calendar_id : String? = nil, **options) : Attachment?

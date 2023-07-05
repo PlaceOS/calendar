@@ -252,6 +252,14 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
+    def accept_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
+      response = client.accept_event(mailbox: mailbox, calendar_id: calendar_id, id: id, notify: notify, comment: comment)
+      response
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
     private def event_params(event)
       attendees = event.attendees.map do |a|
         if a.response_status
