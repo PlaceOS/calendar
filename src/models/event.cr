@@ -41,6 +41,14 @@ class PlaceCalendar::Event
   @[JSON::Field(ignore: true)]
   property source : String?
 
+  # the mailbox this event was retrieved from
+  getter mailbox : String? = nil
+
+  def set_mailbox(mailbox : String?)
+    @mailbox = mailbox
+    self
+  end
+
   def initialize(
     @id = nil,
     @host = nil,
