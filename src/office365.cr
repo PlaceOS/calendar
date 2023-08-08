@@ -39,7 +39,7 @@ module PlaceCalendar
 
     def reauthorize_notifier(subscription : PlaceCalendar::Subscription, new_expiration_time : Time? = nil) : PlaceCalendar::Subscription
       client.reauthorize_subscription(subscription.id)
-      renew_notifier(subscription, new_expiration_time || subscription.expiration_date_time)
+      renew_notifier(subscription, new_expiration_time || subscription.expires_at.as(Time))
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
@@ -187,7 +187,7 @@ module PlaceCalendar
       # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
       if events = client.list_events(**options.merge(mailbox: mailbox, calendar_id: calendar_id, period_start: period_start, period_end: period_end, ical_uid: ical_uid), filter: filter_string)
-        events.value.map(&.to_place_calendar)
+        events.value.map(&.to_place_calendar(mailbox))
       else
         [] of Event
       end
@@ -197,7 +197,7 @@ module PlaceCalendar
 
     def list_events(user_id : String, response : HTTP::Client::Response) : Array(Event)
       if events = client.list_events(response)
-        events.value.map(&.to_place_calendar)
+        events.value.map(&.to_place_calendar(user_id))
       else
         [] of Event
       end
@@ -211,7 +211,7 @@ module PlaceCalendar
 
       new_event = client.create_event(**params)
 
-      new_event.to_place_calendar
+      new_event.to_place_calendar(mailbox)
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
@@ -219,7 +219,7 @@ module PlaceCalendar
     def get_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Event?
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
       if event = client.get_event(id: id, mailbox: mailbox, calendar_id: calendar_id)
-        event.to_place_calendar
+        event.to_place_calendar(mailbox)
       end
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
@@ -230,7 +230,7 @@ module PlaceCalendar
       o365_event = ::Office365::Event.new(**event_params(event))
 
       if updated_event = client.update_event(**options.merge(mailbox: mailbox, calendar_id: calendar_id, event: o365_event))
-        updated_event.to_place_calendar
+        updated_event.to_place_calendar(mailbox)
       end
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
@@ -246,9 +246,19 @@ module PlaceCalendar
 
     def decline_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
-      response = client.decline_event(mailbox: mailbox, calendar_id: calendar_id, id: id, notify: notify, comment: comment)
-      # Office365 requires you cancel an event if you're the host so we just check if the above failed
-      response = client.cancel_event(mailbox: mailbox, id: id, comment: comment) unless response
+      begin
+        client.decline_event(mailbox: mailbox, calendar_id: calendar_id, id: id, notify: notify, comment: comment)
+      rescue ::Office365::Exception
+        # Office365 requires you cancel an event if you're the host so we just check if the above failed
+        client.cancel_event(mailbox: mailbox, id: id, comment: comment)
+      end
+    rescue ex : ::Office365::Exception
+      handle_office365_exception(ex)
+    end
+
+    def accept_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
+      mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
+      response = client.accept_event(mailbox: mailbox, calendar_id: calendar_id, id: id, notify: notify, comment: comment)
       response
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
@@ -284,11 +294,12 @@ module PlaceCalendar
       end
 
       sensitivity = event.private? ? ::Office365::Sensitivity::Private : ::Office365::Sensitivity::Normal
+      starts_at = event.event_start || Time.local
 
       params = {
         id:                      event.id,
         organizer:               event.host,
-        starts_at:               event.event_start || Time.local,
+        starts_at:               starts_at,
         ends_at:                 event.event_end,
         subject:                 event.title || "",
         description:             event.body,
@@ -300,13 +311,34 @@ module PlaceCalendar
         recurrence:              nil,
         online_meeting_provider: event.online_meeting_provider || @conference_type,
       }
-      if event.recurrence
-        e_recurrence = event.recurrence.not_nil!
-        timezone_loc = event.timezone ? Time::Location.load(event.timezone.not_nil!) : Time::Location.load("UTC")
-        recurrence_params = ::Office365::RecurrenceParam.new(pattern: e_recurrence.pattern,
+      if e_recurrence = event.recurrence
+        timezone = event.timezone
+        timezone_loc = timezone ? Time::Location.load(timezone) : Time::Location.load("UTC")
+
+        index = nil
+        day_of_month = nil
+        pattern = case e_recurrence.pattern
+                  when "monthly"
+                    # need to calculate the weekly index
+                    starts_at = starts_at.in(timezone_loc)
+                    week = starts_at.day // 7
+                    index = ::Office365::WeekIndex.from_value week
+                    "relativeMonthly"
+                  when "month_day"
+                    day_of_month = starts_at.in(timezone_loc).day
+                    "absoluteMonthly"
+                  else
+                    e_recurrence.pattern
+                  end
+
+        recurrence_params = ::Office365::RecurrenceParam.new(
+          pattern: pattern,
           range_end: e_recurrence.range_end.in(location: timezone_loc),
           interval: e_recurrence.interval,
-          days_of_week: e_recurrence.days_of_week)
+          days_of_week: e_recurrence.days_of_week,
+          index: index,
+          day_of_month: day_of_month
+        )
         params = params.merge(recurrence: recurrence_params)
       end
       params
@@ -397,7 +429,7 @@ module PlaceCalendar
       bcc : String | Array(String) = [] of String
     )
       content_type = message_html.presence ? "HTML" : "Text"
-      content = message_html.presence || message_plaintext.not_nil!
+      content = message_html.presence || message_plaintext || ""
 
       attach = attachments.map { |a| ::Office365::Attachment.new(a[:file_name], a[:content], base64_encoded: true) }
       attach.concat resource_attachments.map { |a|
@@ -460,39 +492,42 @@ class Office365::Calendar
 end
 
 class Office365::Event
-  def to_place_calendar
+  def to_place_calendar(mailbox : String? = nil)
     event_start = @starts_at || Time.local
     event_end = @ends_at
 
-    if !@timezone.nil?
-      tz_location = DateTimeTimeZone.tz_location(@timezone.not_nil!)
-
+    if timezone = @timezone.presence
+      tz_location = DateTimeTimeZone.tz_location(timezone)
       event_start = event_start.in(tz_location)
 
-      if !event_end.nil?
-        event_end = event_end.not_nil!.in(tz_location)
+      if ending = event_end
+        event_end = ending.in(tz_location)
       end
     end
 
-    attendees = (@attendees).map do |attendee|
-      email = attendee.email_address.address.not_nil!.downcase
+    attendees = (@attendees).compact_map do |attendee|
+      email = attendee.email_address.address
+      next unless email
+      email = email.downcase
       name = attendee.email_address.name || email
       resource = attendee.type == AttendeeType::Resource
 
-      status = if attendee.status
-                 case attendee.status.not_nil!.response
-                 when Office365::ResponseStatus::Response::None
+      status = if attend_status = attendee.status
+                 case attend_status.response
+                 in Office365::ResponseStatus::Response::None
                    "needsAction"
-                 when Office365::ResponseStatus::Response::Organizer
+                 in Office365::ResponseStatus::Response::Organizer
                    "accepted"
-                 when Office365::ResponseStatus::Response::TentativelyAccepted
+                 in Office365::ResponseStatus::Response::TentativelyAccepted
                    "tentative"
-                 when Office365::ResponseStatus::Response::Accepted
+                 in Office365::ResponseStatus::Response::Accepted
                    "accepted"
-                 when Office365::ResponseStatus::Response::Declined
+                 in Office365::ResponseStatus::Response::Declined
                    "declined"
-                 when Office365::ResponseStatus::Response::NotResponded
-                   "declined"
+                 in Office365::ResponseStatus::Response::NotResponded
+                   "needsAction"
+                 in Nil
+                   "needsAction"
                  end
                end
 
@@ -505,34 +540,47 @@ class Office365::Event
     source_location = @location || @locations.try &.first?
     location = source_location.try &.display_name
 
-    recurrence = if @recurrence
-                   e_recurrence = @recurrence.not_nil!
-                   range = e_recurrence.range.not_nil!
-                   pattern = e_recurrence.pattern.not_nil!
-                   days_of_week = pattern.days_of_week ? pattern.days_of_week.not_nil!.first.to_s.downcase : nil
-                   recurrence_time_zone_loc = range.recurrence_time_zone ? Time::Location.load(range.recurrence_time_zone.not_nil!) : Time::Location.load("UTC")
+    recurrence = if (e_recurrence = @recurrence) && (range = e_recurrence.range) && (pattern = e_recurrence.pattern)
+                   days_of_week = pattern.days_of_week ? pattern.days_of_week.try(&.map(&.to_s.downcase)) : nil
+
+                   recurrence_time_zone = range.recurrence_time_zone
+                   recurrence_time_zone_loc = recurrence_time_zone ? Time::Location.load(recurrence_time_zone) : Time::Location.load("UTC")
                    range_start = Time.parse(range.start_date, pattern: "%F", location: recurrence_time_zone_loc)
                    range_end = Time.parse(range.end_date, pattern: "%F", location: recurrence_time_zone_loc)
+
+                   pos_pattern = case pattern.type.as(::Office365::RecurrencePatternType)
+                                 when .absolute_monthly?
+                                   "month_day"
+                                 when .relative_monthly?
+                                   "monthly"
+                                 else
+                                   pattern.type.to_s.downcase
+                                 end
+
                    PlaceCalendar::Recurrence.new(range_start: range_start,
                      range_end: range_end,
                      interval: pattern.interval.not_nil!,
-                     pattern: pattern.type.to_s.downcase,
-                     days_of_week: days_of_week,
+                     pattern: pos_pattern,
+                     days_of_week: days_of_week || [] of String,
                    )
                  end
 
-    status = if @response_status
-               case @response_status.not_nil!.response
-               when Office365::ResponseStatus::Response::Accepted
-                 "confirmed"
-               when Office365::ResponseStatus::Response::Organizer
-                 "confirmed"
-               when Office365::ResponseStatus::Response::TentativelyAccepted
-                 "tentative"
-               when Office365::ResponseStatus::Response::Declined
-                 "cancelled"
+    if @is_cancelled
+      status = "cancelled"
+    else
+      status = if resp_status = @response_status
+                 case resp_status.response
+                 when Office365::ResponseStatus::Response::Accepted
+                   "confirmed"
+                 when Office365::ResponseStatus::Response::Organizer
+                   "confirmed"
+                 when Office365::ResponseStatus::Response::TentativelyAccepted
+                   "tentative"
+                 when Office365::ResponseStatus::Response::Declined
+                   "cancelled"
+                 end
                end
-             end
+    end
 
     PlaceCalendar::Event.new(
       id: @id,
@@ -559,7 +607,7 @@ class Office365::Event
       online_meeting_id: online_meeting_id,
       created: @created,
       updated: @updated,
-    )
+    ).set_mailbox(mailbox)
   end
 end
 
@@ -586,11 +634,11 @@ end
 
 class Office365::Availability
   def to_placecalendar
-    raise "@starts_at cannot be nil!" if @starts_at.nil?
-    raise "@ends_at cannot be nil!" if @ends_at.nil?
+    starts_at = @starts_at
+    ends_at = @ends_at
 
-    starts_at = @starts_at.not_nil!
-    ends_at = @ends_at.not_nil!
+    raise "@starts_at cannot be nil!" unless starts_at
+    raise "@ends_at cannot be nil!" unless ends_at
 
     PlaceCalendar::Availability.new(
       @status == ::Office365::AvailabilityStatus::Free ? PlaceCalendar::AvailabilityStatus::Free : PlaceCalendar::AvailabilityStatus::Busy,
@@ -609,6 +657,6 @@ end
 
 class Office365::Subscription
   def to_place_subscription(notification_url : String)
-    PlaceCalendar::Subscription.new(@id.not_nil!, @resource, @resource, notification_url, @expiration_date_time, @client_state, source: self.to_json)
+    PlaceCalendar::Subscription.new(@id.as(String), @resource, @resource, notification_url, @expiration_date_time, @client_state, source: self.to_json)
   end
 end

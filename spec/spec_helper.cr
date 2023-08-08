@@ -197,7 +197,7 @@ def events_recurrence_spec(client, username)
   ne_recurrence = new_event.not_nil!.recurrence.not_nil!
   ne_recurrence.interval.should eq(1)
   ne_recurrence.pattern.should eq("weekly")
-  ne_recurrence.days_of_week.should eq("monday")
+  ne_recurrence.days_of_week.should eq(["monday"])
   event_list = client.list_events(username, period_start: start_time.at_beginning_of_day)
   # Google creates event for start_date(1) + recurrence(4) if start date is not recurrence start date
   # Microsoft only creates for recurrence(4)
@@ -247,7 +247,7 @@ def events_recurrence_spec(client, username)
   ne_recurrence.interval.should eq(2)
   ne_recurrence.pattern.should eq("monthly")
   # it should start from next Tuesday
-  ne_recurrence.days_of_week.should eq("tuesday")
+  ne_recurrence.days_of_week.should eq(["tuesday"])
   event_list = client.list_events(username, period_start: start_time.at_beginning_of_day)
   event_list.map do |recurring_event|
     recurring_event.event_start
