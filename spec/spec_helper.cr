@@ -2,6 +2,22 @@ require "spec"
 require "../src/place_calendar"
 require "vcr"
 
+require "webmock"
+
+WebMock.allow_net_connect = true
+
+def mock_office365_client_auth
+  WebMock.stub(:post, "https://login.microsoftonline.com/#{o365_creds[:tenant]}/oauth2/v2.0/token")
+    .to_return(mock_office365_token.to_json)
+end
+
+def mock_office365_token
+  Office365::Token.new(
+    access_token: "access_token",
+    token_type: "token_type",
+    expires_in: 12345)
+end
+
 # I change the fields included here to exlude body + headers
 # otherwise the md5sums VCR generates from request#to_json change
 # too frequently

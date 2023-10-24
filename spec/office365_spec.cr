@@ -9,17 +9,33 @@ describe PlaceCalendar::Office365 do
   end
 
   it "lists users, and gets users" do
-    VCR.use_cassette("office365-users") do
-      client = PlaceCalendar::Client.new(**o365_creds)
-      users_spec(client)
-    end
+    mock_office365_client_auth
+
+    WebMock.stub(:get, "https://graph.microsoft.com/v1.0/users?%24filter=accountEnabled+eq+true")
+      .to_return(Office365::UserQuery.new(
+        value: [Office365::User.from_json(%({"id":"1234","displayName":"Test User","businessPhones":[],"userPrincipalName":"test-user@example.com"}))]
+      ).to_json
+      )
+
+    WebMock.stub(:get, "https://graph.microsoft.com/v1.0/users/1234")
+      .to_return(Office365::User.from_json(%({"id":"1234","displayName":"Test User","businessPhones":[],"userPrincipalName":"test-user@example.com"})).to_json
+      )
+
+    client = PlaceCalendar::Client.new(**o365_creds)
+    users_spec(client)
   end
 
   it "lists calendars" do
-    VCR.use_cassette("office365-calendars") do
-      client = PlaceCalendar::Client.new(**o365_creds)
-      calendars_spec(client, "dev@acaprojects.com")
-    end
+    mock_office365_client_auth
+
+    WebMock.stub(:get, "https://graph.microsoft.com/v1.0/users/dev%40acaprojects.com/calendars?")
+      .to_return(Office365::CalendarQuery.new(
+        value: [Office365::Calendar.from_json(%({"id":"1234","name":"Test calendar"}))]
+      ).to_json
+      )
+
+    client = PlaceCalendar::Client.new(**o365_creds)
+    calendars_spec(client, "dev@acaprojects.com")
   end
 
   it "lists, creates, updates, and deletes events" do
