@@ -1,0 +1,13 @@
+HTTP/1.1 401 Unauthorized
+Transfer-Encoding: chunked
+Content-Type: application/json
+Vary: Accept-Encoding
+Strict-Transport-Security: max-age=31536000
+request-id: f217137a-dd45-40f9-a7fc-0738926ecd90
+client-request-id: f217137a-dd45-40f9-a7fc-0738926ecd90
+x-ms-ags-diagnostic: {"ServerInfo":{"DataCenter":"Australia Southeast","Slice":"E","Ring":"4","ScaleUnit":"000","RoleInstance":"ML1PEPF00007C6C"}}
+WWW-Authenticate: Bearer realm="", authorization_uri="https://login.microsoftonline.com/common/oauth2/authorize", client_id="00000003-0000-0000-c000-000000000000"
+Date: Tue, 24 Oct 2023 02:43:06 GMT
+Content-Length: 268
+
+{"error":{"code":"InvalidAuthenticationToken","message":"CompactToken parsing failed with error code: 80049217","innerError":{"date":"2023-10-24T02:43:07","request-id":"f217137a-dd45-40f9-a7fc-0738926ecd90","client-request-id":"f217137a-dd45-40f9-a7fc-0738926ecd90"}}}
