@@ -165,10 +165,12 @@ module PlaceCalendar
       period_end : Time? = nil,
       ical_uid : String? = nil,
       showDeleted : Bool? = nil,
+      filter : String? = nil,
       **options
     ) : HTTP::Request
+      filter_string = AzureADFilter::Parser.parse(filter).to_s if filter
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
-      client.list_events_request(**options.merge(mailbox: mailbox, calendar_id: calendar_id, period_start: period_start, period_end: period_end, ical_uid: ical_uid))
+      client.list_events_request(**options.merge(mailbox: mailbox, calendar_id: calendar_id, period_start: period_start, period_end: period_end, ical_uid: ical_uid, filter: filter_string))
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
