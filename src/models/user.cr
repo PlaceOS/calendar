@@ -12,6 +12,7 @@ class PlaceCalendar::User
   property title : String?
   property photo : String?
   property username : String?
+  property office_location : String?
 
   def initialize(
     @id = nil,
@@ -22,7 +23,8 @@ class PlaceCalendar::User
     @title = nil,
     @photo = nil,
     @username = nil,
-    @source = nil
+    @source = nil,
+    @office_location = nil
   )
   end
 end

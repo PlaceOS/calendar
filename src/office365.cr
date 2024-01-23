@@ -469,7 +469,8 @@ class Office365::User
       email: email,
       phone: @mobile_phone,
       username: @user_principal_name,
-      source: self.to_json
+      source: self.to_json,
+      office_location: @office_location
     )
   end
 
