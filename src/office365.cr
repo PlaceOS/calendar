@@ -71,7 +71,8 @@ module PlaceCalendar
       users = if next_link
                 uri = URI.parse(next_link)
                 request = client.graph_http_request("GET", path: uri.path, query: uri.query_params)
-                client.list_users(request)
+                response = client.graph_request(request)
+                client.list_users(response)
               else
                 filter_string = AzureADFilter::Parser.parse(filter).to_s if filter
                 client.list_users(query, limit, **options, filter: filter_string)
