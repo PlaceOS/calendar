@@ -4,6 +4,9 @@ class PlaceCalendar::User
   @[JSON::Field(ignore: true)]
   property source : String?
 
+  @[JSON::Field(ignore: true)]
+  property next_link : String?
+
   property id : String?
   property name : String?
   property email : String?
@@ -24,7 +27,8 @@ class PlaceCalendar::User
     @photo = nil,
     @username = nil,
     @source = nil,
-    @office_location = nil
+    @office_location = nil,
+    @next_link = nil
   )
   end
 end

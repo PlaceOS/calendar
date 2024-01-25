@@ -67,10 +67,19 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def list_users(query : String? = nil, limit : Int32? = nil, filter : String? = nil, **options) : Array(User)
-      filter_string = AzureADFilter::Parser.parse(filter).to_s if filter
-      if users = client.list_users(query, limit, **options, filter: filter_string)
-        users.value.map(&.to_place_calendar)
+    def list_users(query : String? = nil, limit : Int32? = nil, filter : String? = nil, next_link : String? = nil, **options) : Array(User)
+      users = if next_link
+                uri = URI.parse(next_link)
+                request = client.graph_http_request("GET", path: uri.path, query: uri.query_params)
+                client.list_users(request)
+              else
+                filter_string = AzureADFilter::Parser.parse(filter).to_s if filter
+                client.list_users(query, limit, **options, filter: filter_string)
+              end
+
+      if users
+        next_page = users.next_page_token
+        users.value.map(&.to_place_calendar(next_page))
       else
         [] of User
       end
@@ -461,7 +470,7 @@ module PlaceCalendar
 end
 
 class Office365::User
-  def to_place_calendar
+  def to_place_calendar(next_link : String? = nil)
     PlaceCalendar::User.new(
       id: @id,
       name: @display_name,
@@ -470,7 +479,8 @@ class Office365::User
       phone: @mobile_phone,
       username: @user_principal_name,
       source: self.to_json,
-      office_location: @office_location
+      office_location: @office_location,
+      next_link: next_link
     )
   end
 

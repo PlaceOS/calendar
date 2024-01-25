@@ -100,11 +100,18 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def list_users(query : String? = nil, limit : Int32? = nil, filter : String? = nil, **options) : Array(User)
+    def list_users(query : String? = nil, limit : Int32? = nil, filter : String? = nil, next_link : String? = nil, **options) : Array(User)
       query = AzureADFilter::Parser.parse(filter).to_google if filter
-      if users = directory.users(query, limit || 500, **options)
-        # TODO: Deal with pagination
-        users.users.map(&.to_place_calendar)
+
+      users = if next_link
+                directory.users(query, limit || 500, **options, pageToken: next_link)
+              else
+                directory.users(query, limit || 500, **options)
+              end
+
+      if users
+        next_page = users.next_page_token
+        users.users.map(&.to_place_calendar(next_page))
       else
         [] of User
       end
@@ -576,7 +583,7 @@ module PlaceCalendar
 end
 
 class Google::Directory::User
-  def to_place_calendar
+  def to_place_calendar(next_link : String? = nil)
     user_name = @name.full_name || "#{@name.given_name} #{@name.family_name}"
 
     if phones = @phones
@@ -614,7 +621,8 @@ class Google::Directory::User
       title: title,
       photo: @thumbnail_photo_url,
       username: account,
-      source: self.to_json
+      source: self.to_json,
+      next_link: next_link
     )
   end
 end
