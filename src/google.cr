@@ -745,13 +745,13 @@ end
 
 class Google::Directory::Member
   def to_place_member
-    PlaceCalendar::Member.new(@id, @email, @email, nil, self.to_json)
+    PlaceCalendar::Member.new(@id, @email, @email, nil)
   end
 end
 
 class Google::Directory::Group
   def to_place_group
-    PlaceCalendar::Group.new(@id, @name, @email, @description, self.to_json)
+    PlaceCalendar::Group.new(@id, @name, @email, @description)
   end
 end
 

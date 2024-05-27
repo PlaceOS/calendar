@@ -673,7 +673,7 @@ end
 
 class Office365::Group
   def to_place_group
-    PlaceCalendar::Group.new(@id, @display_name, @mail, @description, self.to_json)
+    PlaceCalendar::Group.new(@id, @display_name, @mail, @description)
   end
 end
 
