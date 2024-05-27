@@ -38,9 +38,6 @@ class PlaceCalendar::Event
 
   property extended_properties : Hash(String, String?)?
 
-  @[JSON::Field(ignore: true)]
-  property source : String?
-
   # the mailbox this event was retrieved from
   getter mailbox : String? = nil
 
@@ -61,7 +58,6 @@ class PlaceCalendar::Event
     @location = nil,
     @private = false,
     @all_day = false,
-    @source = nil,
     @timezone = nil,
     @attachments = [] of Attachment,
     @recurrence = nil,

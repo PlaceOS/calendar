@@ -2,9 +2,6 @@ class PlaceCalendar::User
   include JSON::Serializable
 
   @[JSON::Field(ignore: true)]
-  property source : String?
-
-  @[JSON::Field(ignore: true)]
   property next_link : String?
 
   property id : String?
@@ -16,6 +13,7 @@ class PlaceCalendar::User
   property photo : String?
   property username : String?
   property office_location : String?
+  property suspended : Bool? = nil
 
   def initialize(
     @id = nil,
@@ -26,9 +24,9 @@ class PlaceCalendar::User
     @title = nil,
     @photo = nil,
     @username = nil,
-    @source = nil,
     @office_location = nil,
-    @next_link = nil
+    @next_link = nil,
+    @suspended = nil
   )
   end
 end

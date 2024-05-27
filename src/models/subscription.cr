@@ -1,9 +1,6 @@
 struct PlaceCalendar::Subscription
   include JSON::Serializable
 
-  @[JSON::Field(ignore: true)]
-  getter source : String?
-
   # Subscription details
   getter id : String
   getter expires_at : Time?
@@ -26,6 +23,6 @@ struct PlaceCalendar::Subscription
     end
   end
 
-  def initialize(@id, @resource_id, @resource_uri, @notification_url, @expires_at = nil, @client_secret = nil, @user_id = nil, @source = nil)
+  def initialize(@id, @resource_id, @resource_uri, @notification_url, @expires_at = nil, @client_secret = nil, @user_id = nil)
   end
 end

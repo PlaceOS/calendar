@@ -61,8 +61,18 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def get_members(group_id : String, **options) : Array(Member)
-      client.list_group_members(group_id).value.map(&.to_place_member)
+    def get_members(group_id : String, next_link : String? = nil, **options) : Array(Member)
+      members = if next_link
+                  uri = URI.parse(next_link)
+                  request = client.graph_http_request("GET", path: uri.path, query: uri.query_params)
+                  response = client.graph_request(request)
+                  client.list_group_members(response)
+                else
+                  client.list_group_members(group_id)
+                end
+
+      next_page = members.next_page_token
+      members.value.map(&.to_place_member(next_page))
     rescue ex : ::Office365::Exception
       handle_office365_exception(ex)
     end
@@ -479,14 +489,14 @@ class Office365::User
       email: email,
       phone: @mobile_phone,
       username: @user_principal_name,
-      source: self.to_json,
       office_location: @office_location,
-      next_link: next_link
+      next_link: next_link,
+      suspended: @account_enabled,
     )
   end
 
-  def to_place_member
-    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, self.to_json)
+  def to_place_member(next_link : String? = nil)
+    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, @account_enabled, next_link)
   end
 end
 
@@ -499,8 +509,7 @@ class Office365::Calendar
       summary: @name,
       primary: !!self.is_default_calendar?,
       can_edit: !!self.can_edit?,
-      ref: @id,
-      source: self.to_json
+      ref: @id
     )
   end
 end
@@ -608,7 +617,6 @@ class Office365::Event
       private: is_private?,
       all_day: all_day?,
       location: location,
-      source: self.to_json,
       timezone: event_start.location.to_s,
       recurrence: recurrence,
       status: status,
@@ -671,6 +679,6 @@ end
 
 class Office365::Subscription
   def to_place_subscription(notification_url : String)
-    PlaceCalendar::Subscription.new(@id.as(String), @resource, @resource, notification_url, @expiration_date_time, @client_state, source: self.to_json)
+    PlaceCalendar::Subscription.new(@id.as(String), @resource, @resource, notification_url, @expiration_date_time, @client_state)
   end
 end

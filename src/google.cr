@@ -621,8 +621,8 @@ class Google::Directory::User
       title: title,
       photo: @thumbnail_photo_url,
       username: account,
-      source: self.to_json,
-      next_link: next_link
+      next_link: next_link,
+      suspended: suspended,
     )
   end
 end
@@ -634,7 +634,6 @@ class Google::Calendar::ListEntry
     PlaceCalendar::Calendar.new(
       id: @id,
       summary: @summary_main,
-      source: self.to_json,
       primary: !!@primary,
       can_edit: @access_role.in?(CALENDAR_WRITABLE)
     )
@@ -725,7 +724,6 @@ class Google::Calendar::Event
       hide_attendees: hide_attendees,
       private: @visibility.in?({"private", "confidential"}),
       all_day: !!@start.date,
-      source: self.to_json,
       timezone: timezone,
       recurrence: recurrence,
       status: @status,
@@ -762,6 +760,6 @@ struct Google::Calendar::Notification::Receipt
     if expires = expiration
       expires_time = Time.unix_ms(expires)
     end
-    PlaceCalendar::Subscription.new(@id.as(String), @resource_id, resource, notification_url, expires_time, @token, user_id, source: self.to_json)
+    PlaceCalendar::Subscription.new(@id.as(String), @resource_id, resource, notification_url, expires_time, @token, user_id)
   end
 end

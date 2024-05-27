@@ -1,9 +1,6 @@
 class PlaceCalendar::Calendar
   include JSON::Serializable
 
-  @[JSON::Field(ignore: true)]
-  property source : String?
-
   property id : String?
   property ref : String?
   property summary : String
@@ -15,6 +12,6 @@ class PlaceCalendar::Calendar
     @id
   end
 
-  def initialize(@id, @summary, @source, @primary = false, @can_edit = false, @ref = nil)
+  def initialize(@id, @summary, @primary = false, @can_edit = false, @ref = nil)
   end
 end
