@@ -69,7 +69,7 @@ module PlaceCalendar
                   client.list_group_members(response)
                 else
                   if group_id.includes?('@')
-                    client.list_groups(filter: "$filter=mail eq '#{group_id}'").value.first?.try do |group|
+                    client.list_groups(filter: "mail eq '#{group_id}'").value.first?.try do |group|
                       group_id = group.id
                     end
                   end
@@ -501,7 +501,7 @@ class Office365::User
   end
 
   def to_place_member(next_link : String? = nil)
-    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, @account_enabled, next_link)
+    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, !@account_enabled, next_link)
   end
 end
 
