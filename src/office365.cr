@@ -68,6 +68,11 @@ module PlaceCalendar
                   response = client.graph_request(request)
                   client.list_group_members(response)
                 else
+                  if group_id.includes?('@')
+                    client.list_groups(filter: "$filter=mail eq '#{group_id}'").value.first?.try do |group|
+                      group_id = group.id
+                    end
+                  end
                   client.list_group_members(group_id)
                 end
 
@@ -491,7 +496,7 @@ class Office365::User
       username: @user_principal_name,
       office_location: @office_location,
       next_link: next_link,
-      suspended: @account_enabled,
+      suspended: !@account_enabled,
     )
   end
 
