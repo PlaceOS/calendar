@@ -7,9 +7,10 @@ class PlaceCalendar::Member
   property id : String
   property name : String?
   property email : String
+  property phone : String?
   property username : String
   property suspended : Bool?
 
-  def initialize(@id, @email, @username, @name = nil, @suspended = nil, @next_link = nil)
+  def initialize(@id, @email, @username, @name = nil, @suspended = nil, @next_link = nil, @phone = nil)
   end
 end

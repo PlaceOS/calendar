@@ -501,7 +501,7 @@ class Office365::User
   end
 
   def to_place_member(next_link : String? = nil)
-    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, !@account_enabled, next_link)
+    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, !@account_enabled, next_link, @mobile_phone)
   end
 end
 
