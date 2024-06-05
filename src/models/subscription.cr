@@ -8,7 +8,11 @@ struct PlaceCalendar::Subscription
   getter resource_uri : String
 
   # Used to confirm that the message came from a reputable source
-  getter client_secret : String?
+  @client_secret : String | Int64?
+
+  def client_secret : String
+    @client_secret.to_s
+  end
 
   # Where the notifications are being sent
   getter notification_url : String
@@ -17,7 +21,7 @@ struct PlaceCalendar::Subscription
 
   def expired?
     if time = expires_at
-      6.minutes.ago >= time
+      5.minutes.from_now >= time
     else
       false
     end
