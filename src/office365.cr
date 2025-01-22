@@ -17,8 +17,6 @@ module PlaceCalendar
     getter client : ::Office365::Client
     getter? delegated_access : Bool
 
-    @calendar_list_cache = Hash(String, Tuple(Time, Array(::Office365::Calendar))).new
-
     def client_id : Symbol
       :office365
     end
@@ -125,32 +123,15 @@ module PlaceCalendar
     end
 
     def get_calendar(id : String, **options) : Calendar
-      {{ raise "Uninplemented" }}
+      {{ raise "Unimplemented" }}
     end
 
     def list_calendars(mail : String, **options) : Array(Calendar)
       only_writable = options[:only_writable]? || false
-
       mail = mail.downcase
 
-      if delegated_access?
-        cached_list = @calendar_list_cache.delete(mail)
-        if cached_list
-          expires, cached = cached_list
-          expires = cached = nil if expires && expires <= Time.utc
-        end
-      end
-
-      if calendars = cached || client.list_calendars(mail).value
-        if delegated_access?
-          expires = expires || 10.minutes.from_now
-          @calendar_list_cache[mail] = {expires, calendars}
-        end
-
+      if calendars = client.list_calendars(mail).value
         calendars.compact_map do |calendar|
-          # we only want to list calendars with mailboxes
-          next if calendar.is_removable? && calendar.owner.try(&.address.try(&.downcase)) == mail
-
           if only_writable
             calendar.to_place_calendar(mail) if calendar.can_edit?
           else
@@ -167,14 +148,9 @@ module PlaceCalendar
     protected def extract_user_calendar_params(user_id, calendar_id)
       if calendar_id && delegated_access?
         mailbox = user_id
-        if calendar_id == mailbox
+        if calendar_id.includes?('@')
+          mailbox = calendar_id
           calendar_id = nil
-        elsif calendar_id.includes?('@')
-          # we need to convert this email to the actual id of the calendar
-          find_cal = calendar_id.downcase
-          if result = list_calendars(mailbox).find { |cal| cal.id.try(&.downcase) == find_cal }
-            calendar_id = result.ref
-          end
         end
       else
         mailbox = calendar_id || user_id
