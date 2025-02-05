@@ -37,6 +37,7 @@ class PlaceCalendar::Event
   property online_meeting_id : String?
 
   property extended_properties : Hash(String, String?)?
+  property visibility : Visibility
 
   # the mailbox this event was retrieved from
   getter mailbox : String? = nil
@@ -73,9 +74,16 @@ class PlaceCalendar::Event
     @online_meeting_id = nil,
     @extended_properties = nil,
     @created = nil,
-    @updated = nil
+    @updated = nil,
+    visibility : String? = nil
   )
     @recurring = !@recurrence.nil?
+    @visibility = if @private
+          Visibility::Private
+          else
+          Visibility.parse(visibility.presence || "normal") rescue Visibility::Normal
+          end
+    @private = @private || @visibility.private? || @visibility.confidential?
   end
 
   struct Attendee
@@ -90,4 +98,17 @@ class PlaceCalendar::Event
     def initialize(@name, @email, @response_status = nil, @resource = nil, @organizer = nil)
     end
   end
+
+  enum Visibility
+    Normal
+    Personal
+    Public
+    Private
+    Confidential
+
+    def to_json(json : JSON::Builder)
+      json.string(to_s.downcase)
+    end
+  end
+
 end

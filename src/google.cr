@@ -738,7 +738,8 @@ class Google::Calendar::Event
       online_meeting_id: online_meeting_id,
       extended_properties: ext_prop,
       created: @created,
-      updated: @updated
+      updated: @updated,
+      visibility: @visibility.to_s
     )
   end
 end
