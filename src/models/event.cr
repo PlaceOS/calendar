@@ -78,7 +78,12 @@ class PlaceCalendar::Event
     visibility : String? = nil
   )
     @recurring = !@recurrence.nil?
-    @visibility = Visibility.parse(visibility.presence || "normal") rescue Visibility::Normal
+    @visibility = if @private
+          Visibility::Private
+          else
+          Visibility.parse(visibility.presence || "normal") rescue Visibility::Normal
+          end
+    @private = @private || @visibility.private? || @visibility.confidential?
   end
 
   struct Attendee
