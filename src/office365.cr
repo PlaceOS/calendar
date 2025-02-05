@@ -610,6 +610,7 @@ class Office365::Event
       online_meeting_id: online_meeting_id,
       created: @created,
       updated: @updated,
+      type: @sensitivity.to_s
     ).set_mailbox(mailbox)
   end
 end

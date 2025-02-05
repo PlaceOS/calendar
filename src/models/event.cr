@@ -37,6 +37,7 @@ class PlaceCalendar::Event
   property online_meeting_id : String?
 
   property extended_properties : Hash(String, String?)?
+  property type : Type
 
   # the mailbox this event was retrieved from
   getter mailbox : String? = nil
@@ -73,9 +74,11 @@ class PlaceCalendar::Event
     @online_meeting_id = nil,
     @extended_properties = nil,
     @created = nil,
-    @updated = nil
+    @updated = nil,
+    type : String? = nil
   )
     @recurring = !@recurrence.nil?
+    @type = Type.parse(type.presence || "normal") rescue Type::Normal
   end
 
   struct Attendee
@@ -90,4 +93,16 @@ class PlaceCalendar::Event
     def initialize(@name, @email, @response_status = nil, @resource = nil, @organizer = nil)
     end
   end
+
+  enum Type
+    Normal
+    Personal
+    Private
+    Confidential
+
+    def to_json(json : JSON::Builder)
+      json.string(to_s.downcase)
+    end
+  end
+
 end
