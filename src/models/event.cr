@@ -37,7 +37,7 @@ class PlaceCalendar::Event
   property online_meeting_id : String?
 
   property extended_properties : Hash(String, String?)?
-  property type : Type
+  property visibility : Visibility
 
   # the mailbox this event was retrieved from
   getter mailbox : String? = nil
@@ -75,10 +75,10 @@ class PlaceCalendar::Event
     @extended_properties = nil,
     @created = nil,
     @updated = nil,
-    type : String? = nil
+    visibility : String? = nil
   )
     @recurring = !@recurrence.nil?
-    @type = Type.parse(type.presence || "normal") rescue Type::Normal
+    @visibility = Visibility.parse(visibility.presence || "normal") rescue Visibility::Normal
   end
 
   struct Attendee
@@ -94,9 +94,10 @@ class PlaceCalendar::Event
     end
   end
 
-  enum Type
+  enum Visibility
     Normal
     Personal
+    Public
     Private
     Confidential
 
