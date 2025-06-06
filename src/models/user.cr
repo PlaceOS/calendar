@@ -26,7 +26,7 @@ class PlaceCalendar::User
     @username = nil,
     @office_location = nil,
     @next_link = nil,
-    @suspended = nil
+    @suspended = nil,
   )
   end
 end

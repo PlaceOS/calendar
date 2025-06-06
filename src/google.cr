@@ -15,7 +15,7 @@ module PlaceCalendar
       @domain : String,
       @sub : String = "",
       @user_agent : String = "PlaceOS",
-      @conference_type : String? = DEFAULT_CONFERENCE
+      @conference_type : String? = DEFAULT_CONFERENCE,
     )
       @delegated_access = false
       @signing_key = @issuer = ""
@@ -28,7 +28,7 @@ module PlaceCalendar
       @domain : String,
       @sub : String = "",
       @user_agent : String = "PlaceOS",
-      @conference_type : String? = DEFAULT_CONFERENCE
+      @conference_type : String? = DEFAULT_CONFERENCE,
     )
       @delegated_access = false
       @file_path = ""
@@ -39,7 +39,7 @@ module PlaceCalendar
       @domain : String,
       @user_agent : String = "PlaceOS",
       @conference_type : String? = DEFAULT_CONFERENCE,
-      @delegated_access : Bool = false
+      @delegated_access : Bool = false,
     )
       @static_auth = auth
       @signing_key = @issuer = @file_path = @scopes = @sub = ""
@@ -133,6 +133,16 @@ module PlaceCalendar
       list_users(email: email).first?
     end
 
+    def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Bytes?
+      user = get_user_by_email(id)
+      if photo = user.photo
+        response = HTTP::Client.get(photo)
+        raise "photo data request failed with #{response.status}" unless response.success?
+        # response will always be in the body
+        response.body.try(&.to_slice)
+      end
+    end
+
     def list_calendars(mail : String, **options) : Array(Calendar)
       only_writable = options[:only_writable]? || false
       calendars = only_writable ? calendar(mail).calendar_list(::Google::Access::Writer) : calendar(mail).calendar_list
@@ -157,7 +167,7 @@ module PlaceCalendar
       period_start : Time = Time.local.at_beginning_of_day,
       period_end : Time? = nil,
       ical_uid : String? = nil,
-      **options
+      **options,
     ) : HTTP::Request
       calendar_id = "primary" if calendar_id.nil?
 
@@ -172,7 +182,7 @@ module PlaceCalendar
       period_start : Time = Time.local.at_beginning_of_day,
       period_end : Time? = nil,
       ical_uid : String? = nil,
-      **options
+      **options,
     ) : Array(Event)
       # user_id ignored?
       # TODO: how to avoid duplicating default values from the shards
@@ -457,7 +467,7 @@ module PlaceCalendar
       resource_attachments : Array(ResourceAttachment) = [] of ResourceAttachment,
       attachments : Array(EmailAttachment) = [] of EmailAttachment,
       cc : String | Array(String) = [] of String,
-      bcc : String | Array(String) = [] of String
+      bcc : String | Array(String) = [] of String,
     )
       email = EMail::Message.new
       email.from from

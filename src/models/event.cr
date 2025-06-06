@@ -75,14 +75,14 @@ class PlaceCalendar::Event
     @extended_properties = nil,
     @created = nil,
     @updated = nil,
-    visibility : String? = nil
+    visibility : String? = nil,
   )
     @recurring = !@recurrence.nil?
     visibility_value = if @private
-          Visibility::Private
-          else
-          Visibility.parse(visibility.presence || "normal") rescue Visibility::Normal
-          end
+                         Visibility::Private
+                       else
+                         Visibility.parse(visibility.presence || "normal") rescue Visibility::Normal
+                       end
     @visibility = visibility_value
     @private = @private || visibility_value.private? || visibility_value.confidential?
   end
@@ -111,5 +111,4 @@ class PlaceCalendar::Event
       json.string(to_s.downcase)
     end
   end
-
 end

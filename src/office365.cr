@@ -122,6 +122,24 @@ module PlaceCalendar
       nil
     end
 
+    SUPPORTED_PHOTO_SIZES = {48, 64, 96, 120, 240, 360, 432, 504, 648}
+
+    def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Bytes?
+      path = if pixel_width
+               raise ArgumentError.new("unsupported pixel width #{pixel_width}, must be one of #{SUPPORTED_PHOTO_SIZES}") unless SUPPORTED_PHOTO_SIZES.includes?(pixel_width)
+               "https://graph.microsoft.com/v1.0/users/#{id}/photos/#{pixel_width}x#{pixel_width}/$value"
+             else
+               "https://graph.microsoft.com/v1.0/users/#{id}/photo/$value"
+             end
+
+      response = HTTP::Client.get(path, headers: HTTP::Headers{
+        "Authorization" => "Bearer #{client.get_token.access_token}",
+      })
+      return response.body.try(&.to_slice) if response.success?
+      raise "photo data request failed with #{response.status}" unless response.status.not_found?
+      nil
+    end
+
     def get_calendar(id : String, **options) : Calendar
       {{ raise "Unimplemented" }}
     end
@@ -167,7 +185,7 @@ module PlaceCalendar
       ical_uid : String? = nil,
       showDeleted : Bool? = nil,
       filter : String? = nil,
-      **options
+      **options,
     ) : HTTP::Request
       filter_string = AzureADFilter::Parser.parse(filter).to_s if filter
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
@@ -184,7 +202,7 @@ module PlaceCalendar
       ical_uid : String? = nil,
       showDeleted : Bool? = nil,
       filter : String? = nil,
-      **options
+      **options,
     ) : Array(Event)
       filter_string = AzureADFilter::Parser.parse(filter).to_s if filter
       # TODO: support showDeleted, silently ignoring for now. Currently calendarView only returns non cancelled events
@@ -429,7 +447,7 @@ module PlaceCalendar
       resource_attachments : Array(ResourceAttachment) = [] of ResourceAttachment,
       attachments : Array(EmailAttachment) = [] of EmailAttachment,
       cc : String | Array(String) = [] of String,
-      bcc : String | Array(String) = [] of String
+      bcc : String | Array(String) = [] of String,
     )
       content_type = message_html.presence ? "HTML" : "Text"
       content = message_html.presence || message_plaintext || ""

@@ -3,6 +3,7 @@ module PlaceCalendar
     abstract def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
     abstract def get_user(id : String, **options) : User?
     abstract def get_user_by_email(email : String, **options) : User?
+    abstract def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Bytes?
     abstract def list_calendars(mail : String, **options) : Array(Calendar)
     abstract def get_calendar(id : String, **options) : Calendar
 
@@ -45,7 +46,7 @@ module PlaceCalendar
       resource_attachments : Array(ResourceAttachment) = [] of ResourceAttachment,
       attachments : Array(EmailAttachment) = [] of EmailAttachment,
       cc : String | Array(String) = [] of String,
-      bcc : String | Array(String) = [] of String
+      bcc : String | Array(String) = [] of String,
     )
 
     # For use in processing send_mail

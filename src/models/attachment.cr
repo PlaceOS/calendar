@@ -12,7 +12,7 @@ class PlaceCalendar::Attachment
     @content_bytes,
     @id = nil,
     @content_type = nil,
-    @size = nil
+    @size = nil,
   )
   end
 end
