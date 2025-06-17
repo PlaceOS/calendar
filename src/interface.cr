@@ -1,9 +1,11 @@
 module PlaceCalendar
+  record Download, payload : Bytes, etag : String? = nil, last_modified : Time? = nil
+
   abstract class Interface
     abstract def list_users(query : String? = nil, limit : Int32? = nil, **options) : Array(User)
     abstract def get_user(id : String, **options) : User?
     abstract def get_user_by_email(email : String, **options) : User?
-    abstract def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Bytes?
+    abstract def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Download?
     abstract def list_calendars(mail : String, **options) : Array(Calendar)
     abstract def get_calendar(id : String, **options) : Calendar
 

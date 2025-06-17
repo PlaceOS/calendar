@@ -124,7 +124,7 @@ module PlaceCalendar
 
     SUPPORTED_PHOTO_SIZES = {48, 64, 96, 120, 240, 360, 432, 504, 648}
 
-    def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Bytes?
+    def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Download?
       path = if pixel_width
                raise ArgumentError.new("unsupported pixel width #{pixel_width}, must be one of #{SUPPORTED_PHOTO_SIZES}") unless SUPPORTED_PHOTO_SIZES.includes?(pixel_width)
                "https://graph.microsoft.com/v1.0/users/#{id}/photos/#{pixel_width}x#{pixel_width}/$value"
@@ -135,7 +135,12 @@ module PlaceCalendar
       response = HTTP::Client.get(path, headers: HTTP::Headers{
         "Authorization" => "Bearer #{client.get_token.access_token}",
       })
-      return response.body.try(&.to_slice) if response.success?
+      if response.success? && (bytes = response.body.try(&.to_slice))
+        headers = response.headers
+        last_modified = headers["Last-Modified"]?
+        time = Time.parse_utc(last_modified, "%a, %d %b %Y %H:%M:%S GMT") if last_modified
+        return Download.new(bytes, headers["ETag"]?, time)
+      end
       raise "photo data request failed with #{response.status}" unless response.status.not_found?
       nil
     end

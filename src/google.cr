@@ -133,13 +133,17 @@ module PlaceCalendar
       list_users(email: email).first?
     end
 
-    def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Bytes?
+    def get_user_photo_data(id : String, pixel_width : Int32? = nil, **options) : Download?
       user = get_user_by_email(id)
       if photo = user.photo
         response = HTTP::Client.get(photo)
         raise "photo data request failed with #{response.status}" unless response.success?
         # response will always be in the body
-        response.body.try(&.to_slice)
+        bytes = response.body.try(&.to_slice).as(Bytes)
+        headers = response.headers
+        last_modified = headers["Last-Modified"]?
+        time = Time.parse_utc(last_modified, "%a, %d %b %Y %H:%M:%S GMT") if last_modified
+        Download.new(bytes, headers["ETag"]?, time)
       end
     end
 
