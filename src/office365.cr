@@ -319,16 +319,18 @@ module PlaceCalendar
         end
       end
 
-      sensitivity = case event.visibility
-                    in .normal?, .public?
-                      ::Office365::Sensitivity::Normal
-                    in .personal?
-                      ::Office365::Sensitivity::Personal
-                    in .private?
-                      ::Office365::Sensitivity::Private
-                    in .confidential?
-                      ::Office365::Sensitivity::Confidential
-                    in nil
+      sensitivity = if visibility = event.visibility
+                      case visibility
+                      in .normal?, .public?
+                        ::Office365::Sensitivity::Normal
+                      in .personal?
+                        ::Office365::Sensitivity::Personal
+                      in .private?
+                        ::Office365::Sensitivity::Private
+                      in .confidential?
+                        ::Office365::Sensitivity::Confidential
+                      end
+                    else
                       event.private? ? ::Office365::Sensitivity::Private : ::Office365::Sensitivity::Normal
                     end
 
