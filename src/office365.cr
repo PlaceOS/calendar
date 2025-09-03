@@ -319,7 +319,19 @@ module PlaceCalendar
         end
       end
 
-      sensitivity = event.private? ? ::Office365::Sensitivity::Private : ::Office365::Sensitivity::Normal
+      sensitivity = case event.visibility
+                    in .normal?, .public?
+                      ::Office365::Sensitivity::Normal
+                    in .personal?
+                      ::Office365::Sensitivity::Personal
+                    in .private?
+                      ::Office365::Sensitivity::Private
+                    in .confidential?
+                      ::Office365::Sensitivity::Confidential
+                    in nil
+                      event.private? ? ::Office365::Sensitivity::Private : ::Office365::Sensitivity::Normal
+                    end
+
       starts_at = event.event_start || Time.local
 
       params = {
