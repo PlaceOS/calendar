@@ -505,7 +505,7 @@ class Office365::User
       name: @display_name,
       title: @job_title,
       email: email,
-      phone: @mobile_phone,
+      phone: @mobile_phone.presence || @business_phones.first?,
       username: @user_principal_name,
       office_location: @office_location,
       next_link: next_link,
