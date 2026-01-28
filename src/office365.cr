@@ -112,7 +112,7 @@ module PlaceCalendar
     # This function will work with IDs and emails
     def get_user_by_email(email : String, **options) : User?
       if email.includes?("@")
-        client.get_user_by_mail(email).to_place_calendar
+        client.get_user_by_mail(email, **options).to_place_calendar
       else
         get_user(email, **options)
       end
