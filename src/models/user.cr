@@ -14,6 +14,7 @@ class PlaceCalendar::User
   property username : String?
   property office_location : String?
   property suspended : Bool? = nil
+  property unmapped : Hash(String, ::JSON::Any)? = nil
 
   def initialize(
     @id = nil,
@@ -27,6 +28,7 @@ class PlaceCalendar::User
     @office_location = nil,
     @next_link = nil,
     @suspended = nil,
+    @unmapped = nil,
   )
   end
 end

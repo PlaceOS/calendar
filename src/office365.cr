@@ -71,7 +71,7 @@ module PlaceCalendar
                       group_id = group.id
                     end
                   end
-                  client.list_group_members(group_id)
+                  client.list_group_members(group_id, **options)
                 end
 
       next_page = members.next_page_token
@@ -510,11 +510,12 @@ class Office365::User
       office_location: @office_location,
       next_link: next_link,
       suspended: !@account_enabled,
+      unmapped: @json_unmapped,
     )
   end
 
   def to_place_member(next_link : String? = nil)
-    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, !@account_enabled, next_link, @mobile_phone)
+    PlaceCalendar::Member.new(@id, email, @user_principal_name, @display_name, !@account_enabled, next_link, @mobile_phone, unmapped: @json_unmapped)
   end
 end
 

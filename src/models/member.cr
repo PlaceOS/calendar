@@ -10,7 +10,8 @@ class PlaceCalendar::Member
   property phone : String?
   property username : String
   property suspended : Bool?
+  property unmapped : Hash(String, ::JSON::Any)? = nil
 
-  def initialize(@id, @email, @username, @name = nil, @suspended = nil, @next_link = nil, @phone = nil)
+  def initialize(@id, @email, @username, @name = nil, @suspended = nil, @next_link = nil, @phone = nil, @unmapped = nil)
   end
 end
