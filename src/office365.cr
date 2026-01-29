@@ -427,7 +427,7 @@ module PlaceCalendar
     end
 
     def get_availability(user_id : String, calendars : Array(String), starts_at : Time, ends_at : Time, **options) : Array(AvailabilitySchedule)
-      view_interval = options[:view_interval]? || Office365Availability.select_view_interval(starts_at - ends_at)
+      view_interval = options[:view_interval]? || Office365Availability.select_view_interval(ends_at - starts_at)
 
       # Max is 100 so we need to batch if we're above this
       if calendars.size > 100
