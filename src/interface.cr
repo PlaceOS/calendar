@@ -15,7 +15,10 @@ module PlaceCalendar
 
     abstract def get_event(user_id : String, id : String, **options) : Event?
     abstract def create_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
-    abstract def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
+    # `notify_existing_attendees` is honoured by Office365 only: when false, an
+    # attendee-only update is sent so existing attendees are not emailed and
+    # only newly added attendees are notified. Other providers ignore it.
+    abstract def update_event(user_id : String, event : Event, calendar_id : String? = nil, notify_existing_attendees : Bool = true, **options) : Event?
     abstract def delete_event(user_id : String, id : String, calendar_id : String? = nil, **options) : Bool
     abstract def accept_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
     abstract def decline_event(user_id : String, id : String, calendar_id : String? = nil, notify : Bool = true, comment : String? = nil, **options) : Bool
