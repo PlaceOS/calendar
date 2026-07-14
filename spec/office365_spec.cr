@@ -51,4 +51,37 @@ describe PlaceCalendar::Office365 do
       events_recurrence_spec(client, "dev@acaprojects.com")
     end
   end
+
+  it "sends an attendees-only update when notify_existing_attendees is false" do
+    mock_office365_client_auth
+
+    captured_body = ""
+    WebMock.stub(:patch, "https://graph.microsoft.com/v1.0/users/dev%40acaprojects.com/calendar/events/1234")
+      .to_return do |request|
+        captured_body = request.body.try(&.gets_to_end) || ""
+        HTTP::Client::Response.new(200, body: Office365::Event.new(
+          starts_at: Time.utc,
+          ends_at: Time.utc + 30.minutes,
+          subject: "Existing Meeting",
+        ).to_json)
+      end
+
+    client = PlaceCalendar::Client.new(**o365_creds)
+
+    event = PlaceCalendar::Event.new
+    event.id = "1234"
+    event.title = "Existing Meeting"
+    event.event_start = Time.utc
+    event.event_end = Time.utc + 30.minutes
+    event.attendees << PlaceCalendar::Event::Attendee.new(name: "Existing", email: "existing@example.com")
+    event.attendees << PlaceCalendar::Event::Attendee.new(name: "New", email: "new@example.com")
+
+    client.update_event(user_id: "dev@acaprojects.com", event: event, calendar_id: "dev@acaprojects.com", notify_existing_attendees: false)
+
+    body = JSON.parse(captured_body).as_h
+    # Only the attendees property is sent so office365 emails the newly added
+    # attendee(s) only and leaves existing attendees alone.
+    body.keys.should eq(["attendees"])
+    body["attendees"].as_a.size.should eq(2)
+  end
 end

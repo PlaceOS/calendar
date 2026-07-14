@@ -252,11 +252,11 @@ module PlaceCalendar
       handle_office365_exception(ex)
     end
 
-    def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
+    def update_event(user_id : String, event : Event, calendar_id : String? = nil, notify_existing_attendees : Bool = true, **options) : Event?
       mailbox, calendar_id = extract_user_calendar_params(user_id, calendar_id)
       o365_event = ::Office365::Event.new(**event_params(event))
 
-      if updated_event = client.update_event(**options.merge(mailbox: mailbox, calendar_id: calendar_id, event: o365_event))
+      if updated_event = client.update_event(**options.merge(mailbox: mailbox, calendar_id: calendar_id, event: o365_event, notify_existing_attendees: notify_existing_attendees))
         updated_event.to_place_calendar(mailbox)
       end
     rescue ex : ::Office365::Exception

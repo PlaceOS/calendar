@@ -278,7 +278,10 @@ module PlaceCalendar
       handle_google_exception(ex)
     end
 
-    def update_event(user_id : String, event : Event, calendar_id : String? = nil, **options) : Event?
+    # NOTE: `notify_existing_attendees` is an Office365-specific option (Google
+    # has no equivalent of notifying only newly added attendees) and is ignored
+    # here, accepted only to keep a consistent interface across providers.
+    def update_event(user_id : String, event : Event, calendar_id : String? = nil, notify_existing_attendees : Bool = true, **options) : Event?
       calendar_id ||= "primary"
       params = event_params(event, calendar_id).merge(event_id: event.id)
       updated_event = calendar(user_id).update(**params)
