@@ -515,12 +515,10 @@ module PlaceCalendar
       when "weekly"
         ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=#{days_of_week.map(&.upcase[0..1]).join(",")};UNTIL=#{until_date}"]
       when "monthly"
-        week = time.day // 7 + 1
-        week = -1 if week == 5
-        week = -2 if week == 4
+        week = PlaceCalendar::Recurrence.week_of_month(time)
         ["RRULE:FREQ=#{pattern.upcase};INTERVAL=#{interval};BYDAY=#{week}#{days_of_week.first.upcase[0..1]};UNTIL=#{until_date}"]
       when "month_day"
-        ["RRULE:FREQ=MONTHLY;INTERVAL=#{interval};BYMONTHDAY=1#{time.day};UNTIL=#{until_date}"]
+        ["RRULE:FREQ=MONTHLY;INTERVAL=#{interval};BYMONTHDAY=#{time.day};UNTIL=#{until_date}"]
       end
     end
 
