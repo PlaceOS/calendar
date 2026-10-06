@@ -361,9 +361,8 @@ module PlaceCalendar
         pattern = case e_recurrence.pattern
                   when "monthly"
                     # need to calculate the weekly index
-                    starts_at = starts_at.in(timezone_loc)
-                    week = starts_at.day // 7
-                    index = ::Office365::WeekIndex.from_value week
+                    week = PlaceCalendar::Recurrence.week_of_month(starts_at.in(timezone_loc))
+                    index = week == -1 ? ::Office365::WeekIndex::Last : ::Office365::WeekIndex.from_value(week - 1)
                     "relativeMonthly"
                   when "month_day"
                     day_of_month = starts_at.in(timezone_loc).day
